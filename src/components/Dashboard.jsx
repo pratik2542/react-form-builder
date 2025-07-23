@@ -282,11 +282,7 @@ export default function Dashboard({ session }) {
     }
   };
 
-  const grouped = forms.reduce((acc, form) => {
-    acc[form.type] = acc[form.type] || [];
-    acc[form.type].push(form);
-    return acc;
-  }, {});
+  
 
   // Filter and search functionality
   const filteredForms = forms.filter(form => {
