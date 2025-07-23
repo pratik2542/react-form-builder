@@ -41,6 +41,22 @@ In your Vercel project dashboard, go to Settings → Environment Variables and a
   - `form_drafts`
 - Run the SQL schema from `form_drafts_table.sql` in your Supabase SQL editor
 - Ensure Row Level Security (RLS) is properly configured in Supabase
+- Favicon is configured with multiple formats for better browser compatibility
+- If favicon doesn't appear immediately, try hard refresh (Ctrl+F5 or Cmd+Shift+R)
+
+## Troubleshooting
+
+### Favicon Not Showing
+If your favicon isn't displaying:
+1. Hard refresh your browser (Ctrl+F5 or Cmd+Shift+R)
+2. Clear browser cache
+3. Check browser developer tools for 404 errors on favicon.ico
+4. Try accessing `/favicon.ico` directly in your browser
+
+### Environment Variables Not Working
+1. Ensure all environment variables are added in Vercel dashboard
+2. Redeploy after adding environment variables
+3. Check Vercel function logs for any errors
 
 ## Custom Domain (Optional)
 1. In Vercel dashboard, go to Settings → Domains

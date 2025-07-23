@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from './supabase/client';
 import Auth from './components/Auth';
 import Dashboard from './components/Dashboard';
-import FormBuilder from './components/FormBuilder';
+import EnhancedFormBuilder from './components/EnhancedFormBuilder';
 import FormViewer from './components/FormViewer';
 import FormSubmissions from './components/FormSubmissions';
 
@@ -43,8 +43,8 @@ function App() {
         ) : (
           <>
             <Route path="/" element={<Dashboard session={session} />} />
-            <Route path="/create" element={<FormBuilder />} />
-            <Route path="/edit/:formId" element={<FormBuilder />} />
+            <Route path="/create" element={<EnhancedFormBuilder />} />
+            <Route path="/edit/:formId" element={<EnhancedFormBuilder />} />
             <Route path="/view/:formId" element={<FormViewer />} />
             <Route path="/submissions" element={<FormSubmissions />} />
             <Route path="*" element={<Navigate to="/" />} />

@@ -1,13 +1,19 @@
 import { useEffect, useState, useCallback } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '../supabase/client';
+import { getSessionId, generateDraftId } from '../utils/sessionManager';
+import { initializeDraftSystem } from '../utils/draftMigration';
 
 
 export default function FormViewer() {
   const { formId } = useParams();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isDraftContinue = searchParams.get('draft') === 'continue';
+  const specificDraftId = searchParams.get('draftId');
   const [form, setForm] = useState(null);
   const [fields, setFields] = useState([]);
+  const [conditionalLogic, setConditionalLogic] = useState([]);
   const [values, setValues] = useState({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -17,10 +23,17 @@ export default function FormViewer() {
   const [draftSaved, setDraftSaved] = useState(false);
   const [hasDraft, setHasDraft] = useState(false);
   const [lastSaveTime, setLastSaveTime] = useState(null);
+  const [isDraftPanelExpanded, setIsDraftPanelExpanded] = useState(false);
+  
+  // Track the current draft ID for this session
+  const [currentDraftId, setCurrentDraftId] = useState(null);
 
   useEffect(() => {
     const fetchFormAndFields = async () => {
       try {
+        // Initialize draft system and check schema
+        await initializeDraftSystem();
+        
         // Test Supabase connection first
         console.log('Testing Supabase connection...');
         const { error: connectionError } = await supabase
@@ -65,6 +78,20 @@ export default function FormViewer() {
         
         if (!formError) {
           setForm(formData);
+          
+          // Load conditional logic if it exists (handle missing column gracefully)
+          if (formData.conditional_logic) {
+            try {
+              const logic = JSON.parse(formData.conditional_logic);
+              setConditionalLogic(logic);
+            } catch (e) {
+              console.warn('Failed to parse conditional logic:', e);
+              setConditionalLogic([]);
+            }
+          } else {
+            setConditionalLogic([]);
+          }
+          
           console.log('Form loaded:', formData);
         } else {
           console.error('Form loading error:', formError);
@@ -78,8 +105,25 @@ export default function FormViewer() {
           .order('display_order');
         
         if (!fieldsError) {
-          setFields(fieldsData);
-          console.log('Fields loaded:', fieldsData);
+          // Process fields to handle options properly and assign consistent IDs
+          const processedFields = fieldsData.map((field, index) => ({
+            ...field,
+            id: `field_${index}`,  // Use consistent field ID format
+            db_id: field.id,       // Keep original database ID
+            // Convert options from JSON string to array if needed
+            options: (() => {
+              if (!field.options) return [];
+              if (Array.isArray(field.options)) return field.options;
+              try {
+                return JSON.parse(field.options);
+              } catch (e) {
+                console.warn(`Failed to parse options for field ${field.label}:`, field.options);
+                return [];
+              }
+            })()
+          }));
+          setFields(processedFields);
+          console.log('Fields loaded:', processedFields);
         } else {
           console.error('Fields loading error:', fieldsError);
         }
@@ -93,49 +137,291 @@ export default function FormViewer() {
     fetchFormAndFields();
   }, [formId]);
 
+  // Evaluate conditional logic
+  const evaluateCondition = (condition, currentValues) => {
+    const sourceValue = currentValues[condition.sourceField];
+    const conditionValue = condition.value;
+
+    switch (condition.operator) {
+      case 'equals':
+        return sourceValue === conditionValue;
+      case 'not_equals':
+        return sourceValue !== conditionValue;
+      case 'contains':
+        return typeof sourceValue === 'string' && sourceValue.includes(conditionValue);
+      case 'not_contains':
+        return typeof sourceValue === 'string' && !sourceValue.includes(conditionValue);
+      case 'starts_with':
+        return typeof sourceValue === 'string' && sourceValue.startsWith(conditionValue);
+      case 'ends_with':
+        return typeof sourceValue === 'string' && sourceValue.endsWith(conditionValue);
+      case 'is_empty':
+        return !sourceValue || sourceValue === '' || (Array.isArray(sourceValue) && sourceValue.length === 0);
+      case 'is_not_empty':
+        return sourceValue && sourceValue !== '' && (!Array.isArray(sourceValue) || sourceValue.length > 0);
+      case 'greater_than':
+        return parseFloat(sourceValue) > parseFloat(conditionValue);
+      case 'less_than':
+        return parseFloat(sourceValue) < parseFloat(conditionValue);
+      case 'greater_equal':
+        return parseFloat(sourceValue) >= parseFloat(conditionValue);
+      case 'less_equal':
+        return parseFloat(sourceValue) <= parseFloat(conditionValue);
+      default:
+        return false;
+    }
+  };
+
+  const getFieldVisibility = (fieldId) => {
+    // Start with visible by default
+    let isVisible = true;
+    let isRequired = fields.find(f => f.id === fieldId)?.is_required || false;
+
+    // Apply conditional logic
+    conditionalLogic.forEach(condition => {
+      if (condition.targetField === fieldId) {
+        const conditionMet = evaluateCondition(condition, values);
+        
+        if (conditionMet) {
+          switch (condition.action) {
+            case 'show':
+              isVisible = true;
+              break;
+            case 'hide':
+              isVisible = false;
+              break;
+            case 'require':
+              isRequired = true;
+              break;
+            case 'optional':
+              isRequired = false;
+              break;
+            default:
+              // No action for unknown condition actions
+              break;
+          }
+        }
+      }
+    });
+
+    return { isVisible, isRequired };
+  };
+
   // Save draft to Supabase
-  const saveDraftToSupabase = useCallback(async (draftValues, formName, isMigration = false) => {
+  const saveDraftToSupabase = useCallback(async (draftValues, formName, isMigration = false, isAutoSave = false) => {
     try {
       const user = await supabase.auth.getUser();
       if (!user.data.user) return false;
 
-      const draftData = {
-        form_id: formId,
-        user_id: user.data.user.id,
-        form_name: formName || form?.name || 'Untitled Form',
-        draft_data: draftValues,
-        updated_at: new Date().toISOString()
-      };
+      // For manual saves, don't save if there are no actual values
+      if (!isAutoSave && (!draftValues || Object.keys(draftValues).length === 0)) {
+        console.log('No values to save in draft (manual save)');
+        return false;
+      }
 
-      // Try to update existing draft first
-      const { data: existingDraft } = await supabase
-        .from('form_drafts')
-        .select('id')
-        .eq('form_id', formId)
-        .eq('user_id', user.data.user.id)
-        .single();
+      // For manual saves, check if the values are not just empty strings
+      if (!isAutoSave) {
+        const hasActualValues = Object.values(draftValues || {}).some(value => {
+          if (Array.isArray(value)) {
+            return value.length > 0;
+          }
+          return value !== null && value !== undefined && value !== '';
+        });
+
+        if (!hasActualValues) {
+          console.log('No meaningful values to save in draft (manual save)');
+          return false;
+        }
+      }
+
+      // For auto-saves, always save the current state (even if empty) to preserve draft
+      console.log('Saving draft:', { draftValues, isAutoSave, isMigration });
+
+      // Generate session-based draft ID
+      const sessionId = getSessionId();
+      let draftId;
+      
+      if (specificDraftId) {
+        // Use the specific draft ID if continuing an existing draft
+        draftId = specificDraftId;
+        setCurrentDraftId(draftId);
+      } else if (currentDraftId) {
+        // Use the existing current draft ID for this session
+        draftId = currentDraftId;
+      } else {
+        // Use standard session-based draft ID and store it
+        draftId = generateDraftId(formId, user.data.user.id, sessionId);
+        setCurrentDraftId(draftId);
+      }
+
+      console.log('Saving draft:', { draftId, specificDraftId, isAutoSave, isMigration, currentDraftId });
+      let useNewSchema = true;
+      try {
+        const { error: schemaTestError } = await supabase
+          .from('form_drafts')
+          .select('draft_id, session_id')
+          .limit(1);
+        
+        if (schemaTestError && (schemaTestError.message?.includes('draft_id') || schemaTestError.message?.includes('session_id'))) {
+          useNewSchema = false;
+          console.log('🔄 Using LEGACY draft schema (single draft per form per user)');
+          console.log('💡 To enable multi-draft support, run the database migration SQL from the console');
+        }
+      } catch (e) {
+        useNewSchema = false;
+      }
+
+      let draftData, existingDraft;
+      
+      if (useNewSchema) {
+        // New schema with session support - allow multiple drafts per form
+        console.log('✨ Using NEW draft schema (multiple drafts per form supported)');
+        draftData = {
+          draft_id: draftId,
+          form_id: formId,
+          user_id: user.data.user.id,
+          session_id: sessionId,
+          form_name: formName || form?.name || 'Untitled Form',
+          draft_data: draftValues,
+          updated_at: new Date().toISOString()
+        };
+
+        console.log('Draft data to save (NEW schema):', { draftId, draftData });
+
+        // Only look for existing draft if we're continuing a specific draft
+        if (specificDraftId) {
+          const { data: existingDrafts } = await supabase
+            .from('form_drafts')
+            .select('id')
+            .eq('draft_id', specificDraftId)
+            .limit(1);
+          existingDraft = existingDrafts && existingDrafts.length > 0 ? existingDrafts[0] : null;
+        } else {
+          // For auto-saves, try to find draft for current session only
+          const { data: existingDrafts } = await supabase
+            .from('form_drafts')
+            .select('id')
+            .eq('draft_id', draftId)
+            .limit(1);
+          existingDraft = existingDrafts && existingDrafts.length > 0 ? existingDrafts[0] : null;
+        }
+      } else {
+        // Legacy schema (single draft per form per user)
+        console.log('⚠️  Using LEGACY draft schema (only one draft per form per user)');
+        draftData = {
+          form_id: formId,
+          user_id: user.data.user.id,
+          form_name: formName || form?.name || 'd Form',
+          draft_data: draftValues,
+          updated_at: new Date().toISOString()
+        };
+
+        console.log('Draft data to save (LEGACY schema):', { draftData });
+        console.log('⚠️  LIMITATION: Only one draft per form per user in legacy mode');
+
+        // Try to find existing draft for this form/user combination
+        const { data: existingDrafts } = await supabase
+          .from('form_drafts')
+          .select('id')
+          .eq('form_id', formId)
+          .eq('user_id', user.data.user.id)
+          .limit(1);
+
+        existingDraft = existingDrafts && existingDrafts.length > 0 ? existingDrafts[0] : null;
+      }
 
       if (existingDraft) {
         // Update existing draft
+        console.log('Updating existing draft:', existingDraft.id, 'with draftId:', draftId);
         const { error } = await supabase
           .from('form_drafts')
           .update(draftData)
           .eq('id', existingDraft.id);
 
-        if (error) throw error;
+        if (error) {
+          // If the new columns don't exist, try with old format
+          if (error.message && (error.message.includes('draft_id') || error.message.includes('session_id'))) {
+            console.log('New draft columns not found, using legacy format');
+            const legacyData = {
+              form_id: formId,
+              user_id: user.data.user.id,
+              form_name: formName || form?.name || 'Untitled Form',
+              draft_data: draftValues,
+              updated_at: new Date().toISOString()
+            };
+            
+            // Use the old approach - update by form_id and user_id
+            const { error: legacyError } = await supabase
+              .from('form_drafts')
+              .update(legacyData)
+              .eq('form_id', formId)
+              .eq('user_id', user.data.user.id);
+            
+            if (legacyError) throw legacyError;
+          } else {
+            throw error;
+          }
+        }
       } else {
         // Insert new draft
+        console.log('Creating new draft with draftId:', draftId);
         const { error } = await supabase
           .from('form_drafts')
           .insert(draftData);
 
-        if (error) throw error;
+        if (error) {
+          // If the new columns don't exist, try with old format
+          if (error.message && (error.message.includes('draft_id') || error.message.includes('session_id'))) {
+            console.log('New draft columns not found, using legacy format');
+            const legacyData = {
+              form_id: formId,
+              user_id: user.data.user.id,
+              form_name: formName || form?.name || 'Untitled Form',
+              draft_data: draftValues,
+              updated_at: new Date().toISOString()
+            };
+            
+            // Use the old approach - this will overwrite any existing draft
+            const { data: existingLegacyDraft } = await supabase
+              .from('form_drafts')
+              .select('id')
+              .eq('form_id', formId)
+              .eq('user_id', user.data.user.id)
+              .limit(1);
+            
+            if (existingLegacyDraft && existingLegacyDraft.length > 0) {
+              const { error: updateError } = await supabase
+                .from('form_drafts')
+                .update(legacyData)
+                .eq('id', existingLegacyDraft[0].id);
+              
+              if (updateError) throw updateError;
+            } else {
+              const { error: insertError } = await supabase
+                .from('form_drafts')
+                .insert(legacyData);
+              
+              if (insertError) throw insertError;
+            }
+          } else {
+            throw error;
+          }
+        }
       }
 
       if (!isMigration) {
         setHasDraft(true);
         setLastSaveTime(new Date());
         console.log('Draft saved to Supabase:', draftData);
+        
+        // For manual saves (not auto-saves), generate a new unique draft ID for the next potential draft
+        // This allows users to create multiple drafts of the same form from the same session
+        if (!isAutoSave) {
+          const sessionId = getSessionId();
+          const newDraftId = generateDraftId(formId, user.data.user.id, sessionId, true); // true for unique
+          setCurrentDraftId(newDraftId);
+          console.log('🆕 Generated new draft ID for next draft:', newDraftId);
+        }
       }
       
       return true;
@@ -146,88 +432,161 @@ export default function FormViewer() {
       if (!isMigration) {
         const user = await supabase.auth.getUser();
         if (user.data.user) {
-          const draftKey = `form_draft_${formId}_${user.data.user.id}`;
-          const fallbackData = {
-            formId,
-            formName: formName || form?.name || 'Untitled Form',
-            values: draftValues,
-            savedAt: new Date().toISOString(),
-            lastModified: new Date().toISOString()
-          };
+          // For auto-saves, always save to localStorage to preserve draft state
+          // For manual saves, only save if there are actual values
+          const shouldSaveToLocalStorage = isAutoSave || (draftValues && Object.keys(draftValues).length > 0);
           
-          localStorage.setItem(draftKey, JSON.stringify(fallbackData));
-          setHasDraft(true);
-          setLastSaveTime(new Date());
-          console.log('Draft saved to localStorage (fallback):', fallbackData);
+          if (shouldSaveToLocalStorage) {
+            // For manual saves, check for meaningful values
+            let hasActualValues = true;
+            if (!isAutoSave && draftValues && Object.keys(draftValues).length > 0) {
+              hasActualValues = Object.values(draftValues).some(value => {
+                if (Array.isArray(value)) {
+                  return value.length > 0;
+                }
+                return value !== null && value !== undefined && value !== '';
+              });
+            }
+
+            if (isAutoSave || hasActualValues) {
+              const draftKey = `form_draft_${formId}_${user.data.user.id}`;
+              const fallbackData = {
+                formId,
+                formName: formName || form?.name || 'Untitled Form',
+                values: draftValues || {},
+                savedAt: new Date().toISOString(),
+                lastModified: new Date().toISOString()
+              };
+              
+              localStorage.setItem(draftKey, JSON.stringify(fallbackData));
+              setHasDraft(true);
+              setLastSaveTime(new Date());
+              console.log('Draft saved to localStorage (fallback):', fallbackData);
+              
+              // For manual saves (not auto-saves), generate a new unique draft ID for the next potential draft
+              // This allows users to create multiple drafts of the same form from the same session
+              if (!isAutoSave) {
+                const sessionId = getSessionId();
+                const newDraftId = generateDraftId(formId, user.data.user.id, sessionId, true); // true for unique
+                setCurrentDraftId(newDraftId);
+                console.log('🆕 Generated new draft ID for next draft (localStorage fallback):', newDraftId);
+              }
+            }
+          }
         }
       }
       
       return false;
     }
-  }, [formId, form?.name]);
+  }, [formId, form?.name, currentDraftId, specificDraftId]);
 
   // Load draft from Supabase
   const loadDraft = useCallback(async () => {
     try {
       const user = await supabase.auth.getUser();
-      if (!user.data.user) return;
-
-      // Try to load from Supabase first
-      const { data: draftData, error } = await supabase
-        .from('form_drafts')
-        .select('*')
-        .eq('form_id', formId)
-        .eq('user_id', user.data.user.id)
-        .single();
-
-      if (!error && draftData) {
-        setValues(draftData.draft_data || {});
-        setHasDraft(true);
-        setLastSaveTime(new Date(draftData.updated_at));
-        console.log('Draft loaded from Supabase:', draftData);
+      if (!user.data.user) {
+        // Clear draft state if no user
+        setHasDraft(false);
+        setLastSaveTime(null);
         return;
       }
 
-      // Fallback: check localStorage for existing drafts and migrate them
-      const draftKey = `form_draft_${formId}_${user.data.user.id}`;
-      const localDraftData = localStorage.getItem(draftKey);
+      const sessionId = getSessionId();
       
-      if (localDraftData) {
-        const draft = JSON.parse(localDraftData);
-        setValues(draft.values || {});
-        setHasDraft(true);
-        setLastSaveTime(new Date(draft.savedAt));
+      console.log('=== Draft Loading Debug ===');
+      console.log('isDraftContinue:', isDraftContinue);
+      console.log('specificDraftId:', specificDraftId);
+      console.log('sessionId:', sessionId);
+      console.log('formId:', formId);
+      
+      // If coming from dashboard with specific draft ID, load that draft
+      if (isDraftContinue && specificDraftId) {
+        const targetDraftId = specificDraftId;
+        console.log('Loading specific draft:', targetDraftId);
         
-        // Migrate to Supabase
-        await saveDraftToSupabase(draft.values, draft.formName, true);
+        // Try to load from Supabase first - look for target draft
+        let draftData = null;
+        let error = null;
+
+        // First try with new draft_id column
+        const { data: draftResults, error: newError } = await supabase
+          .from('form_drafts')
+          .select('*')
+          .eq('draft_id', targetDraftId)
+          .limit(1);
+
+        if (newError && (newError.message?.includes('draft_id') || newError.code === '42703')) {
+          // New columns don't exist, fall back to old method
+          console.log('New draft columns not found, using legacy format');
+          const { data: legacyResults, error: legacyError } = await supabase
+            .from('form_drafts')
+            .select('*')
+            .eq('form_id', formId)
+            .eq('user_id', user.data.user.id)
+            .limit(1);
+          
+          draftData = legacyResults && legacyResults.length > 0 ? legacyResults[0] : null;
+          error = legacyError;
+        } else {
+          draftData = draftResults && draftResults.length > 0 ? draftResults[0] : null;
+          error = newError;
+        }
+
+        if (!error && draftData && draftData.draft_data && Object.keys(draftData.draft_data).length > 0) {
+          // Set the current draft ID so we continue using the same one
+          setCurrentDraftId(targetDraftId);
+          
+          // Auto-load the draft without prompting
+          setValues(draftData.draft_data);
+          setHasDraft(true);
+          setLastSaveTime(new Date(draftData.updated_at));
+          console.log('Draft auto-loaded from continue link:', draftData);
+          
+          // Clean up URL parameters
+          const newUrl = window.location.pathname;
+          window.history.replaceState({}, '', newUrl);
+        }
+      } else {
+        // Fill Form button clicked - always start fresh, generate new draft ID
+        console.log('Fill Form clicked - starting fresh form');
+        const newDraftId = generateDraftId(formId, user.data.user.id, sessionId, true); // true for unique
+        setCurrentDraftId(newDraftId);
+        console.log('Generated new draft ID for fresh form:', newDraftId);
         
-        // Remove from localStorage after successful migration
-        localStorage.removeItem(draftKey);
-        console.log('Draft migrated from localStorage to Supabase');
+        // Clear any existing state
+        setValues({});
+        setHasDraft(false);
+        setLastSaveTime(null);
       }
     } catch (error) {
-      console.error('Error loading draft:', error);
+      console.error('Error loading draft from Supabase:', error);
       
-      // Fallback to localStorage if Supabase fails
-      try {
-        const user = await supabase.auth.getUser();
-        if (user.data.user) {
+      // If Supabase fails, try localStorage as fallback only for continuing drafts
+      if (isDraftContinue) {
+        try {
+          const user = await supabase.auth.getUser();
+          if (!user.data.user) return;
+          
           const draftKey = `form_draft_${formId}_${user.data.user.id}`;
           const localDraftData = localStorage.getItem(draftKey);
           
           if (localDraftData) {
             const draft = JSON.parse(localDraftData);
-            setValues(draft.values || {});
-            setHasDraft(true);
-            setLastSaveTime(new Date(draft.savedAt));
-            console.log('Draft loaded from localStorage (fallback):', draft);
+            const draftValues = draft.values || {};
+            
+            if (Object.keys(draftValues).length > 0) {
+              setValues(draftValues);
+              setHasDraft(true);
+              setLastSaveTime(new Date(draft.savedAt));
+              console.log('Local draft loaded as fallback:', draft);
+            }
           }
+        } catch (fallbackError) {
+          console.error('Error loading draft from localStorage:', fallbackError);
         }
-      } catch (fallbackError) {
-        console.error('Error loading draft from localStorage:', fallbackError);
       }
     }
-  }, [formId, saveDraftToSupabase]);
+  }, [formId, isDraftContinue, specificDraftId]);
 
   // Save draft to localStorage or Supabase
   const saveDraft = useCallback(async (isAutoSave = false) => {
@@ -239,17 +598,15 @@ export default function FormViewer() {
         setDraftSaving(true);
       }
 
-      await saveDraftToSupabase(values, form?.name);
+      await saveDraftToSupabase(values, form?.name, false, isAutoSave);
 
       if (!isAutoSave) {
         setDraftSaved(true);
         setTimeout(() => setDraftSaved(false), 2000);
         setDraftSaving(false);
         
-        // Redirect to dashboard after manual save
-        setTimeout(() => {
-          navigate('/');
-        }, 2000);
+        // For manual saves, just show success - don't clear the form
+        // The form clearing is only needed for the "Save & Close" functionality
       }
     } catch (error) {
       console.error('Error saving draft:', error);
@@ -257,7 +614,7 @@ export default function FormViewer() {
         setDraftSaving(false);
       }
     }
-  }, [form?.name, values, navigate, saveDraftToSupabase]);
+  }, [form?.name, values, saveDraftToSupabase]);
 
   // Load draft on component mount
   useEffect(() => {
@@ -266,34 +623,68 @@ export default function FormViewer() {
     }
   }, [formId, loadDraft]);
 
-  // Auto-save draft when values change
+  // Handle ESC key to close draft status panel
   useEffect(() => {
-    if (Object.keys(values).length > 0 && !submitting) {
-      const autoSaveTimer = setTimeout(() => {
-        saveDraft(true); // true for auto-save
-      }, 2000); // Auto-save after 2 seconds of inactivity
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape' && isDraftPanelExpanded) {
+        setIsDraftPanelExpanded(false);
+      }
+    };
 
-      return () => clearTimeout(autoSaveTimer);
+    if (isDraftPanelExpanded) {
+      document.addEventListener('keydown', handleKeyDown);
+      return () => document.removeEventListener('keydown', handleKeyDown);
     }
-  }, [values, submitting, saveDraft]);
+  }, [isDraftPanelExpanded]);
+
+  // Handle click outside to close draft panel
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isDraftPanelExpanded && !event.target.closest('.draft-panel')) {
+        setIsDraftPanelExpanded(false);
+      }
+    };
+
+    if (isDraftPanelExpanded) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isDraftPanelExpanded]);
 
   // Clear draft from Supabase and localStorage
-  const clearDraft = async () => {
+  const clearDraft = useCallback(async () => {
     try {
       const user = await supabase.auth.getUser();
       if (!user.data.user) return;
 
-      // Clear from Supabase
+      // Use the stored currentDraftId, or generate the default session-based one as fallback
+      const sessionId = getSessionId();
+      const draftIdToDelete = currentDraftId || generateDraftId(formId, user.data.user.id, sessionId);
+
+      // Clear only the current session's draft from Supabase
       const { error } = await supabase
         .from('form_drafts')
         .delete()
-        .eq('form_id', formId)
-        .eq('user_id', user.data.user.id);
+        .eq('draft_id', draftIdToDelete);
 
-      if (error) {
+      if (error && (error.message?.includes('draft_id') || error.code === '42703')) {
+        // New columns don't exist, fall back to old method (clears all drafts for this user/form)
+        console.log('New draft columns not found, using legacy delete');
+        const { error: legacyError } = await supabase
+          .from('form_drafts')
+          .delete()
+          .eq('form_id', formId)
+          .eq('user_id', user.data.user.id);
+        
+        if (legacyError) {
+          console.error('Error clearing draft from Supabase (legacy):', legacyError);
+        } else {
+          console.log('Draft cleared from Supabase (legacy method)');
+        }
+      } else if (error) {
         console.error('Error clearing draft from Supabase:', error);
       } else {
-        console.log('Draft cleared from Supabase');
+        console.log('Draft cleared from Supabase for current session');
       }
 
       // Also clear from localStorage (for backward compatibility)
@@ -302,10 +693,29 @@ export default function FormViewer() {
       
       setHasDraft(false);
       setLastSaveTime(null);
+      setCurrentDraftId(null); // Clear the stored draft ID
     } catch (error) {
       console.error('Error clearing draft:', error);
     }
-  };
+  }, [formId, currentDraftId]);
+
+  // Auto-save draft when values change - DISABLED
+  // useEffect(() => {
+  //   if (submitting) return; // Don't auto-save during submission
+
+  //   // Auto-save timer - always save the current state if user has interacted with the form
+  //   const autoSaveTimer = setTimeout(() => {
+  //     // Only auto-save if the user has started filling the form or if there's already a draft
+  //     const hasStartedForm = Object.keys(values).length > 0 || hasDraft;
+      
+  //     if (hasStartedForm) {
+  //       // Save draft with current values (even if empty - this preserves the draft state)
+  //       saveDraft(true); // true for auto-save
+  //     }
+  //   }, 2000); // Auto-save after 2 seconds of inactivity
+
+  //   return () => clearTimeout(autoSaveTimer);
+  // }, [values, submitting, saveDraft, hasDraft]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -750,28 +1160,36 @@ export default function FormViewer() {
         {/* Form */}
         <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
           <form onSubmit={handleSubmit} className="space-y-6">
-            {fields.map((field, index) => (
-              <div key={field.id} className="space-y-2">
-                {field.field_type !== 'checkbox' && (
-                  <label className="block text-sm font-medium text-gray-700">
-                    {field.label}
-                    {field.is_required && <span className="text-red-500 ml-1">*</span>}
-                  </label>
-                )}
-                
-                {renderField(field)}
-                
-                {field.is_readonly && (
-                  <p className="text-xs text-gray-500">This field is read-only</p>
-                )}
-              </div>
-            ))}
+            {fields.map((field, index) => {
+              const { isVisible, isRequired } = getFieldVisibility(field.id);
+              
+              if (!isVisible) return null;
+              
+              const fieldWithLogic = { ...field, is_required: isRequired };
+              
+              return (
+                <div key={field.id} className="space-y-2">
+                  {field.field_type !== 'checkbox' && (
+                    <label className="block text-sm font-medium text-gray-700">
+                      {field.label}
+                      {isRequired && <span className="text-red-500 ml-1">*</span>}
+                    </label>
+                  )}
+                  
+                  {renderField(fieldWithLogic)}
+                  
+                  {field.is_readonly && (
+                    <p className="text-xs text-gray-500">This field is read-only</p>
+                  )}
+                </div>
+              );
+            })}
             
             {fields.length === 0 ? (
               <div className="text-center py-12">
                 <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6" />
                   </svg>
                 </div>
                 <h3 className="text-lg font-medium text-gray-700 mb-2">No fields in this form</h3>
@@ -779,73 +1197,201 @@ export default function FormViewer() {
               </div>
             ) : (
               <div className="pt-6 border-t border-gray-200">
-                {/* Draft Status */}
-                {hasDraft && lastSaveTime && (
-                  <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <div className="flex items-center text-sm text-blue-800">
-                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-3M8 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6" />
-                      </svg>
-                      Draft auto-saved at {lastSaveTime.toLocaleTimeString()}
-                    </div>
-                  </div>
-                )}
-
                 {/* Action Buttons */}
-                <div className="flex flex-col sm:flex-row gap-3">
-                  {/* Save Draft Button */}
-                  <button
-                    type="button"
-                    onClick={() => saveDraft(false)}
-                    disabled={draftSaving}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
-                  >
-                    {draftSaving ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Saving Draft...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-3M8 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6" />
-                        </svg>
-                        Save & Close
-                      </>
-                    )}
-                  </button>
+                <div className="flex flex-col gap-3">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Save Draft Button */}
+                    <button
+                      type="button"
+                      onClick={() => saveDraft(false)}
+                      disabled={draftSaving}
+                      className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
+                    >
+                      {draftSaving ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Saving Draft...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-3M8 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6" />
+                          </svg>
+                          Save Draft
+                        </>
+                      )}
+                    </button>
 
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
-                  >
-                    {submitting ? (
-                      <>
-                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Submitting...
-                      </>
-                    ) : (
-                      <>
-                        <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                        </svg>
-                        Submit Form
-                      </>
-                    )}
-                  </button>
+                    {/* Save & Close Button */}
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        try {
+                          const user = await supabase.auth.getUser();
+                          if (user.data.user) {
+                            setDraftSaving(true);
+                            await saveDraftToSupabase(values, form?.name, false, false);
+                            console.log('Draft saved, redirecting to dashboard');
+                            navigate('/');
+                          }
+                        } catch (error) {
+                          console.error('Error saving draft before redirect:', error);
+                          // Even if save fails, redirect to dashboard
+                          navigate('/');
+                        } finally {
+                          setDraftSaving(false);
+                        }
+                      }}
+                      disabled={draftSaving}
+                      className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
+                    >
+                      {draftSaving ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 074 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Saving...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-3M8 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6" />
+                          </svg>
+                          Save & Close
+                        </>
+                      )}
+                    </button>
+
+                    {/* Submit Button */}
+                    <button
+                      type="submit"
+                      disabled={submitting}
+                      className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
+                    >
+                      {submitting ? (
+                        <>
+                          <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          Submitting...
+                        </>
+                      ) : (
+                        <>
+                          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                          </svg>
+                          Submit Form
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
           </form>
         </div>
+
+        {/* Minimized Draft Status Indicator */}
+        {hasDraft && lastSaveTime && (
+          <div className="fixed bottom-6 right-6 z-40">
+            <div className={`draft-panel bg-white rounded-lg shadow-lg border border-gray-200 transition-all duration-300 ${
+              isDraftPanelExpanded ? 'w-80' : 'w-auto'
+            }`}>
+              {/* Collapsed State - Small indicator */}
+              {!isDraftPanelExpanded && (
+                <button
+                  onClick={() => setIsDraftPanelExpanded(true)}
+                  className="flex items-center space-x-2 p-3 hover:bg-gray-50 rounded-lg transition-colors"
+                  title="Draft auto-saved - Click to expand"
+                >
+                  <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                  <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-3M8 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6" />
+                  </svg>
+                  <span className="text-sm text-gray-600 font-medium">Draft</span>
+                </button>
+              )}
+
+              {/* Expanded State - Full panel */}
+              {isDraftPanelExpanded && (
+                <div className="p-4">
+                  {/* Header */}
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                      <h4 className="text-sm font-semibold text-gray-800">Draft Status</h4>
+                    </div>
+                    <button
+                      onClick={() => setIsDraftPanelExpanded(false)}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+
+                  {/* Content */}
+                  <div className="space-y-3">
+                    <div className="flex items-start space-x-2">
+                      <svg className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <div>
+                        <p className="text-sm text-gray-800 font-medium">Auto-saved</p>
+                        <p className="text-xs text-gray-500">{lastSaveTime.toLocaleString()}</p>
+                      </div>
+                    </div>
+
+                    <p className="text-xs text-gray-600">
+                      Your progress is automatically saved. You can continue editing or save to close.
+                    </p>
+
+                    {/* Actions */}
+                    <div className="flex space-x-2 pt-2">
+                      <button
+                        onClick={() => setIsDraftPanelExpanded(false)}
+                        className="flex-1 px-3 py-1.5 text-xs text-gray-600 border border-gray-300 rounded hover:bg-gray-50 transition-colors"
+                      >
+                        Continue
+                      </button>
+                      <button
+                        onClick={async () => {
+                          setIsDraftPanelExpanded(false);
+                          
+                          // Save draft and redirect to dashboard
+                          try {
+                            const user = await supabase.auth.getUser();
+                            if (user.data.user) {
+                              setDraftSaving(true);
+                              await saveDraftToSupabase(values, form?.name, false, false);
+                              console.log('Draft saved, redirecting to dashboard');
+                              navigate('/');
+                            }
+                          } catch (error) {
+                            console.error('Error saving draft before redirect:', error);
+                            // Even if save fails, redirect to dashboard
+                            navigate('/');
+                          } finally {
+                            setDraftSaving(false);
+                          }
+                        }}
+                        className="flex-1 px-3 py-1.5 text-xs text-white bg-blue-600 rounded hover:bg-blue-700 transition-colors"
+                      >
+                        Save & Close
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         {/* Success Notification */}
         {showSuccess && (
@@ -868,7 +1414,7 @@ export default function FormViewer() {
             </svg>
             <div>
               <p className="font-medium">Draft saved successfully!</p>
-              <p className="text-sm opacity-90">Redirecting to dashboard...</p>
+              <p className="text-sm opacity-90">Continue editing or use Save & Close...</p>
             </div>
           </div>
         )}

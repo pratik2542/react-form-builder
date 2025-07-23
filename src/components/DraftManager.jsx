@@ -1,13 +1,19 @@
 import { useEffect, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '../supabase/client';
+import { isDraftFromCurrentSession, formatSessionDisplay } from '../utils/sessionManager';
+import { initializeDraftSystem } from '../utils/draftMigration';
 
 export default function DraftManager() {
   const [drafts, setDrafts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const loadDrafts = useCallback(async () => {
     try {
+      // Initialize draft system first
+      await initializeDraftSystem();
+      
       const user = await supabase.auth.getUser();
       if (!user.data.user) {
         setLoading(false);
@@ -35,6 +41,10 @@ export default function DraftManager() {
             
             const totalFields = fieldsData?.length || 0;
             
+            // Handle both new and legacy draft formats
+            const draftId = draft.draft_id || draft.id.toString(); // Use database ID for legacy mode
+            const sessionId = draft.session_id || 'legacy';
+            
             return {
               formId: draft.form_id,
               formName: draft.form_name,
@@ -42,9 +52,13 @@ export default function DraftManager() {
               lastModified: draft.updated_at,
               savedAt: draft.updated_at,
               draftKey: `supabase_${draft.id}`,
+              draftId: draftId,
+              sessionId: sessionId,
               isSupabaseDraft: true,
               supabaseId: draft.id,
-              totalFields: totalFields
+              totalFields: totalFields,
+              isCurrentSession: draftId ? isDraftFromCurrentSession(draftId) : false,
+              sessionDisplay: sessionId && sessionId !== 'legacy' ? formatSessionDisplay(sessionId) : 'Legacy Draft'
             };
           })
         );
@@ -142,6 +156,17 @@ export default function DraftManager() {
     loadDrafts();
   }, [loadDrafts]);
 
+  // Auto-refresh drafts when expanded to show live updates
+  useEffect(() => {
+    if (isExpanded) {
+      const refreshInterval = setInterval(() => {
+        loadDrafts();
+      }, 3000); // Refresh every 3 seconds when expanded
+
+      return () => clearInterval(refreshInterval);
+    }
+  }, [isExpanded, loadDrafts]);
+
   const migrateDraftToSupabase = async (localDraft) => {
     const user = await supabase.auth.getUser();
     if (!user.data.user) throw new Error('User not authenticated');
@@ -201,120 +226,203 @@ export default function DraftManager() {
 
   const getFilledFieldCount = (values) => {
     if (!values) return 0;
-    return Object.values(values).filter(value => {
-      // Handle null, undefined, or empty string
-      if (value === null || value === undefined || value === '') return false;
-      
-      // Handle arrays (like checkbox values)
-      if (Array.isArray(value)) return value.length > 0;
-      
-      // Handle objects (might be used for complex field types)
-      if (typeof value === 'object' && value !== null) {
-        // If it's an object, check if it has any meaningful content
-        const keys = Object.keys(value);
-        if (keys.length === 0) return false;
-        // Check if all values in the object are empty
-        return keys.some(key => {
-          const val = value[key];
-          if (val === null || val === undefined || val === '') return false;
-          if (Array.isArray(val)) return val.length > 0;
-          return true;
-        });
+    // Count unique filled fields to avoid duplicates
+    const filledFields = new Set();
+    
+    Object.entries(values).forEach(([fieldId, value]) => {
+      if (isFieldFilled(value)) {
+        filledFields.add(fieldId);
       }
-      
-      // Handle boolean values (for single checkboxes)
-      if (typeof value === 'boolean') return value;
-      
-      // Handle strings that might be whitespace only
-      if (typeof value === 'string') return value.trim().length > 0;
-      
-      // For numbers, consider 0 as a valid filled value
-      if (typeof value === 'number') return true;
-      
-      return true;
-    }).length;
+    });
+    
+    return filledFields.size;
+  };
+
+  const isFieldFilled = (value) => {
+    // Handle null, undefined, or empty string
+    if (value === null || value === undefined || value === '') return false;
+    
+    // Handle arrays (like checkbox values)
+    if (Array.isArray(value)) return value.length > 0;
+    
+    // Handle objects (might be used for complex field types)
+    if (typeof value === 'object' && value !== null) {
+      // If it's an object, check if it has any meaningful content
+      const keys = Object.keys(value);
+      if (keys.length === 0) return false;
+      // Check if all values in the object are empty
+      return keys.some(key => {
+        const val = value[key];
+        if (val === null || val === undefined || val === '') return false;
+        if (Array.isArray(val)) return val.length > 0;
+        return true;
+      });
+    }
+    
+    // Handle boolean values (for single checkboxes)
+    if (typeof value === 'boolean') return value;
+    
+    // Handle strings that might be whitespace only
+    if (typeof value === 'string') return value.trim().length > 0;
+    
+    // For numbers, consider 0 as a valid filled value
+    if (typeof value === 'number') return true;
+    
+    return true;
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-      </div>
-    );
+    return null; // Don't show loading state for drafts to reduce visual clutter
   }
 
   if (drafts.length === 0) {
-    return (
-      <div className="text-center py-8">
-        <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-3M8 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6" />
-          </svg>
-        </div>
-        <h3 className="text-lg font-medium text-gray-700 mb-2">No drafts found</h3>
-        <p className="text-gray-500">Start filling out a form to create drafts</p>
-      </div>
-    );
+    return null; // Don't show anything if no drafts exist
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800">My Drafts</h3>
-        <span className="text-sm text-gray-500">{drafts.length} draft{drafts.length !== 1 ? 's' : ''}</span>
-      </div>
-
-      <div className="space-y-3">
-        {drafts.map((draft) => (
-          <div key={draft.draftKey} className="bg-gray-50 rounded-lg p-4 border border-gray-200 hover:border-blue-300 transition-colors">
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-              <div className="flex-1 min-w-0">
-                <h4 className="font-medium text-gray-900 truncate">{draft.formName}</h4>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-4 mt-1 text-sm text-gray-500">
-                  <span>
-                    {getFilledFieldCount(draft.values)} of {getFieldCount(draft)} fields filled
-                  </span>
-                  <span className="hidden sm:inline">•</span>
-                  <span>Last saved: {formatDate(draft.lastModified)}</span>
-                </div>
-              </div>
-              
-              <div className="flex items-center gap-2 sm:ml-4">
-                <Link
-                  to={`/view/${draft.formId}`}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                >
-                  Continue
-                </Link>
-                <button
-                  onClick={() => deleteDraft(draft)}
-                  className="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md text-sm font-medium transition-colors"
-                >
-                  Delete
-                </button>
-              </div>
-            </div>
-            
-            {/* Progress Bar */}
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-xs text-gray-500">Progress</span>
-                <span className="text-xs text-gray-500">
-                  {Math.round((getFilledFieldCount(draft.values) / Math.max(getFieldCount(draft), 1)) * 100)}%
-                </span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                  style={{ 
-                    width: `${(getFilledFieldCount(draft.values) / Math.max(getFieldCount(draft), 1)) * 100}%` 
-                  }}
-                ></div>
-              </div>
-            </div>
+    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+      {/* Compact Header - Always Visible */}
+      <button
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="w-full px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 transition-all duration-200 flex items-center justify-between"
+      >
+        <div className="flex items-center space-x-3">
+          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-3M8 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6" />
+            </svg>
           </div>
-        ))}
-      </div>
+          <div className="text-left">
+            <h3 className="text-sm font-semibold text-gray-800">My Drafts</h3>
+            <p className="text-xs text-gray-500">{drafts.length} saved draft{drafts.length !== 1 ? 's' : ''}</p>
+          </div>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          {/* Quick preview of recent drafts when collapsed */}
+          {!isExpanded && drafts.length > 0 && (
+            <div className="hidden sm:flex items-center space-x-1">
+              {drafts.slice(0, 2).map((draft, index) => (
+                <div key={index} className="text-xs text-gray-600 bg-white rounded px-2 py-1 border">
+                  {draft.formName.length > 15 ? `${draft.formName.substring(0, 15)}...` : draft.formName}
+                </div>
+              ))}
+              {drafts.length > 2 && (
+                <div className="text-xs text-gray-500">+{drafts.length - 2} more</div>
+              )}
+            </div>
+          )}
+          
+          <svg 
+            className={`w-5 h-5 text-gray-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} 
+            fill="none" 
+            stroke="currentColor" 
+            viewBox="0 0 24 24"
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </button>
+
+      {/* Expanded Content */}
+      {isExpanded && (
+        <div className="p-4 border-t border-gray-100">
+          <div className="space-y-4 max-h-96 overflow-y-auto">
+            {/* Group drafts by form */}
+            {(() => {
+              const groupedDrafts = drafts.reduce((groups, draft) => {
+                const formName = draft.formName;
+                if (!groups[formName]) {
+                  groups[formName] = [];
+                }
+                groups[formName].push(draft);
+                return groups;
+              }, {});
+
+              return Object.entries(groupedDrafts).map(([formName, formDrafts]) => (
+                <div key={formName} className="border border-gray-200 rounded-lg overflow-hidden">
+                  {/* Form Header */}
+                  <div className="bg-gray-100 px-3 py-2 border-b border-gray-200">
+                    <div className="flex items-center justify-between">
+                      <h5 className="font-medium text-gray-800 text-sm">{formName}</h5>
+                      <span className="text-xs text-gray-500">{formDrafts.length} draft{formDrafts.length !== 1 ? 's' : ''}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Draft List */}
+                  <div className="divide-y divide-gray-100">
+                    {formDrafts.map((draft, index) => (
+                      <div key={draft.draftKey} className={`p-3 transition-colors ${
+                        draft.isCurrentSession ? 'bg-blue-50 hover:bg-blue-100' : 'bg-white hover:bg-gray-50'
+                      }`}>
+                        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium text-gray-700">
+                                Draft #{index + 1}
+                              </span>
+                              {draft.isCurrentSession && (
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                  Current Tab
+                                </span>
+                              )}
+                            </div>
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mt-1 text-xs text-gray-500">
+                              <span>
+                                {getFilledFieldCount(draft.values)} of {getFieldCount(draft)} fields filled
+                              </span>
+                              <span className="hidden sm:inline">•</span>
+                              <span>Last saved: {formatDate(draft.lastModified)}</span>
+                              {draft.sessionDisplay && !draft.isCurrentSession && (
+                                <>
+                                  <span className="hidden sm:inline">•</span>
+                                  <span>{draft.sessionDisplay}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 sm:ml-3">
+                            <Link
+                              to={`/view/${draft.formId}?draft=continue&draftId=${encodeURIComponent(draft.draftId || '')}`}
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors"
+                            >
+                              Continue
+                            </Link>
+                            <button
+                              onClick={() => deleteDraft(draft)}
+                              className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                        
+                        {/* Compact Progress Bar */}
+                        <div className="mt-2">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs text-gray-500">
+                              {Math.round((getFilledFieldCount(draft.values) / Math.max(getFieldCount(draft), 1)) * 100)}% complete
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                            <div 
+                              className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                              style={{ 
+                                width: `${(getFilledFieldCount(draft.values) / Math.max(getFieldCount(draft), 1)) * 100}%` 
+                              }}
+                            ></div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ));
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

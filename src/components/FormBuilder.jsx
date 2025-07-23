@@ -6,7 +6,6 @@ import { getSuggestedFields } from '../utils/groq';
 export default function FormBuilder() {
   const { formId } = useParams(); // Get formId from URL if editing
   const isEditing = Boolean(formId);
-  
   const [name, setName] = useState('');
   const [type, setType] = useState('');
   const [fields, setFields] = useState([]);
@@ -312,17 +311,18 @@ const handleAIGenerate = async () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <span className="flex items-center">
-                  <svg className="w-4 h-4 mr-2 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                  <svg className="w-4 h-4 mr-2 text-purple-600" fill="currentColor" stroke="none" viewBox="0 0 24 24">
+                    <path d="M12 1l2 9L24 12l-10 2L12 23l-2-9L0 12l10-2L12 1z" transform="translate(0,1)"/>
+                    <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
                   </svg>
                   AI Form Description
-                  <span className="ml-2 bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">✨ AI Powered</span>
+                  <span className="ml-2 bg-purple-100 text-purple-800 text-xs font-medium px-2 py-1 rounded-full">⚡ AI Powered</span>
                 </span>
               </label>
               <textarea 
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all duration-200 text-gray-900 placeholder-gray-500 resize-none" 
                 rows="3"
-                placeholder="🤖 Describe what your form should collect and AI will generate fields automatically! (e.g., 'Product quality inspection checklist with defect tracking and approval workflow')" 
+                placeholder="⚡ Describe what your form should collect and AI will generate fields automatically! (e.g., 'Product quality inspection checklist with defect tracking and approval workflow')" 
                 onChange={(e) => setPrompt(e.target.value)} 
                 value={prompt}
               />
@@ -331,7 +331,7 @@ const handleAIGenerate = async () => {
                   <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
-                  💡 Tip: Describe your form and let AI create all the fields for you!
+                  ⚡ Tip: Describe your form and let AI create all the fields for you!
                 </p>
               )}
             </div>
@@ -352,10 +352,11 @@ const handleAIGenerate = async () => {
                   </>
                 ) : (
                   <>
-                    <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    <svg className="w-5 h-5 mr-2" fill="currentColor" stroke="none" viewBox="0 0 24 24">
+                      <path d="M12 1l2 9L24 12l-10 2L12 23l-2-9L0 12l10-2L12 1z"/>
+                      <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
                     </svg>
-                    🚀 Generate Fields with AI
+                    ⚡ Generate Fields with AI
                   </>
                 )}
               </button>
