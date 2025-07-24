@@ -87,7 +87,7 @@ A powerful, user-friendly React form builder application with Supabase backend, 
    Create a `.env.local` file:
    ```env
    REACT_APP_SUPABASE_URL=your_supabase_url
-   REACT_APP_SUPABASE_ANON_KEY=your_supabase_anon_key
+   REACT_APP_SUPABASE_ANON=your_supabase_anon_key
    REACT_APP_GROQ_API_KEY=your_groq_api_key (optional)
    ```
 

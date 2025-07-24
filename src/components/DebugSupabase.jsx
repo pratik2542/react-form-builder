@@ -15,7 +15,7 @@ export default function DebugSupabase() {
     const runDiagnostics = async () => {
       const info = {
         url: process.env.REACT_APP_SUPABASE_URL || 'NOT_SET',
-        keyPresent: !!process.env.REACT_APP_SUPABASE_ANON_KEY,
+        keyPresent: !!process.env.REACT_APP_SUPABASE_ANON,
         connection: null,
         auth: null,
         tablesExist: {},
