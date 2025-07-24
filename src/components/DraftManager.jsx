@@ -385,13 +385,13 @@ export default function DraftManager() {
                           <div className="flex items-center gap-2 sm:ml-3">
                             <Link
                               to={`/view/${draft.formId}?draft=continue&draftId=${encodeURIComponent(draft.draftId || '')}`}
-                              className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors"
+                              className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors flex items-center justify-center touch-friendly"
                             >
                               Continue
                             </Link>
                             <button
                               onClick={() => deleteDraft(draft)}
-                              className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors"
+                              className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors flex items-center justify-center touch-friendly"
                             >
                               Delete
                             </button>

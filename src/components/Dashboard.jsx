@@ -39,7 +39,7 @@ const FormCard = ({ form, onDelete }) => (
       <h3 className="font-semibold text-gray-800 group-hover:text-blue-700 line-clamp-2 flex-1">
         {form.name}
       </h3>
-      <div className="flex gap-2 ml-2">
+      <div className="flex items-center gap-2 ml-2">
         <Link
           to={`/edit/${form.id}`}
           className="p-1 text-gray-400 hover:text-blue-500 transition-colors duration-200"
