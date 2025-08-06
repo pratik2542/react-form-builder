@@ -1,8 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '../supabase/client';
 
 export default function FormShare({ form, formId }) {
   const [copied, setCopied] = useState(false);
   const [shareMethod, setShareMethod] = useState('link');
+  const [submissions, setSubmissions] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchSubmissions() {
+      setLoading(true);
+      // Fetch all submissions for this form (public, no auth)
+      const { data, error } = await supabase
+        .from('form_submissions')
+        .select('id, submission_data, submitted_at')
+        .eq('form_id', formId)
+        .order('submitted_at', { ascending: false });
+      if (!error && data) setSubmissions(data);
+      setLoading(false);
+    }
+    fetchSubmissions();
+  }, [formId]);
 
   const baseUrl = window.location.origin;
   const formUrl = `${baseUrl}/view/${formId}`;
@@ -62,6 +80,25 @@ export default function FormShare({ form, formId }) {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
         </svg>
         <h3 className="text-lg font-semibold text-gray-800">Share Form</h3>
+      </div>
+
+      {/* Public Submissions List */}
+      <div className="mb-8">
+        <h4 className="text-md font-semibold text-gray-700 mb-2">Filled Submissions</h4>
+        {loading ? (
+          <div className="text-gray-500 text-sm">Loading submissions...</div>
+        ) : submissions.length === 0 ? (
+          <div className="text-gray-400 text-sm">No one has filled this form yet.</div>
+        ) : (
+          <div className="space-y-3 max-h-64 overflow-y-auto">
+            {submissions.map((sub) => (
+              <div key={sub.id} className="border rounded p-3 bg-gray-50">
+                <div className="text-xs text-gray-500 mb-1">Submitted: {new Date(sub.submitted_at).toLocaleString()}</div>
+                <pre className="text-xs bg-white p-2 rounded overflow-x-auto">{JSON.stringify(sub.submission_data, null, 2)}</pre>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Share Method Tabs */}

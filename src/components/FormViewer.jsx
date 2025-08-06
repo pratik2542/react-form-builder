@@ -210,8 +210,10 @@ export default function FormViewer() {
   // Save draft to Supabase
   const saveDraftToSupabase = useCallback(async (draftValues, formName, isMigration = false, isAutoSave = false) => {
     try {
-      const user = await supabase.auth.getUser();
-      if (!user.data.user) return false;
+      // Remove user check for public access
+      // const user = await supabase.auth.getUser();
+      // if (!user.data.user) return false;
+      const user = { data: { user: { id: 'public-user' } } }; // Use a dummy user id for public submissions
 
       // For manual saves, don't save if there are no actual values
       if (!isAutoSave && (!draftValues || Object.keys(draftValues).length === 0)) {
@@ -798,7 +800,7 @@ export default function FormViewer() {
       // Prepare submission data with field metadata
       const submissionData = {
         form_id: formId,
-        submitted_by: user.data.user.id,
+        submitted_by: (user && user.data && user.data.user && user.data.user.id) ? user.data.user.id : 'public-user',
         submission_data: processedValues,
         field_metadata: fieldMetadata, // Store field names and types at submission time
         submitted_at: new Date().toISOString()
@@ -936,26 +938,59 @@ export default function FormViewer() {
         );
       
       case 'checkbox':
-        return (
-          <div className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              id={`checkbox-${field.id}`}
-              disabled={field.is_readonly}
-              required={field.is_required}
-              className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
-              onChange={(e) => setValues({ ...values, [field.id]: e.target.checked })}
-              checked={values[field.id] || false}
-            />
-            <label 
-              htmlFor={`checkbox-${field.id}`}
-              className="text-sm text-gray-700 cursor-pointer select-none"
-            >
-              {field.label}
-              {field.is_required && <span className="text-red-500 ml-1">*</span>}
-            </label>
-          </div>
-        );
+        // If field has options, render as checkbox group (multiple checkboxes)
+        if (field.options && field.options.length > 0) {
+          return (
+            <div className="space-y-3">
+              {field.options.map((option, i) => (
+                <div key={i} className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id={`${field.id}-${i}`}
+                    disabled={field.is_readonly}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    onChange={(e) => {
+                      const currentValues = values[field.id] || [];
+                      const newValues = e.target.checked
+                        ? [...currentValues, option]
+                        : currentValues.filter(val => val !== option);
+                      setValues({ ...values, [field.id]: newValues });
+                    }}
+                    checked={(values[field.id] || []).includes(option)}
+                  />
+                  <label 
+                    htmlFor={`${field.id}-${i}`}
+                    className="text-sm text-gray-700 cursor-pointer select-none"
+                  >
+                    {option}
+                  </label>
+                </div>
+              ))}
+            </div>
+          );
+        } else {
+          // Single checkbox (no options) - include label in the rendering since it's skipped above
+          return (
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                id={`checkbox-${field.id}`}
+                disabled={field.is_readonly}
+                required={field.is_required}
+                className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                onChange={(e) => setValues({ ...values, [field.id]: e.target.checked })}
+                checked={values[field.id] || false}
+              />
+              <label 
+                htmlFor={`checkbox-${field.id}`}
+                className="text-sm text-gray-700 cursor-pointer select-none"
+              >
+                {field.label}
+                {field.is_required && <span className="text-red-500 ml-1">*</span>}
+              </label>
+            </div>
+          );
+        }
 
       case 'checkbox-group':
         return (
@@ -1015,20 +1050,51 @@ export default function FormViewer() {
       
       case 'dropdown':
       case 'select':
-        return (
-          <select
-            disabled={field.is_readonly}
-            required={field.is_required}
-            className={`${baseClasses} ${disabledClasses}`}
-            onChange={(e) => setValues({ ...values, [field.id]: e.target.value })}
-            value={values[field.id] || ''}
-          >
-            <option value="">Select an option...</option>
-            {field.options?.map((opt, i) => (
-              <option key={i} value={opt}>{opt}</option>
-            ))}
-          </select>
-        );
+        // Check if field has options - if yes, render as checkbox group for multi-select or radio for single-select
+        if (field.options && field.options.length > 0) {
+          // For select fields with options, render as checkboxes (multi-select)
+          return (
+            <div className="space-y-3">
+              {field.options.map((option, i) => (
+                <div key={i} className="flex items-center space-x-3">
+                  <input
+                    type="checkbox"
+                    id={`${field.id}-${i}`}
+                    disabled={field.is_readonly}
+                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    onChange={(e) => {
+                      const currentValues = values[field.id] || [];
+                      const newValues = e.target.checked
+                        ? [...currentValues, option]
+                        : currentValues.filter(val => val !== option);
+                      setValues({ ...values, [field.id]: newValues });
+                    }}
+                    checked={(values[field.id] || []).includes(option)}
+                  />
+                  <label 
+                    htmlFor={`${field.id}-${i}`}
+                    className="text-sm text-gray-700 cursor-pointer select-none"
+                  >
+                    {option}
+                  </label>
+                </div>
+              ))}
+            </div>
+          );
+        } else {
+          // Fallback to dropdown if no options
+          return (
+            <select
+              disabled={field.is_readonly}
+              required={field.is_required}
+              className={`${baseClasses} ${disabledClasses}`}
+              onChange={(e) => setValues({ ...values, [field.id]: e.target.value })}
+              value={values[field.id] || ''}
+            >
+              <option value="">Select an option...</option>
+            </select>
+          );
+        }
 
       case 'file':
         return (
@@ -1169,9 +1235,10 @@ export default function FormViewer() {
               
               return (
                 <div key={field.id} className="space-y-2">
-                  {field.field_type !== 'checkbox' && (
+                  {/* Show label for all fields except single checkboxes (checkbox without options) */}
+                  {!(field.field_type === 'checkbox' && (!field.options || field.options.length === 0)) && (
                     <label className="block text-sm font-medium text-gray-700">
-                      {field.label}
+                      {field.label || 'Unnamed Field'}
                       {isRequired && <span className="text-red-500 ml-1">*</span>}
                     </label>
                   )}
