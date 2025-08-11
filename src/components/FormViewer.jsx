@@ -106,22 +106,27 @@ export default function FormViewer() {
         
         if (!fieldsError) {
           // Process fields to handle options properly and assign consistent IDs
-          const processedFields = fieldsData.map((field, index) => ({
-            ...field,
-            id: `field_${index}`,  // Use consistent field ID format
-            db_id: field.id,       // Keep original database ID
-            // Convert options from JSON string to array if needed
-            options: (() => {
-              if (!field.options) return [];
-              if (Array.isArray(field.options)) return field.options;
-              try {
-                return JSON.parse(field.options);
-              } catch (e) {
-                console.warn(`Failed to parse options for field ${field.label}:`, field.options);
-                return [];
-              }
-            })()
-          }));
+          const processedFields = fieldsData.map((field, index) => {
+            const processedField = {
+              ...field,
+              id: `field_${index}`,  // Use consistent field ID format
+              db_id: field.id,       // Keep original database ID
+              // Convert options from JSON string to array if needed
+              options: (() => {
+                if (!field.options) return [];
+                if (Array.isArray(field.options)) return field.options;
+                try {
+                  const parsed = JSON.parse(field.options);
+                  return parsed;
+                } catch (e) {
+                  console.warn(`Failed to parse options for field ${field.label}:`, field.options);
+                  return [];
+                }
+              })()
+            };
+            
+            return processedField;
+          });
           setFields(processedFields);
           console.log('Fields loaded:', processedFields);
         } else {

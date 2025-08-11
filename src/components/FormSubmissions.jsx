@@ -187,6 +187,18 @@ export default function FormSubmissions() {
                     </div>
                   )}
                 </div>
+              ) : Array.isArray(value) && (fieldType === 'checkbox' || fieldType === 'select' || fieldType === 'dropdown') ? (
+                // Handle checkbox, select, or dropdown arrays with proper formatting
+                <div className="space-y-1">
+                  {value.map((item, index) => (
+                    <span key={index} className="inline-block bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full mr-2 mb-1">
+                      {String(item)}
+                    </span>
+                  ))}
+                  {value.length === 0 && (
+                    <span className="text-gray-500 italic">No items selected</span>
+                  )}
+                </div>
               ) : (
                 <div className="bg-gray-50 p-2 rounded">
                   <pre className="text-xs overflow-x-auto">

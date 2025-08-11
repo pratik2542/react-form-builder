@@ -90,10 +90,6 @@ export default function SubmissionFormView({ submission, onBack }) {
   const renderField = (field) => {
     const value = getFieldValue(field.id);
     
-    console.log(`Rendering field ${field.label} (${field.field_type}):`, field);
-    console.log(`Field options:`, field.options);
-    console.log(`Field value:`, value);
-    
     // Field info is already from the correct time (either metadata or current)
     const fieldLabel = field.label;
     const fieldType = field.field_type;
@@ -126,20 +122,47 @@ export default function SubmissionFormView({ submission, onBack }) {
         );
 
       case 'checkbox':
-        return (
-          <div className="flex items-center space-x-3">
-            <input
-              type="checkbox"
-              checked={value || false}
-              readOnly
-              className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded cursor-default"
-            />
-            <label className="text-sm text-gray-700 cursor-default select-none">
-              {fieldLabel}
-              {field.is_required && <span className="text-red-500 ml-1">*</span>}
-            </label>
-          </div>
-        );
+        // If field has options, treat it as a checkbox group
+        if (field.options && field.options.length > 0) {
+          const checkboxValues = Array.isArray(value) ? value : [];
+          
+          return (
+            <div className="space-y-3">
+              {field.options.map((option, i) => {
+                const isSelected = checkboxValues.includes(option);
+                return (
+                  <div key={i} className="flex items-center space-x-3">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      readOnly
+                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded cursor-default"
+                    />
+                    <label className={`text-sm cursor-default select-none ${isSelected ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
+                      {option}
+                    </label>
+                  </div>
+                );
+              })}
+            </div>
+          );
+        } else {
+          // Single checkbox (no options)
+          return (
+            <div className="flex items-center space-x-3">
+              <input
+                type="checkbox"
+                checked={value || false}
+                readOnly
+                className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded cursor-default"
+              />
+              <label className="text-sm text-gray-700 cursor-default select-none">
+                {fieldLabel}
+                {field.is_required && <span className="text-red-500 ml-1">*</span>}
+              </label>
+            </div>
+          );
+        }
 
       case 'checkbox-group':
         const checkboxValues = Array.isArray(value) ? value : [];
@@ -216,19 +239,30 @@ export default function SubmissionFormView({ submission, onBack }) {
           );
         }
         
+        // Handle both single values and arrays (for multi-select rendered as checkboxes)
+        const selectedValues = Array.isArray(value) ? value : (value ? [value] : []);
+        
         return (
           <div className="space-y-2">
             <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
-              <p className="text-xs text-gray-600 mb-2">Selected option:</p>
-              <p className="text-sm font-medium text-gray-900">
-                {value || <span className="text-gray-500 italic">No option selected</span>}
-              </p>
+              <p className="text-xs text-gray-600 mb-2">Selected option{selectedValues.length > 1 ? 's' : ''}:</p>
+              {selectedValues.length > 0 ? (
+                <div className="space-y-1">
+                  {selectedValues.map((selectedValue, i) => (
+                    <p key={i} className="text-sm font-medium text-gray-900">
+                      {selectedValue}
+                    </p>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 italic">No options selected</p>
+              )}
             </div>
             <div className="border border-gray-200 rounded-lg p-3">
               <p className="text-xs text-gray-600 mb-2">All available options:</p>
               <div className="space-y-1">
                 {field.options.map((opt, i) => {
-                  const isSelected = value === opt;
+                  const isSelected = selectedValues.includes(opt);
                   return (
                     <div key={i} className={`text-sm px-2 py-1 rounded ${isSelected ? 'bg-blue-100 text-blue-900 font-medium' : 'text-gray-600'}`}>
                       {isSelected && <span className="mr-2">✓</span>}
