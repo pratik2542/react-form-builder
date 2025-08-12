@@ -34,18 +34,18 @@ const formatCreationTime = (dateString) => {
 
 // Form Card Component
 const FormCard = ({ form, onDelete }) => (
-  <div className="group bg-gray-50 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 p-6 rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1">
+  <div className="group bg-gray-50 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 p-4 sm:p-6 rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1">
     <div className="flex items-start justify-between mb-3">
-      <h3 className="font-semibold text-gray-800 group-hover:text-blue-700 line-clamp-2 flex-1">
+      <h3 className="font-semibold text-gray-800 group-hover:text-blue-700 line-clamp-2 flex-1 text-sm sm:text-base">
         {form.name}
       </h3>
-      <div className="flex items-center gap-2 ml-2">
+      <div className="flex items-center gap-1 sm:gap-2 ml-2 flex-shrink-0">
         <Link
           to={`/edit/${form.id}`}
           className="p-1 text-gray-400 hover:text-blue-500 transition-colors duration-200"
           title="Edit form"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
           </svg>
         </Link>
@@ -54,7 +54,7 @@ const FormCard = ({ form, onDelete }) => (
           className="p-1 text-gray-400 hover:text-green-500 transition-colors duration-200"
           title="View/Fill form"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
@@ -64,22 +64,22 @@ const FormCard = ({ form, onDelete }) => (
           className="p-1 text-gray-400 hover:text-red-500 transition-colors duration-200"
           title="Delete form"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
           </svg>
         </button>
       </div>
     </div>
     
-    <div className="flex items-center justify-between mb-4">
-      <div className="flex items-center text-sm text-gray-500">
-        <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 space-y-2 sm:space-y-0">
+      <div className="flex items-center text-xs sm:text-sm text-gray-500 flex-shrink-0">
+        <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
         </svg>
-        {formatCreationTime(form.created_at)}
+        <span className="truncate">{formatCreationTime(form.created_at)}</span>
       </div>
       {form.type && (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 flex-shrink-0 self-start sm:self-center">
           {form.type}
         </span>
       )}
@@ -89,7 +89,7 @@ const FormCard = ({ form, onDelete }) => (
     <div className="flex">
       <Link
         to={`/view/${form.id}`}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 text-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
       >
         Fill Form
       </Link>
@@ -438,43 +438,43 @@ export default function Dashboard({ session }) {
 
         {/* Statistics Cards */}
         {forms.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-6 rounded-xl shadow-lg">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 sm:p-6 rounded-xl shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-sm">Total Forms</p>
-                  <p className="text-3xl font-bold">{stats.total}</p>
+                  <p className="text-blue-100 text-xs sm:text-sm">Total Forms</p>
+                  <p className="text-xl sm:text-3xl font-bold">{stats.total}</p>
                 </div>
-                <div className="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
               </div>
             </div>
             
-            <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-6 rounded-xl shadow-lg">
+            <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-3 sm:p-6 rounded-xl shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-sm">Categories</p>
-                  <p className="text-3xl font-bold">{stats.categories}</p>
+                  <p className="text-purple-100 text-xs sm:text-sm">Categories</p>
+                  <p className="text-xl sm:text-3xl font-bold">{stats.categories}</p>
                 </div>
-                <div className="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                   </svg>
                 </div>
               </div>
             </div>
             
-            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-6 rounded-xl shadow-lg">
+            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-3 sm:p-6 rounded-xl shadow-lg">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-sm">Recent (24h)</p>
-                  <p className="text-3xl font-bold">{stats.recentForms}</p>
+                  <p className="text-green-100 text-xs sm:text-sm">Recent (24h)</p>
+                  <p className="text-xl sm:text-3xl font-bold">{stats.recentForms}</p>
                 </div>
-                <div className="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                  <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
