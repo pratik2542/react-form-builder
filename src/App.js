@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { supabase } from './supabase/client';
 import Auth from './components/Auth';
@@ -6,6 +6,13 @@ import Dashboard from './components/Dashboard';
 import EnhancedFormBuilder from './components/EnhancedFormBuilder';
 import FormViewer from './components/FormViewer';
 import FormSubmissions from './components/FormSubmissions';
+import FormAnalytics from './components/FormAnalytics';
+
+// Wrapper component for FormAnalytics to get formId from URL
+function FormAnalyticsWrapper() {
+  const { formId } = useParams();
+  return <FormAnalytics formId={formId} />;
+}
 
 function App() {
   const [session, setSession] = useState(undefined); // default undefined to wait for auth load
@@ -50,6 +57,7 @@ function App() {
             <Route path="/create" element={<EnhancedFormBuilder />} />
             <Route path="/edit/:formId" element={<EnhancedFormBuilder />} />
             <Route path="/submissions" element={<FormSubmissions />} />
+            <Route path="/analytics/:formId" element={<FormAnalyticsWrapper />} />
             <Route path="*" element={<Navigate to="/" />} />
           </>
         )}
