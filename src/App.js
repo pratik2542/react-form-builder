@@ -38,6 +38,10 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Public routes - accessible without authentication */}
+        <Route path="/view/:formId" element={<FormViewer />} />
+        
+        {/* Protected routes - require authentication */}
         {!session ? (
           <Route path="*" element={<Auth />} />
         ) : (
@@ -45,7 +49,6 @@ function App() {
             <Route path="/" element={<Dashboard session={session} />} />
             <Route path="/create" element={<EnhancedFormBuilder />} />
             <Route path="/edit/:formId" element={<EnhancedFormBuilder />} />
-            <Route path="/view/:formId" element={<FormViewer />} />
             <Route path="/submissions" element={<FormSubmissions />} />
             <Route path="*" element={<Navigate to="/" />} />
           </>

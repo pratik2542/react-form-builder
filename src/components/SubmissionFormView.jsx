@@ -84,7 +84,37 @@ export default function SubmissionFormView({ submission, onBack }) {
   }, [submission]);
 
   const getFieldValue = (fieldId) => {
-    return submission?.submission_data?.[fieldId] || '';
+    // First try to get value using the field ID directly
+    if (submission?.submission_data?.[fieldId]) {
+      return submission.submission_data[fieldId];
+    }
+    
+    // If not found, try to find using human-readable field key generated from label
+    if (submission?.field_metadata && submission.field_metadata[fieldId]) {
+      const metadata = submission.field_metadata[fieldId];
+      if (metadata.label) {
+        const fieldKey = metadata.label.toLowerCase()
+          .replace(/[^a-z0-9\s]/gi, '')  // Remove special characters
+          .replace(/\s+/g, '_')          // Replace spaces with underscores
+          .substring(0, 50);             // Limit length
+        
+        if (submission.submission_data[fieldKey]) {
+          return submission.submission_data[fieldKey];
+        }
+      }
+    }
+    
+    // Last resort: search all submission data keys for a match
+    if (submission?.submission_data) {
+      for (const [key, value] of Object.entries(submission.submission_data)) {
+        // If we find a key that matches the field pattern, return it
+        if (key === fieldId || key.includes(fieldId)) {
+          return value;
+        }
+      }
+    }
+    
+    return '';
   };
 
   const renderField = (field) => {
@@ -368,6 +398,12 @@ export default function SubmissionFormView({ submission, onBack }) {
           <span className="hidden sm:inline">•</span>
           <span className="text-xs sm:text-sm">
             Submitted: {new Date(submission.submitted_at).toLocaleString()}
+            {submission.submitter_name && submission.submitter_name !== 'Anonymous' && (
+              <span className="font-medium text-gray-700"> by {submission.submitter_name}</span>
+            )}
+            {submission.submitter_name === 'Anonymous' && (
+              <span className="text-gray-500"> (anonymous)</span>
+            )}
           </span>
         </div>
         

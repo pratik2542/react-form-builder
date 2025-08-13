@@ -958,7 +958,7 @@ export default function EnhancedFormBuilder() {
       }
     }
     
-    options.push(`Option ${options.length + 1}`);
+    options.push(''); // Add empty string instead of preset text
     newFields[fieldIndex].options = options;
     setFields(newFields);
   };
@@ -2437,6 +2437,7 @@ export default function EnhancedFormBuilder() {
                                       type="text"
                                       value={option}
                                       onChange={(e) => updateFieldOption(selectedField, optIndex, e.target.value)}
+                                      placeholder={`Option ${optIndex + 1}`}
                                       className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
                                     />
                                     <button
@@ -2727,6 +2728,7 @@ export default function EnhancedFormBuilder() {
                               type="text"
                               value={option}
                               onChange={(e) => updateFieldOption(selectedField, optIndex, e.target.value)}
+                              placeholder={`Option ${optIndex + 1}`}
                               className="flex-1 px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mobile-compact-input"
                             />
                             <button

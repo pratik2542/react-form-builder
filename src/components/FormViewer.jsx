@@ -24,6 +24,12 @@ export default function FormViewer() {
   const [hasDraft, setHasDraft] = useState(false);
   const [lastSaveTime, setLastSaveTime] = useState(null);
   const [isDraftPanelExpanded, setIsDraftPanelExpanded] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  
+  // Name capture states
+  const [showNameDialog, setShowNameDialog] = useState(true);
+  const [userName, setUserName] = useState('');
+  const [nameInputValue, setNameInputValue] = useState('');
   
   // Track the current draft ID for this session
   const [currentDraftId, setCurrentDraftId] = useState(null);
@@ -109,8 +115,8 @@ export default function FormViewer() {
           const processedFields = fieldsData.map((field, index) => {
             const processedField = {
               ...field,
-              id: `field_${index}`,  // Use consistent field ID format
-              db_id: field.id,       // Keep original database ID
+              id: field.id,          // Keep original database ID as the primary ID
+              display_index: index,  // Store index for ordering if needed
               // Convert options from JSON string to array if needed
               options: (() => {
                 if (!field.options) return [];
@@ -141,6 +147,28 @@ export default function FormViewer() {
     
     fetchFormAndFields();
   }, [formId]);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        setIsAuthenticated(!!user);
+      } catch (error) {
+        console.error('Error checking authentication:', error);
+        setIsAuthenticated(false);
+      }
+    };
+    
+    checkAuth();
+    
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      setIsAuthenticated(!!session?.user);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   // Evaluate conditional logic
   const evaluateCondition = (condition, currentValues) => {
@@ -215,10 +243,11 @@ export default function FormViewer() {
   // Save draft to Supabase
   const saveDraftToSupabase = useCallback(async (draftValues, formName, isMigration = false, isAutoSave = false) => {
     try {
-      // Remove user check for public access
-      // const user = await supabase.auth.getUser();
-      // if (!user.data.user) return false;
-      const user = { data: { user: { id: 'public-user' } } }; // Use a dummy user id for public submissions
+      // Allow public access - get real user or use anonymous UUID
+      const user = await supabase.auth.getUser();
+      const userId = (user && user.data && user.data.user && user.data.user.id) 
+        ? user.data.user.id 
+        : '00000000-0000-0000-0000-000000000000'; // Anonymous user UUID
 
       // For manual saves, don't save if there are no actual values
       if (!isAutoSave && (!draftValues || Object.keys(draftValues).length === 0)) {
@@ -257,7 +286,7 @@ export default function FormViewer() {
         draftId = currentDraftId;
       } else {
         // Use standard session-based draft ID and store it
-        draftId = generateDraftId(formId, user.data.user.id, sessionId);
+        draftId = generateDraftId(formId, userId, sessionId);
         setCurrentDraftId(draftId);
       }
 
@@ -286,7 +315,7 @@ export default function FormViewer() {
         draftData = {
           draft_id: draftId,
           form_id: formId,
-          user_id: user.data.user.id,
+          user_id: userId,
           session_id: sessionId,
           form_name: formName || form?.name || 'Untitled Form',
           draft_data: draftValues,
@@ -317,8 +346,8 @@ export default function FormViewer() {
         console.log('⚠️  Using LEGACY draft schema (only one draft per form per user)');
         draftData = {
           form_id: formId,
-          user_id: user.data.user.id,
-          form_name: formName || form?.name || 'd Form',
+          user_id: userId,
+          form_name: formName || form?.name || 'Untitled Form',
           draft_data: draftValues,
           updated_at: new Date().toISOString()
         };
@@ -331,7 +360,7 @@ export default function FormViewer() {
           .from('form_drafts')
           .select('id')
           .eq('form_id', formId)
-          .eq('user_id', user.data.user.id)
+          .eq('user_id', userId)
           .limit(1);
 
         existingDraft = existingDrafts && existingDrafts.length > 0 ? existingDrafts[0] : null;
@@ -724,6 +753,15 @@ export default function FormViewer() {
   //   return () => clearTimeout(autoSaveTimer);
   // }, [values, submitting, saveDraft, hasDraft]);
 
+  const handleNameSubmit = () => {
+    if (!nameInputValue.trim()) {
+      alert('Please enter your name to continue');
+      return;
+    }
+    setUserName(nameInputValue.trim());
+    setShowNameDialog(false);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -749,12 +787,12 @@ export default function FormViewer() {
     setSubmitting(true);
     
     try {
+      // Allow public form submissions - don't require authentication
       const user = await supabase.auth.getUser();
-      if (!user.data.user) {
-        alert('Please log in to submit forms');
-        setSubmitting(false);
-        return;
-      }
+      // Use a special UUID for anonymous users (nil UUID format)
+      const submittedBy = (user && user.data && user.data.user && user.data.user.id) 
+        ? user.data.user.id 
+        : '00000000-0000-0000-0000-000000000000';
 
       // Process form values to handle file fields and preserve field metadata
       const processedValues = {};
@@ -762,14 +800,23 @@ export default function FormViewer() {
       
       // First, store metadata for ALL fields, not just filled ones
       fields.forEach(field => {
-        fieldMetadata[field.id] = {
+        // Create a human-readable field key based on label
+        const fieldKey = field.label ? 
+          field.label.toLowerCase()
+            .replace(/[^a-z0-9\s]/gi, '')  // Remove special characters
+            .replace(/\s+/g, '_')          // Replace spaces with underscores
+            .substring(0, 50)              // Limit length
+          : field.id;
+
+        fieldMetadata[fieldKey] = {
           label: field.label,
           type: field.field_type,
           is_required: field.is_required,
           options: field.options || [],
-          display_order: field.display_order || 0
+          display_order: field.display_order || 0,
+          original_field_id: field.id    // Keep original ID for reference
         };
-        console.log(`Field ${field.label} metadata:`, fieldMetadata[field.id]);
+        console.log(`Field ${field.label} metadata:`, fieldMetadata[fieldKey]);
       });
       
       // Then process the actual values
@@ -777,18 +824,26 @@ export default function FormViewer() {
         const field = fields.find(f => f.id === fieldId);
         
         if (field) {
+          // Create the same human-readable field key
+          const fieldKey = field.label ? 
+            field.label.toLowerCase()
+              .replace(/[^a-z0-9\s]/gi, '')  // Remove special characters
+              .replace(/\s+/g, '_')          // Replace spaces with underscores
+              .substring(0, 50)              // Limit length
+            : field.id;
+
           if (field.field_type === 'file') {
             // For file fields, store file information instead of the actual file object
             if (value) {
               if (field.allowMultiple && Array.isArray(value)) {
-                processedValues[fieldId] = value.map(file => ({
+                processedValues[fieldKey] = value.map(file => ({
                   name: file.name,
                   size: file.size,
                   type: file.type,
                   lastModified: file.lastModified
                 }));
               } else if (value.name) {
-                processedValues[fieldId] = {
+                processedValues[fieldKey] = {
                   name: value.name,
                   size: value.size,
                   type: value.type,
@@ -797,7 +852,7 @@ export default function FormViewer() {
               }
             }
           } else {
-            processedValues[fieldId] = value;
+            processedValues[fieldKey] = value;
           }
         }
       }
@@ -805,7 +860,8 @@ export default function FormViewer() {
       // Prepare submission data with field metadata
       const submissionData = {
         form_id: formId,
-        submitted_by: (user && user.data && user.data.user && user.data.user.id) ? user.data.user.id : 'public-user',
+        submitted_by: submittedBy,
+        submitter_name: userName, // Add the user's name
         submission_data: processedValues,
         field_metadata: fieldMetadata, // Store field names and types at submission time
         submitted_at: new Date().toISOString()
@@ -814,21 +870,42 @@ export default function FormViewer() {
       // Submit to database
       console.log('Attempting to submit form data:', submissionData);
       
-      // Try to insert with field_metadata first
+      // Try to insert with all fields first
       let { data, error } = await supabase
         .from('form_submissions')
         .insert(submissionData);
 
-      // If field_metadata column doesn't exist, try without it
-      if (error && error.message && error.message.includes('column "field_metadata" does not exist')) {
-        console.log('field_metadata column does not exist, submitting without it');
-        const { field_metadata, ...submissionDataWithoutMetadata } = submissionData;
+      let usedMinimalData = false;
+
+      // Handle missing columns by trying different combinations
+      if (error && error.message && (
+        error.message.includes('column "field_metadata" does not exist') ||
+        error.message.includes('column "submitter_name" does not exist') ||
+        error.message.includes("'field_metadata' column") ||
+        error.message.includes("'submitter_name' column") ||
+        error.message.includes('schema cache')
+      )) {
+        console.log('One or more columns do not exist, trying with minimal data');
+        
+        // Try with just the essential fields
+        const minimalSubmissionData = {
+          form_id: formId,
+          submitted_by: submissionData.submitted_by,
+          submission_data: submissionData.submission_data,
+          submitted_at: submissionData.submitted_at
+        };
+        
         const result = await supabase
           .from('form_submissions')
-          .insert(submissionDataWithoutMetadata);
+          .insert(minimalSubmissionData);
         
         data = result.data;
         error = result.error;
+        usedMinimalData = true;
+        
+        if (!error) {
+          console.log('Successfully submitted with minimal data (missing columns skipped)');
+        }
       }
 
       console.log('Supabase response:', { data, error });
@@ -896,7 +973,13 @@ export default function FormViewer() {
         }
       } else {
         console.log('Form submitted successfully to database');
-        setSuccessMessage('Form submitted successfully!');
+        
+        if (usedMinimalData) {
+          setSuccessMessage('Form submitted successfully! (Note: Run the SQL script to enable submitter names and field preservation)');
+        } else {
+          setSuccessMessage('Form submitted successfully!');
+        }
+        
         setShowSuccess(true);
         
         // Clear draft after successful submission
@@ -1203,6 +1286,71 @@ export default function FormViewer() {
     );
   }
 
+  // Show name dialog before form
+  if (showNameDialog) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 max-w-md w-full mx-4">
+          <div className="text-center mb-6">
+            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome!</h2>
+            <p className="text-gray-600">Please enter your name to continue to the form</p>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Your Name *
+              </label>
+              <input
+                type="text"
+                value={nameInputValue}
+                onChange={(e) => setNameInputValue(e.target.value)}
+                placeholder="Enter your full name"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter') {
+                    handleNameSubmit();
+                  }
+                }}
+                autoFocus
+              />
+            </div>
+            
+            <button
+              onClick={handleNameSubmit}
+              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all duration-200 font-medium"
+            >
+              Continue to Form
+            </button>
+            
+            <button
+              onClick={() => {
+                setUserName('Anonymous');
+                setShowNameDialog(false);
+              }}
+              className="w-full bg-gray-200 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-300 focus:ring-4 focus:ring-gray-200 transition-all duration-200 font-medium text-sm"
+            >
+              Continue Anonymously
+            </button>
+          </div>
+          
+          {form?.name && (
+            <div className="mt-6 pt-6 border-t border-gray-200">
+              <p className="text-sm text-gray-500 text-center">
+                You're about to fill: <span className="font-medium text-gray-700">{form.name}</span>
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-8 max-w-3xl">
@@ -1271,9 +1419,12 @@ export default function FormViewer() {
               <div className="pt-6 border-t border-gray-200">
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-3">
-                  <div className="flex flex-col sm:flex-row gap-3">
-                    {/* Save Draft Button */}
-                    <button
+                  {isAuthenticated ? (
+                    // Authenticated users see all draft options
+                    <div className="flex flex-col sm:flex-row gap-3">
+                    {/* Save Draft Button - Only show for authenticated users */}
+                    {isAuthenticated && (
+                      <button
                       type="button"
                       onClick={() => saveDraft(false)}
                       disabled={draftSaving}
@@ -1296,8 +1447,10 @@ export default function FormViewer() {
                         </>
                       )}
                     </button>
+                    )}
 
-                    {/* Save & Close Button */}
+                    {/* Save & Close Button - Only show for authenticated users */}
+                    {isAuthenticated && (
                     <button
                       type="button"
                       onClick={async () => {
@@ -1337,6 +1490,7 @@ export default function FormViewer() {
                         </>
                       )}
                     </button>
+                    )}
 
                     {/* Submit Button */}
                     <button
@@ -1362,14 +1516,41 @@ export default function FormViewer() {
                       )}
                     </button>
                   </div>
+                  ) : (
+                    // Anonymous users see only submit button
+                    <div className="flex justify-center">
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="w-full sm:w-auto min-w-48 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center text-lg"
+                      >
+                        {submitting ? (
+                          <>
+                            <svg className="animate-spin -ml-1 mr-3 h-6 w-6 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 718-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 714 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            Submitting...
+                          </>
+                        ) : (
+                          <>
+                            <svg className="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                            </svg>
+                            Submit Form
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             )}
           </form>
         </div>
 
-        {/* Minimized Draft Status Indicator */}
-        {hasDraft && lastSaveTime && (
+        {/* Minimized Draft Status Indicator - Only show for authenticated users */}
+        {isAuthenticated && hasDraft && lastSaveTime && (
           <div className="fixed bottom-6 right-6 z-40">
             <div className={`draft-panel bg-white rounded-lg shadow-lg border border-gray-200 transition-all duration-300 ${
               isDraftPanelExpanded ? 'w-80' : 'w-auto'

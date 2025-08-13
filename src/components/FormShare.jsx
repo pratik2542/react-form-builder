@@ -11,11 +11,28 @@ export default function FormShare({ form, formId }) {
     async function fetchSubmissions() {
       setLoading(true);
       // Fetch all submissions for this form (public, no auth)
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('form_submissions')
-        .select('id, submission_data, submitted_at')
+        .select('id, submission_data, submitted_at, submitter_name')
         .eq('form_id', formId)
         .order('submitted_at', { ascending: false });
+        
+      // If submitter_name column doesn't exist, try without it
+      if (error && error.message && (
+        error.message.includes('column "submitter_name" does not exist') ||
+        error.message.includes("'submitter_name' column") ||
+        error.message.includes('schema cache')
+      )) {
+        console.log('submitter_name column does not exist, fetching without it');
+        const result = await supabase
+          .from('form_submissions')
+          .select('id, submission_data, submitted_at')
+          .eq('form_id', formId)
+          .order('submitted_at', { ascending: false });
+        data = result.data;
+        error = result.error;
+      }
+      
       if (!error && data) setSubmissions(data);
       setLoading(false);
     }
@@ -93,7 +110,15 @@ export default function FormShare({ form, formId }) {
           <div className="space-y-3 max-h-64 overflow-y-auto">
             {submissions.map((sub) => (
               <div key={sub.id} className="border rounded p-3 bg-gray-50">
-                <div className="text-xs text-gray-500 mb-1">Submitted: {new Date(sub.submitted_at).toLocaleString()}</div>
+                <div className="text-xs text-gray-500 mb-1">
+                  Submitted: {new Date(sub.submitted_at).toLocaleString()}
+                  {sub.submitter_name && sub.submitter_name !== 'Anonymous' && (
+                    <span className="font-medium text-gray-700"> by {sub.submitter_name}</span>
+                  )}
+                  {sub.submitter_name === 'Anonymous' && (
+                    <span className="text-gray-500"> (anonymous)</span>
+                  )}
+                </div>
                 <pre className="text-xs bg-white p-2 rounded overflow-x-auto">{JSON.stringify(sub.submission_data, null, 2)}</pre>
               </div>
             ))}
