@@ -217,13 +217,13 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
   };
 
   return (
-    <div className={`bg-white ${className} flex h-full overflow-hidden max-h-full`}>
-      {/* Navigation Panel for Filters - Toggleable */}
+    <div className={`bg-gray-800/80 backdrop-blur-xl ${className} flex h-full overflow-hidden max-h-full border border-gray-700/50 rounded-lg`}>
+      {/* Desktop Sidebar */}
       {showFilters && (
-        <div className="w-48 flex-shrink-0 border-r border-gray-200 bg-gray-50 overflow-hidden h-full">
-          <div className="h-full flex flex-col max-h-full">
-            {/* Search */}
-            <div className="flex-shrink-0 p-3 border-b border-gray-200">
+        <div className="hidden lg:block">
+          <div className="w-48 flex-shrink-0 border-r border-gray-600/50 bg-gray-900/50 flex flex-col h-full overflow-hidden">
+          {/* Search */}
+          <div className="flex-shrink-0 p-3 border-b border-gray-600/50">
               <div className="relative mb-3">
                 <svg className="absolute left-2 top-1/2 transform -translate-y-1/2 w-3 h-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -239,7 +239,7 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
                       setShowFilters(false);
                     }
                   }}
-                  className="w-full pl-6 pr-8 py-2 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-transparent"
+                  className="w-full pl-6 pr-8 py-2 text-xs bg-gray-700/50 border border-gray-600/50 rounded focus:outline-none focus:ring-1 focus:ring-cyan-400 focus:border-transparent text-white placeholder:text-gray-400"
                 />
                 {searchTerm && (
                   <button
@@ -261,7 +261,7 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
                     setSearchTerm('');
                     setSelectedCategory('all');
                   }}
-                  className="w-full text-xs text-purple-600 hover:text-purple-700 py-1 px-2 border border-purple-200 rounded hover:bg-purple-50 transition-colors"
+                  className="w-full text-xs text-cyan-300 hover:text-white py-1 px-2 border border-cyan-500/30 rounded hover:bg-cyan-600/20 transition-all duration-300"
                 >
                   Clear All Filters
                 </button>
@@ -269,20 +269,32 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
             </div>
 
             {/* Categories Navigation */}
-            <div className="flex-1 overflow-y-auto p-3 min-h-0">
-              <div className="flex items-center justify-between mb-2">
-                <h4 className="text-xs font-semibold text-gray-700 uppercase tracking-wide">Categories</h4>
-                <button
-                  onClick={() => setShowFilters(false)}
-                  className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-200 rounded"
-                  title="Close filters"
-                >
-                  <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
+            <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+              <div className="flex-shrink-0 p-3 pb-2">
+                <div className="flex items-center justify-between">
+                  <h4 className="text-xs font-semibold text-purple-300 uppercase tracking-wide">Categories</h4>
+                  <button
+                    onClick={() => setShowFilters(false)}
+                    className="p-1 text-purple-400 hover:text-cyan-300 hover:bg-purple-800/30 rounded transition-colors"
+                    title="Close filters"
+                  >
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
+                </div>
               </div>
-              <div className="space-y-1">
+              <div 
+                className="px-3 pb-3 scrollbar-hide" 
+                style={{
+                  height: '200px',
+                  overflowY: 'scroll',
+                  overflowX: 'hidden',
+                  display: 'block',
+                  position: 'relative'
+                }}
+              >
+                <div className="space-y-1" style={{ minHeight: '220px' }}>
                 {categories.map(category => (
                   <button
                     key={category.id}
@@ -293,18 +305,21 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
                         setShowFilters(false);
                       }
                     }}
-                    className={`w-full text-left px-3 py-2 text-sm font-medium rounded transition-colors ${
+                    className={`w-full text-left px-3 py-2 text-sm font-medium rounded transition-all duration-300 ${
                       selectedCategory === category.id
-                        ? 'bg-purple-100 text-purple-800 border border-purple-200 shadow-sm'
-                        : 'text-gray-600 hover:bg-gray-100 border border-transparent hover:border-gray-200'
+                        ? 'bg-gradient-to-r from-purple-600/30 to-cyan-600/30 text-cyan-300 border border-cyan-500/30 shadow-lg shadow-cyan-500/20'
+                        : 'text-purple-300 hover:bg-purple-800/30 border border-transparent hover:border-purple-600/30 hover:text-cyan-300'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="truncate">{category.name}</span>
-                      <span className="text-xs text-gray-500 ml-1">({category.count})</span>
+                      <span className="text-xs text-gray-400 ml-1">({category.count})</span>
                     </div>
                   </button>
                 ))}
+                {/* Spacing equivalent to one more category */}
+                <div className="h-12"></div>
+                </div>
               </div>
             </div>
           </div>
@@ -314,14 +329,14 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
       {/* Widget Grid */}
       <div className="flex-1 flex flex-col overflow-hidden h-full max-h-full">
         {/* Header with Toggle Button */}
-        <div className="flex-shrink-0 flex items-center justify-between p-2 border-b border-gray-200 bg-gray-50">
+        <div className="flex-shrink-0 flex items-center justify-between p-2 border-b border-purple-800/30 bg-gray-900/50 backdrop-blur-sm">
           <div className="flex items-center space-x-2 min-w-0 flex-1">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`flex-shrink-0 p-1 rounded transition-colors ${
+              className={`flex-shrink-0 p-1 rounded transition-all duration-300 ${
                 showFilters || selectedCategory !== 'all' || searchTerm
-                  ? 'text-purple-600 bg-purple-100 hover:bg-purple-200'
-                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-200'
+                  ? 'text-cyan-300 bg-cyan-600/20 hover:bg-cyan-600/30 border border-cyan-500/30'
+                  : 'text-purple-300 hover:text-cyan-300 hover:bg-purple-800/30 border border-transparent'
               }`}
               title={showFilters ? 'Hide Filters' : 'Show Filters'}
             >
@@ -342,12 +357,12 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
                     placeholder="Search..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="w-full pl-6 pr-6 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-purple-500 focus:border-transparent"
+                    className="w-full pl-6 pr-6 py-1 text-xs bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded focus:outline-none focus:ring-1 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                   />
                   {searchTerm && (
                     <button
                       onClick={() => setSearchTerm('')}
-                      className="absolute right-1 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 hover:text-gray-600"
+                      className="absolute right-1 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400 hover:text-cyan-300 transition-colors"
                       title="Clear search"
                     >
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -360,12 +375,12 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
                 {/* Category indicator */}
                 {selectedCategory !== 'all' && (
                   <div className="flex items-center space-x-1">
-                    <span className="flex-shrink-0 px-2 py-1 text-xs bg-purple-100 text-purple-800 rounded-full truncate">
+                    <span className="flex-shrink-0 px-2 py-1 text-xs bg-gradient-to-r from-purple-600/30 to-cyan-600/30 text-cyan-300 rounded-full truncate border border-cyan-500/30">
                       {categories.find(c => c.id === selectedCategory)?.name}
                     </span>
                     <button
                       onClick={() => setSelectedCategory('all')}
-                      className="w-4 h-4 text-gray-400 hover:text-gray-600"
+                      className="w-4 h-4 text-purple-400 hover:text-cyan-300 transition-colors"
                       title="Clear category filter"
                     >
                       <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -378,49 +393,49 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
             )}
           </div>
           
-          <span className="flex-shrink-0 text-xs text-gray-500 ml-2">
+          <span className="flex-shrink-0 text-xs text-purple-300 ml-2">
             {filteredWidgets.length}{filteredWidgets.length !== widgets.length ? ` of ${widgets.length}` : ''}
           </span>
         </div>
         
         {/* Filter Status Indicator - Always show when filters are active */}
         {(searchTerm || selectedCategory !== 'all') && (
-          <div className="flex-shrink-0 bg-purple-50 border-b border-purple-200 px-3 py-2">
+          <div className="flex-shrink-0 bg-gradient-to-r from-purple-900/50 to-cyan-900/50 backdrop-blur-sm border-b border-purple-700/30 px-3 py-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2 text-xs">
-                <span className="text-purple-700 font-medium">Active Filters:</span>
+                <span className="text-cyan-300 font-medium">Active Filters:</span>
                 {searchTerm && (
-                  <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                  <span className="bg-purple-600/30 text-cyan-300 px-2 py-1 rounded border border-cyan-500/30">
                     Search: "{searchTerm}"
                   </span>
                 )}
                 {selectedCategory !== 'all' && (
-                  <span className="bg-purple-100 text-purple-800 px-2 py-1 rounded">
+                  <span className="bg-purple-600/30 text-cyan-300 px-2 py-1 rounded border border-cyan-500/30">
                     Category: {categories.find(c => c.id === selectedCategory)?.name}
                   </span>
                 )}
-                <span className="text-purple-600">({filteredWidgets.length} results)</span>
+                <span className="text-cyan-400">({filteredWidgets.length} results)</span>
               </div>
               <button
                 onClick={() => {
                   setSearchTerm('');
                   setSelectedCategory('all');
                 }}
-                className="text-xs text-purple-600 hover:text-purple-700 underline"
+                className="text-xs text-cyan-300 hover:text-white underline transition-colors"
               >
                 Clear all
               </button>
             </div>
           </div>
         )}        {/* Widget List */}
-        <div className="flex-1 overflow-y-auto widget-grid min-h-0">
+        <div className="flex-1 overflow-y-auto widget-grid min-h-0 scrollbar-hide">
           <div className="p-2 pb-6">
             {filteredWidgets.length > 0 ? (
               <div className="space-y-2">
                 {filteredWidgets.map(widget => (
                   <div
                     key={widget.id}
-                    className="group border border-gray-200 rounded-lg p-2 hover:border-purple-300 hover:shadow-sm transition-all cursor-pointer"
+                    className="group border border-purple-600/30 bg-gray-800/50 backdrop-blur-sm rounded-lg p-2 hover:border-cyan-400/50 hover:bg-gray-700/60 hover:shadow-lg hover:shadow-purple-500/20 transition-all duration-300 cursor-pointer transform hover:scale-105"
                     onClick={() => handleAddWidget(widget)}
                     draggable={true}
                     onDragStart={(e) => handleDragStart(e, widget)}
@@ -428,15 +443,15 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
                     <div className="flex items-center space-x-2">
                       <div className="text-base flex-shrink-0">{widget.icon}</div>
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-xs font-medium text-gray-900 group-hover:text-purple-700 truncate">
+                        <h4 className="text-xs font-medium text-white group-hover:text-cyan-300 truncate transition-colors">
                           {widget.name}
                         </h4>
-                        <p className="text-xs text-gray-500 truncate">
+                        <p className="text-xs text-purple-300 group-hover:text-purple-200 truncate transition-colors">
                           {widget.description}
                         </p>
                       </div>
                       <div className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0">
-                        <svg className="w-3 h-3 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg className="w-3 h-3 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                         </svg>
                       </div>
@@ -445,11 +460,11 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                <svg className="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="text-center py-8 text-purple-300">
+                <svg className="mx-auto h-8 w-8 text-purple-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
-                <p className="text-sm font-medium">No widgets found</p>
+                <p className="text-sm font-medium text-white">No widgets found</p>
                 {searchTerm && (
                   <p className="text-xs mb-2">No results for "{searchTerm}"</p>
                 )}
@@ -460,7 +475,7 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
                   {searchTerm && (
                     <button
                       onClick={() => setSearchTerm('')}
-                      className="text-xs text-purple-600 hover:text-purple-700"
+                      className="text-xs text-cyan-300 hover:text-white transition-colors"
                     >
                       Clear search
                     </button>
@@ -468,7 +483,7 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
                   {selectedCategory !== 'all' && (
                     <button
                       onClick={() => setSelectedCategory('all')}
-                      className="text-xs text-purple-600 hover:text-purple-700"
+                      className="text-xs text-cyan-300 hover:text-white transition-colors"
                     >
                       Show all categories
                     </button>

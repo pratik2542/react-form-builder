@@ -175,7 +175,7 @@ export default function DevicePreview({ form, fields, values, onValueChange, aut
             onChange={(e) => onValueChange(field.id, e.target.value)}
             required={field.is_required}
             readOnly={field.is_readonly}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
           />
         );
 
@@ -189,7 +189,7 @@ export default function DevicePreview({ form, fields, values, onValueChange, aut
             required={field.is_required}
             readOnly={field.is_readonly}
             rows={4}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+            className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300 resize-vertical"
           />
         );
 
@@ -201,11 +201,11 @@ export default function DevicePreview({ form, fields, values, onValueChange, aut
             value={fieldValue}
             onChange={(e) => onValueChange(field.id, e.target.value)}
             required={field.is_required}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
           >
-            <option value="">Select an option</option>
+            <option value="" className="bg-gray-700 text-white">Select an option</option>
             {selectOptions.map((option, i) => (
-              <option key={i} value={option}>{option}</option>
+              <option key={i} value={option} className="bg-gray-700 text-white">{option}</option>
             ))}
           </select>
         );
@@ -265,7 +265,7 @@ export default function DevicePreview({ form, fields, values, onValueChange, aut
             multiple={field.allowMultiple}
             onChange={(e) => onValueChange(field.id, e.target.files)}
             required={field.is_required}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+            className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-600 file:text-white hover:file:bg-purple-500"
           />
         );
 
@@ -278,18 +278,18 @@ export default function DevicePreview({ form, fields, values, onValueChange, aut
             value={fieldValue}
             onChange={(e) => onValueChange(field.id, e.target.value)}
             required={field.is_required}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
           />
         );
     }
   };
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-gray-900">`
       {/* Preview Header - Fixed */}
-      <div className="flex-shrink-0 bg-gray-50 border-b border-gray-200 p-4">
+      <div className="flex-shrink-0 bg-gray-800/90 backdrop-blur-sm border-b border-purple-800/30 p-4">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">Preview Form</h3>
+          <h3 className="text-lg font-semibold text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">Preview Form</h3>
           <div className="flex items-center space-x-2">
             {autoFillMode && (
               <>
@@ -299,14 +299,14 @@ export default function DevicePreview({ form, fields, values, onValueChange, aut
                   className={`px-3 py-1 text-sm font-medium rounded-md transition-colors ${
                     isAutoFilled
                       ? 'bg-green-100 text-green-800 cursor-not-allowed'
-                      : 'bg-blue-600 text-white hover:bg-blue-700'
+                      : 'bg-gradient-to-r from-purple-600 to-cyan-600 text-white hover:from-purple-500 hover:to-cyan-500 shadow-lg hover:shadow-purple-500/40'
                   }`}
                 >
                   {isAutoFilled ? '✓ Auto-filled' : 'Auto Fill'}
                 </button>
                 <button
                   onClick={clearForm}
-                  className="px-3 py-1 text-sm font-medium text-gray-600 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
+                  className="px-3 py-1 text-sm font-medium text-purple-300 bg-gray-700/50 border border-purple-600/30 rounded-md hover:bg-gray-600/50 hover:border-purple-500/40 transition-all duration-300"
                 >
                   Clear
                 </button>
@@ -316,7 +316,7 @@ export default function DevicePreview({ form, fields, values, onValueChange, aut
         </div>
 
         {/* Device Toggle */}
-        <div className="flex items-center space-x-1 bg-white rounded-lg p-1">
+        <div className="flex items-center space-x-1 bg-gray-800/80 backdrop-blur-sm border border-purple-700/30 rounded-lg p-1">
           {['mobile', 'tablet', 'desktop'].map((device) => (
             <button
               key={device}
@@ -324,7 +324,7 @@ export default function DevicePreview({ form, fields, values, onValueChange, aut
               className={`flex items-center space-x-2 px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                 previewDevice === device
                   ? 'bg-blue-100 text-blue-700'
-                  : 'text-gray-600 hover:bg-gray-100'
+                  : 'text-purple-300 hover:bg-gray-700/50'
               }`}
             >
               {getDeviceIcon(device)}
@@ -335,19 +335,19 @@ export default function DevicePreview({ form, fields, values, onValueChange, aut
       </div>
 
       {/* Preview Content - Scrollable */}
-      <div className="flex-1 overflow-y-auto p-6 bg-gray-100">
-        <div className={`bg-white rounded-lg shadow-lg p-6 ${getDeviceClass()}`}>
+      <div className="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-gray-950 via-purple-950/50 to-blue-950/50">
+        <div className={`bg-gray-800/90 backdrop-blur-sm rounded-lg shadow-2xl shadow-purple-900/40 border border-purple-700/30 p-6 ${getDeviceClass()}`}>
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 mb-2">{form?.name || 'Form Preview'}</h1>
+            <h1 className="text-2xl font-bold text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2">{form?.name || 'Form Preview'}</h1>
             {form?.description && (
-              <p className="text-gray-600">{form.description}</p>
+              <p className="text-purple-300">{form.description}</p>
             )}
           </div>
 
           <div className="space-y-6">
             {fields.map((field, index) => (
               <div key={field.id || index} className="space-y-2">
-                <label className="block text-sm font-medium text-gray-700">
+                <label className="block text-sm font-medium text-purple-300">
                   {field.label}
                   {field.is_required && <span className="text-red-500 ml-1">*</span>}
                 </label>
@@ -356,8 +356,8 @@ export default function DevicePreview({ form, fields, values, onValueChange, aut
             ))}
 
             {fields.length === 0 && (
-              <div className="text-center py-12 text-gray-500">
-                <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="text-center py-12 text-purple-300">
+                <svg className="mx-auto h-12 w-12 text-purple-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
                 <p className="text-lg font-medium">No fields added yet</p>
@@ -367,10 +367,10 @@ export default function DevicePreview({ form, fields, values, onValueChange, aut
           </div>
 
           {fields.length > 0 && (
-            <div className="mt-8 pt-6 border-t border-gray-200">
+            <div className="mt-8 pt-6 border-t border-purple-800/30">
               <button
                 type="button"
-                className="w-full bg-blue-600 text-white py-3 px-4 rounded-md font-medium hover:bg-blue-700 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white py-3 px-4 rounded-md font-medium hover:from-purple-500 hover:to-cyan-500 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-gray-800 shadow-lg hover:shadow-purple-500/40"
               >
                 Submit Form
               </button>

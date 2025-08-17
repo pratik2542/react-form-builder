@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../supabase/client';
 import { getSessionId, generateDraftId } from '../utils/sessionManager';
 import { initializeDraftSystem } from '../utils/draftMigration';
+import { getDisplayNameSync } from '../utils/nameGenerator';
 
 
 export default function FormViewer() {
@@ -148,12 +149,23 @@ export default function FormViewer() {
     fetchFormAndFields();
   }, [formId]);
 
-  // Check authentication status
+  // Check authentication status and auto-fill name from email
   useEffect(() => {
     const checkAuth = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser();
         setIsAuthenticated(!!user);
+        
+        // Auto-fill name from email if user is logged in
+        if (user && user.email) {
+          // Use AI-generated name for consistency with dashboard
+          const aiGeneratedName = getDisplayNameSync(user.email);
+          
+          setNameInputValue(aiGeneratedName);
+          setUserName(aiGeneratedName);
+          setShowNameDialog(false); // Skip name dialog for logged-in users
+          console.log('Auto-filled AI-generated name:', aiGeneratedName);
+        }
       } catch (error) {
         console.error('Error checking authentication:', error);
         setIsAuthenticated(false);
@@ -165,6 +177,22 @@ export default function FormViewer() {
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       setIsAuthenticated(!!session?.user);
+      
+      // Auto-fill name when user logs in
+      if (session?.user?.email) {
+        // Use AI-generated name for consistency with dashboard
+        const aiGeneratedName = getDisplayNameSync(session.user.email);
+        
+        setNameInputValue(aiGeneratedName);
+        setUserName(aiGeneratedName);
+        setShowNameDialog(false);
+        console.log('Auto-filled AI-generated name on auth change:', aiGeneratedName);
+      } else {
+        // Reset name dialog if user logs out
+        setNameInputValue('');
+        setUserName('');
+        setShowNameDialog(true);
+      }
     });
 
     return () => subscription.unsubscribe();
@@ -1008,7 +1036,7 @@ export default function FormViewer() {
   };
 
   const renderField = (field) => {
-    const baseClasses = "w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900";
+    const baseClasses = "w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 backdrop-blur-sm transition-all duration-200 text-white placeholder:text-gray-400";
     const disabledClasses = field.is_readonly ? "bg-gray-100 cursor-not-allowed" : "";
     
     switch (field.field_type) {
@@ -1036,7 +1064,7 @@ export default function FormViewer() {
                     type="checkbox"
                     id={`${field.id}-${i}`}
                     disabled={field.is_readonly}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-4 h-4 text-cyan-400 bg-gray-700/50 border-gray-600/50 rounded focus:ring-cyan-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
                     onChange={(e) => {
                       const currentValues = values[field.id] || [];
                       const newValues = e.target.checked
@@ -1048,7 +1076,7 @@ export default function FormViewer() {
                   />
                   <label 
                     htmlFor={`${field.id}-${i}`}
-                    className="text-sm text-gray-700 cursor-pointer select-none"
+                    className="text-sm text-white cursor-pointer select-none"
                   >
                     {option}
                   </label>
@@ -1065,16 +1093,16 @@ export default function FormViewer() {
                 id={`checkbox-${field.id}`}
                 disabled={field.is_readonly}
                 required={field.is_required}
-                className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                className="w-5 h-5 text-cyan-400 bg-gray-700/50 border-gray-600/50 rounded focus:ring-cyan-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
                 onChange={(e) => setValues({ ...values, [field.id]: e.target.checked })}
                 checked={values[field.id] || false}
               />
               <label 
                 htmlFor={`checkbox-${field.id}`}
-                className="text-sm text-gray-700 cursor-pointer select-none"
+                className="text-sm text-white cursor-pointer select-none"
               >
                 {field.label}
-                {field.is_required && <span className="text-red-500 ml-1">*</span>}
+                {field.is_required && <span className="text-red-400 ml-1">*</span>}
               </label>
             </div>
           );
@@ -1089,7 +1117,7 @@ export default function FormViewer() {
                   type="checkbox"
                   id={`${field.id}-${i}`}
                   disabled={field.is_readonly}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-4 h-4 text-cyan-400 bg-gray-700/50 border-gray-600/50 rounded focus:ring-cyan-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
                   onChange={(e) => {
                     const currentValues = values[field.id] || [];
                     const newValues = e.target.checked
@@ -1101,7 +1129,7 @@ export default function FormViewer() {
                 />
                 <label 
                   htmlFor={`${field.id}-${i}`}
-                  className="text-sm text-gray-700 cursor-pointer select-none"
+                  className="text-sm text-white cursor-pointer select-none"
                 >
                   {option}
                 </label>
@@ -1121,13 +1149,13 @@ export default function FormViewer() {
                   name={field.id}
                   disabled={field.is_readonly}
                   required={field.is_required}
-                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="w-4 h-4 text-cyan-400 bg-gray-700/50 border-gray-600/50 focus:ring-cyan-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
                   onChange={(e) => setValues({ ...values, [field.id]: option })}
                   checked={values[field.id] === option}
                 />
                 <label 
                   htmlFor={`${field.id}-${i}`}
-                  className="text-sm text-gray-700 cursor-pointer select-none"
+                  className="text-sm text-white cursor-pointer select-none"
                 >
                   {option}
                 </label>
@@ -1149,7 +1177,7 @@ export default function FormViewer() {
                     type="checkbox"
                     id={`${field.id}-${i}`}
                     disabled={field.is_readonly}
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="w-4 h-4 text-cyan-400 bg-gray-700/50 border-gray-600/50 rounded focus:ring-cyan-400 focus:ring-2 disabled:cursor-not-allowed disabled:opacity-50"
                     onChange={(e) => {
                       const currentValues = values[field.id] || [];
                       const newValues = e.target.checked
@@ -1161,7 +1189,7 @@ export default function FormViewer() {
                   />
                   <label 
                     htmlFor={`${field.id}-${i}`}
-                    className="text-sm text-gray-700 cursor-pointer select-none"
+                    className="text-sm text-white cursor-pointer select-none"
                   >
                     {option}
                   </label>
@@ -1214,33 +1242,33 @@ export default function FormViewer() {
             />
             
             {/* File info display */}
-            <div className="text-sm text-gray-600 space-y-1">
+            <div className="text-sm text-gray-300 space-y-1">
               {field.accept && (
                 <p>
-                  <span className="font-medium">Accepted types:</span> {field.accept}
+                  <span className="font-medium text-white">Accepted types:</span> {field.accept}
                 </p>
               )}
               {field.maxSize && (
                 <p>
-                  <span className="font-medium">Maximum size:</span> {field.maxSize} MB per file
+                  <span className="font-medium text-white">Maximum size:</span> {field.maxSize} MB per file
                 </p>
               )}
               {field.allowMultiple && (
                 <p>
-                  <span className="font-medium">Multiple files:</span> Allowed
+                  <span className="font-medium text-white">Multiple files:</span> Allowed
                 </p>
               )}
             </div>
             
             {/* Display selected files */}
             {values[field.id] && (
-              <div className="bg-gray-50 rounded-lg p-3">
-                <p className="font-medium text-sm text-gray-700 mb-2">Selected Files:</p>
+              <div className="bg-gray-700/50 rounded-lg p-3 border border-gray-600/50">
+                <p className="font-medium text-sm text-white mb-2">Selected Files:</p>
                 {field.allowMultiple ? (
                   <ul className="space-y-1">
                     {values[field.id].map((file, i) => (
-                      <li key={i} className="flex items-center text-sm text-gray-600">
-                        <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <li key={i} className="flex items-center text-sm text-gray-300">
+                        <svg className="w-4 h-4 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                         </svg>
                         {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
@@ -1248,8 +1276,8 @@ export default function FormViewer() {
                     ))}
                   </ul>
                 ) : (
-                  <div className="flex items-center text-sm text-gray-600">
-                    <svg className="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="flex items-center text-sm text-gray-300">
+                    <svg className="w-4 h-4 mr-2 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                     </svg>
                     {values[field.id].name} ({(values[field.id].size / 1024 / 1024).toFixed(2)} MB)
@@ -1277,10 +1305,10 @@ export default function FormViewer() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-blue-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading form...</p>
+          <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]"></div>
+          <p className="text-gray-300">Loading form...</p>
         </div>
       </div>
     );
@@ -1289,21 +1317,21 @@ export default function FormViewer() {
   // Show name dialog before form
   if (showNameDialog) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 max-w-md w-full mx-4">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-blue-950 flex items-center justify-center">
+        <div className="bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-700/50 p-8 max-w-md w-full mx-4 drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
           <div className="text-center mb-6">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="w-16 h-16 bg-gradient-to-br from-cyan-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 drop-shadow-[0_0_20px_rgba(34,211,238,0.4)]">
+              <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-2">Welcome!</h2>
-            <p className="text-gray-600">Please enter your name to continue to the form</p>
+            <h2 className="text-2xl font-bold text-white mb-2">Welcome!</h2>
+            <p className="text-gray-300">Please enter your name to continue to the form</p>
           </div>
           
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-300 mb-2">
                 Your Name *
               </label>
               <input
@@ -1311,7 +1339,7 @@ export default function FormViewer() {
                 value={nameInputValue}
                 onChange={(e) => setNameInputValue(e.target.value)}
                 placeholder="Enter your full name"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
+                className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 backdrop-blur-sm transition-all duration-200 text-white placeholder:text-gray-400"
                 onKeyPress={(e) => {
                   if (e.key === 'Enter') {
                     handleNameSubmit();
@@ -1323,7 +1351,7 @@ export default function FormViewer() {
             
             <button
               onClick={handleNameSubmit}
-              className="w-full bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-200 transition-all duration-200 font-medium"
+              className="w-full bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white py-3 px-6 rounded-lg transition-all duration-200 font-medium shadow-lg hover:shadow-cyan-500/25 transform hover:-translate-y-0.5 drop-shadow-[0_0_10px_rgba(34,211,238,0.3)]"
             >
               Continue to Form
             </button>
@@ -1333,16 +1361,16 @@ export default function FormViewer() {
                 setUserName('Anonymous');
                 setShowNameDialog(false);
               }}
-              className="w-full bg-gray-200 text-gray-700 py-2 px-6 rounded-lg hover:bg-gray-300 focus:ring-4 focus:ring-gray-200 transition-all duration-200 font-medium text-sm"
+              className="w-full bg-gray-700/50 border border-gray-600/50 text-gray-300 py-2 px-6 rounded-lg hover:bg-gray-600/50 hover:border-gray-500/50 transition-all duration-200 font-medium text-sm backdrop-blur-sm"
             >
               Continue Anonymously
             </button>
           </div>
           
           {form?.name && (
-            <div className="mt-6 pt-6 border-t border-gray-200">
-              <p className="text-sm text-gray-500 text-center">
-                You're about to fill: <span className="font-medium text-gray-700">{form.name}</span>
+            <div className="mt-6 pt-6 border-t border-gray-600/50">
+              <p className="text-sm text-gray-400 text-center">
+                You're about to fill: <span className="font-medium text-white">{form.name}</span>
               </p>
             </div>
           )}
@@ -1352,13 +1380,13 @@ export default function FormViewer() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-blue-950">
       <div className="container mx-auto px-4 py-8 max-w-3xl">
         {/* Header */}
         <div className="mb-8">
           <Link 
             to="/" 
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium mb-4 transition-colors duration-200"
+            className="inline-flex items-center text-cyan-400 hover:text-cyan-300 font-medium mb-4 transition-colors duration-200"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -1366,10 +1394,10 @@ export default function FormViewer() {
             Back to Dashboard
           </Link>
           
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-            <h1 className="text-3xl font-bold text-gray-800 mb-2">{form?.name || 'Form'}</h1>
+          <div className="bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-700/50 p-8 drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+            <h1 className="text-3xl font-bold text-white mb-2">{form?.name || 'Form'}</h1>
             {form?.type && (
-              <span className="inline-block bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+              <span className="inline-block bg-gradient-to-r from-cyan-500 to-purple-500 text-white text-sm font-medium px-3 py-1 rounded-full drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">
                 {form.type}
               </span>
             )}
@@ -1377,7 +1405,7 @@ export default function FormViewer() {
         </div>
 
         {/* Form */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
+        <div className="bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-700/50 p-8 drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
           <form onSubmit={handleSubmit} className="space-y-6">
             {fields.map((field, index) => {
               const { isVisible, isRequired } = getFieldVisibility(field.id);
@@ -1390,16 +1418,16 @@ export default function FormViewer() {
                 <div key={field.id} className="space-y-2">
                   {/* Show label for all fields except single checkboxes (checkbox without options) */}
                   {!(field.field_type === 'checkbox' && (!field.options || field.options.length === 0)) && (
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-gray-300">
                       {field.label || 'Unnamed Field'}
-                      {isRequired && <span className="text-red-500 ml-1">*</span>}
+                      {isRequired && <span className="text-red-400 ml-1">*</span>}
                     </label>
                   )}
                   
                   {renderField(fieldWithLogic)}
                   
                   {field.is_readonly && (
-                    <p className="text-xs text-gray-500">This field is read-only</p>
+                    <p className="text-xs text-gray-400">This field is read-only</p>
                   )}
                 </div>
               );
@@ -1407,16 +1435,16 @@ export default function FormViewer() {
             
             {fields.length === 0 ? (
               <div className="text-center py-12">
-                <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                <div className="w-16 h-16 mx-auto mb-4 bg-gray-700/50 rounded-full flex items-center justify-center border border-gray-600/50">
                   <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6" />
                   </svg>
                 </div>
-                <h3 className="text-lg font-medium text-gray-700 mb-2">No fields in this form</h3>
-                <p className="text-gray-500">This form doesn't have any fields to fill out yet.</p>
+                <h3 className="text-lg font-medium text-white mb-2">No fields in this form</h3>
+                <p className="text-gray-400">This form doesn't have any fields to fill out yet.</p>
               </div>
             ) : (
-              <div className="pt-6 border-t border-gray-200">
+              <div className="pt-6 border-t border-gray-600/50">
                 {/* Action Buttons */}
                 <div className="flex flex-col gap-3">
                   {isAuthenticated ? (
@@ -1428,7 +1456,7 @@ export default function FormViewer() {
                       type="button"
                       onClick={() => saveDraft(false)}
                       disabled={draftSaving}
-                      className="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
+                      className="flex-1 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-cyan-500/25 transform hover:-translate-y-0.5 flex items-center justify-center drop-shadow-[0_0_10px_rgba(34,211,238,0.3)]"
                     >
                       {draftSaving ? (
                         <>
@@ -1471,7 +1499,7 @@ export default function FormViewer() {
                         }
                       }}
                       disabled={draftSaving}
-                      className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
+                      className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-3 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-purple-500/25 transform hover:-translate-y-0.5 flex items-center justify-center drop-shadow-[0_0_10px_rgba(168,85,247,0.3)]"
                     >
                       {draftSaving ? (
                         <>
@@ -1522,7 +1550,7 @@ export default function FormViewer() {
                       <button
                         type="submit"
                         disabled={submitting}
-                        className="w-full sm:w-auto min-w-48 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center text-lg"
+                        className="w-full sm:w-auto min-w-48 bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-500 hover:to-green-500 disabled:opacity-50 disabled:cursor-not-allowed text-white px-8 py-4 rounded-lg font-semibold transition-all duration-200 shadow-lg hover:shadow-emerald-500/25 transform hover:-translate-y-0.5 flex items-center justify-center text-lg drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]"
                       >
                         {submitting ? (
                           <>
@@ -1552,7 +1580,7 @@ export default function FormViewer() {
         {/* Minimized Draft Status Indicator - Only show for authenticated users */}
         {isAuthenticated && hasDraft && lastSaveTime && (
           <div className="fixed bottom-6 right-6 z-40">
-            <div className={`draft-panel bg-white rounded-lg shadow-lg border border-gray-200 transition-all duration-300 ${
+            <div className={`draft-panel bg-gray-800/90 backdrop-blur-xl rounded-lg shadow-2xl border border-gray-700/50 transition-all duration-300 ${
               isDraftPanelExpanded ? 'w-80' : 'w-auto'
             }`}>
               {/* Collapsed State - Small indicator */}

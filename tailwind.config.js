@@ -5,6 +5,15 @@ module.exports = {
   ],
   theme: {
     extend: {
+      animation: {
+        'pulse': 'pulse 4s ease-in-out infinite',
+      },
+      keyframes: {
+        pulse: {
+          '0%, 100%': { opacity: '0.2' },
+          '50%': { opacity: '0.3' },
+        }
+      },
       colors: {
         primary: {
           50: '#eff6ff',

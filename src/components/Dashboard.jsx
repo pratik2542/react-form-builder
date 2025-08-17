@@ -3,6 +3,7 @@ import { supabase } from '../supabase/client';
 import { Link, useNavigate } from 'react-router-dom';
 import DraftManager from './DraftManager';
 import { generateFormStructure } from '../utils/groq';
+import { generateDisplayName, getFirstName, getDisplayNameSync, getFirstNameSync } from '../utils/nameGenerator';
 
 // Share Modal Component
 const ShareModal = ({ isOpen, onClose, formUrl, formTitle }) => {
@@ -158,88 +159,93 @@ const formatCreationTime = (dateString) => {
 
 // Form Card Component
 const FormCard = ({ form, onDelete, onShare }) => (
-  <div className="group bg-gray-50 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 p-4 sm:p-6 rounded-xl border border-gray-200 hover:border-blue-300 transition-all duration-200 hover:shadow-lg transform hover:-translate-y-1">
-    <div className="flex items-start justify-between mb-3">
-      <h3 className="font-semibold text-gray-800 group-hover:text-blue-700 line-clamp-2 flex-1 text-sm sm:text-base">
-        {form.name}
-      </h3>
-      <div className="flex items-center gap-1 sm:gap-2 ml-2 flex-shrink-0">
-        <Link
-          to={`/edit/${form.id}`}
-          className="p-1 text-gray-400 hover:text-blue-500 transition-colors duration-200"
-          title="Edit form"
-        >
-          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+  <div className="group bg-gradient-to-br from-gray-800/50 via-slate-800/50 to-gray-800/50 backdrop-blur-lg hover:from-gray-700/60 hover:via-slate-700/60 hover:to-gray-700/60 p-4 sm:p-6 rounded-2xl border border-gray-600/50 hover:border-cyan-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-cyan-500/20 transform hover:-translate-y-2 relative overflow-hidden">
+    {/* Subtle neon glow effect */}
+    <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+    
+    <div className="relative z-10">
+      <div className="flex items-start justify-between mb-3">
+        <h3 className="font-semibold text-white group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-cyan-400 group-hover:to-purple-400 line-clamp-2 flex-1 text-sm sm:text-base transition-all duration-300">
+          {form.name}
+        </h3>
+        <div className="flex items-center gap-1 sm:gap-2 ml-2 flex-shrink-0">
+          <Link
+            to={`/edit/${form.id}`}
+            className="p-1 text-gray-400 hover:text-cyan-400 transition-colors duration-200"
+            title="Edit form"
+          >
+            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </Link>
+          <Link
+            to={`/view/${form.id}`}
+            className="p-1 text-gray-400 hover:text-emerald-400 transition-colors duration-200"
+            title="View/Fill form"
+          >
+            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
+          </Link>
+          <button
+            onClick={() => onDelete(form.id, form.name)}
+            className="p-1 text-gray-400 hover:text-red-400 transition-colors duration-200"
+            title="Delete form"
+          >
+            <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+      
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 space-y-2 sm:space-y-0">
+        <div className="flex items-center text-xs sm:text-sm text-gray-400 flex-shrink-0">
+          <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 002 2z" />
           </svg>
-        </Link>
+          <span className="truncate">{formatCreationTime(form.created_at)}</span>
+        </div>
+        {form.type && (
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gradient-to-r from-cyan-500/20 to-purple-500/20 text-cyan-300 border border-cyan-500/30 flex-shrink-0 self-start sm:self-center">
+            {form.type}
+          </span>
+        )}
+      </div>
+      
+      {/* Action Buttons */}
+      <div className="flex flex-col gap-2">
         <Link
           to={`/view/${form.id}`}
-          className="p-1 text-gray-400 hover:text-green-500 transition-colors duration-200"
-          title="View/Fill form"
+          className="w-full bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-xl text-xs sm:text-sm font-medium transition-all duration-300 text-center shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/40 transform hover:-translate-y-1 border border-cyan-500/30"
         >
-          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-          </svg>
-        </Link>
-        <button
-          onClick={() => onDelete(form.id, form.name)}
-          className="p-1 text-gray-400 hover:text-red-500 transition-colors duration-200"
-          title="Delete form"
-        >
-          <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-        </button>
-      </div>
-    </div>
-    
-    <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 sm:mb-4 space-y-2 sm:space-y-0">
-      <div className="flex items-center text-xs sm:text-sm text-gray-500 flex-shrink-0">
-        <svg className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-        <span className="truncate">{formatCreationTime(form.created_at)}</span>
-      </div>
-      {form.type && (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800 flex-shrink-0 self-start sm:self-center">
-          {form.type}
-        </span>
-      )}
-    </div>
-    
-    {/* Action Buttons */}
-    <div className="flex flex-col gap-2">
-      <Link
-        to={`/view/${form.id}`}
-        className="w-full bg-blue-600 hover:bg-blue-700 text-white px-3 sm:px-4 py-2 sm:py-3 rounded-lg text-xs sm:text-sm font-medium transition-all duration-200 text-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5"
-      >
-        Fill Form
-      </Link>
-      
-      <div className="flex gap-2">
-        <Link
-          to={`/analytics/${form.id}`}
-          className="flex-1 bg-purple-600 hover:bg-purple-700 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs font-medium transition-all duration-200 text-center shadow-sm hover:shadow-md flex items-center justify-center"
-          title="View form analytics"
-        >
-          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-          </svg>
-          Analytics
+          Fill Form
         </Link>
         
-        <button
-          onClick={() => onShare(form)}
-          className="flex-1 bg-green-600 hover:bg-green-700 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs font-medium transition-all duration-200 text-center shadow-sm hover:shadow-md flex items-center justify-center"
-          title="Share form"
-        >
-          <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
-          </svg>
-          Share
-        </button>
+        <div className="flex gap-2">
+          <Link
+            to={`/analytics/${form.id}`}
+            className="flex-1 bg-gradient-to-r from-purple-500/80 to-pink-500/80 hover:from-purple-500 hover:to-pink-500 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-medium transition-all duration-300 text-center shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 flex items-center justify-center border border-purple-500/30"
+            title="View form analytics"
+          >
+            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            Analytics
+          </Link>
+          
+          <button
+            onClick={() => onShare(form)}
+            className="flex-1 bg-gradient-to-r from-emerald-500/80 to-teal-500/80 hover:from-emerald-500 hover:to-teal-500 text-white px-2 sm:px-3 py-1.5 sm:py-2 rounded-xl text-xs font-medium transition-all duration-300 text-center shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40 flex items-center justify-center border border-emerald-500/30"
+            title="Share form"
+          >
+            <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
+            </svg>
+            Share
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -261,6 +267,37 @@ export default function Dashboard({ session }) {
   const [aiGeneratedForm, setAiGeneratedForm] = useState(null);
   const [showAiReviewModal, setShowAiReviewModal] = useState(false);
   const [shareModal, setShareModal] = useState({ isOpen: false, formUrl: '', formTitle: '' });
+  const [showEmailTooltip, setShowEmailTooltip] = useState(false);
+  const [userDisplayName, setUserDisplayName] = useState('');
+  const [userFirstName, setUserFirstName] = useState('');
+
+  // Generate user display names (async AI + sync fallback)
+  useEffect(() => {
+    if (userEmail) {
+      // Set immediate fallback names
+      setUserDisplayName(getDisplayNameSync(userEmail));
+      setUserFirstName(getFirstNameSync(userEmail));
+      
+      // Generate AI names asynchronously
+      const generateAINames = async () => {
+        try {
+          const aiDisplayName = await generateDisplayName(userEmail);
+          const aiFirstName = await getFirstName(userEmail);
+          
+          setUserDisplayName(aiDisplayName);
+          setUserFirstName(aiFirstName);
+        } catch (error) {
+          console.error('Error generating AI names:', error);
+          // Keep fallback names if AI fails
+        }
+      };
+      
+      generateAINames();
+    } else {
+      setUserDisplayName('Anonymous User');
+      setUserFirstName('Anonymous');
+    }
+  }, [userEmail]);
 
   useEffect(() => {
     const fetchForms = async () => {
@@ -290,6 +327,20 @@ export default function Dashboard({ session }) {
       }
     }
   }, [userEmail]);
+
+  // Handle clicking outside to close email tooltip
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (showEmailTooltip && !event.target.closest('.email-tooltip-container')) {
+        setShowEmailTooltip(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showEmailTooltip]);
 
   // Auto-close mobile welcome popup after 3 seconds only for initial load
   useEffect(() => {
@@ -485,47 +536,76 @@ export default function Dashboard({ session }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      {/* Mobile Welcome Popup - Only shows on mobile for 3 seconds */}
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-slate-900 to-black">
+      {/* Ambient Background Effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-20 left-20 w-72 h-72 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
+        <div className="absolute top-40 right-20 w-72 h-72 bg-cyan-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
+        <div className="absolute bottom-40 left-40 w-72 h-72 bg-pink-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
+      </div>
+
+      {/* Mobile Welcome Popup - Dark Theme */}
       {showMobileWelcome && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 sm:hidden">
-          <div className={`bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-2xl shadow-2xl p-6 max-w-sm w-full ${isAutoClose ? 'animate-pulse' : ''}`}>
-            <div className="text-center">
-              <div className="w-16 h-16 bg-white bg-opacity-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.5a2.5 2.5 0 100-5H9l-3 3m3-3l3 3m4-3h1.5a2.5 2.5 0 100-5H16l-3 3m3-3l3 3" />
-                </svg>
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 sm:hidden backdrop-blur-sm">
+          <div className={`bg-gradient-to-r from-purple-900 via-blue-900 to-indigo-900 border border-cyan-500/30 text-white rounded-2xl shadow-2xl p-6 max-w-sm w-full ${isAutoClose ? 'animate-pulse' : ''} relative overflow-hidden`}>
+            {/* Neon border effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur-sm"></div>
+            <div className="relative z-10">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-cyan-500/50">
+                  <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14.828 14.828a4 4 0 01-5.656 0M9 10h1.5a2.5 2.5 0 100-5H9l-3 3m3-3l3 3m4-3h1.5a2.5 2.5 0 100-5H16l-3 3m3-3l3 3" />
+                  </svg>
+                </div>
+                <h2 className="text-xl font-bold mb-2 text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Welcome back!</h2>
+                <div className="relative email-tooltip-container">
+                  <button
+                    onClick={() => setShowEmailTooltip(!showEmailTooltip)}
+                    className="text-gray-300 text-sm mb-2 hover:text-cyan-400 transition-colors cursor-pointer underline decoration-dashed underline-offset-2"
+                  >
+                    {userDisplayName}
+                  </button>
+                  
+                  {/* Email Tooltip */}
+                  {showEmailTooltip && (
+                    <div className="absolute top-full left-0 mt-1 bg-gray-700/95 backdrop-blur-sm border border-gray-600/50 rounded-lg p-2 z-50 shadow-xl">
+                      <p className="text-xs text-gray-300 whitespace-nowrap">{userEmail}</p>
+                      <div className="absolute -top-1 left-4 w-2 h-2 bg-gray-700 border-l border-t border-gray-600/50 transform rotate-45"></div>
+                    </div>
+                  )}
+                </div>
+                <p className="text-gray-400 text-xs">Ready to build amazing forms?</p>
               </div>
-              <h2 className="text-xl font-bold mb-2">Welcome back!</h2>
-              <p className="text-blue-100 text-sm mb-2 truncate">{userEmail}</p>
-              <p className="text-blue-200 text-xs">Ready to build amazing forms?</p>
+              <button
+                onClick={() => setShowMobileWelcome(false)}
+                className="absolute top-2 right-2 text-gray-400 hover:text-cyan-400 transition-colors p-1"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
             </div>
-            <button
-              onClick={() => setShowMobileWelcome(false)}
-              className="absolute top-2 right-2 text-white hover:text-blue-200 transition-colors p-1"
-            >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
           </div>
         </div>
       )}
 
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header Section */}
-        <div className="bg-white rounded-2xl shadow-xl p-8 mb-8 border border-gray-100">
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4">
+      <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
+        {/* Header Section - Dark Theme */}
+        <div className="bg-gradient-to-r from-slate-800/80 via-gray-800/80 to-slate-800/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 mb-8 border border-gray-700/50 relative overflow-hidden">
+          {/* Neon accent border */}
+          <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 rounded-3xl"></div>
+          
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 relative z-10">
             <div className="min-w-0 flex-1">
               {/* Mobile Design - Simple header with user info button */}
               <div className="block sm:hidden">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="text-2xl font-bold text-gray-800">
+                  <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
                     Dashboard
                   </div>
                   <button
                     onClick={handleShowUserInfo}
-                    className="bg-blue-100 hover:bg-blue-200 text-blue-600 p-2 rounded-full transition-colors duration-200"
+                    className="bg-gradient-to-r from-cyan-500/20 to-purple-500/20 hover:from-cyan-500/30 hover:to-purple-500/30 text-cyan-400 p-2 rounded-full transition-all duration-200 border border-cyan-500/30 shadow-lg shadow-cyan-500/20"
                     title="View user info"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -536,19 +616,39 @@ export default function Dashboard({ session }) {
               </div>
               
               {/* Desktop Design */}
-              <div className="hidden sm:block text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+              <div className="hidden sm:block text-2xl sm:text-3xl font-bold mb-2">
                 <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-baseline sm:gap-1">
-                  <span>Welcome back,</span>
-                  <span className="text-blue-600 break-words">{userEmail}</span>
+                  <span className="text-white">Welcome back,</span>
+                  <div className="relative inline-block email-tooltip-container">
+                    <button
+                      onClick={() => setShowEmailTooltip(!showEmailTooltip)}
+                      className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 hover:from-cyan-300 hover:via-purple-300 hover:to-pink-300 transition-all duration-200 cursor-pointer underline decoration-dashed decoration-cyan-400/50 underline-offset-4"
+                    >
+                      {userFirstName}
+                    </button>
+                    
+                    {/* Email Tooltip */}
+                    {showEmailTooltip && (
+                      <div className="absolute top-full left-0 mt-2 bg-gray-800/95 backdrop-blur-sm border border-gray-600/50 rounded-lg p-3 z-50 shadow-xl min-w-max">
+                        <p className="text-sm text-gray-300 font-normal">
+                          <span className="text-cyan-400 font-medium">AI Generated Name:</span> {userDisplayName}
+                        </p>
+                        <p className="text-sm text-gray-300 font-normal mt-1">
+                          <span className="text-cyan-400 font-medium">Email:</span> {userEmail}
+                        </p>
+                        <div className="absolute -top-1 left-6 w-2 h-2 bg-gray-800 border-l border-t border-gray-600/50 transform rotate-45"></div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
               
-              <p className="text-gray-600">Manage your forms and track submissions</p>
+              <p className="text-gray-300">Manage your forms and track submissions</p>
             </div>
             <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:flex-shrink-0">
               <Link 
                 to="/create" 
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
+                className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-cyan-500/30"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -557,7 +657,7 @@ export default function Dashboard({ session }) {
               </Link>
               <button
                 onClick={() => setShowAiModal(true)}
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
+                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-purple-500/30"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
@@ -566,7 +666,7 @@ export default function Dashboard({ session }) {
               </button>
               <Link 
                 to="/submissions" 
-                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-emerald-500/30"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -578,7 +678,7 @@ export default function Dashboard({ session }) {
                   await supabase.auth.signOut();
                   window.location.reload();
                 }}
-                className="bg-gray-600 hover:bg-gray-700 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-lg text-sm sm:text-base font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 flex items-center justify-center"
+                className="bg-gradient-to-r from-red-500/80 to-pink-500/80 hover:from-red-500 hover:to-pink-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-red-500/30"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
@@ -597,42 +697,42 @@ export default function Dashboard({ session }) {
         {/* Statistics Cards */}
         {forms.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
-            <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-3 sm:p-6 rounded-xl shadow-lg">
+            <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 backdrop-blur-lg border border-cyan-500/30 text-white p-3 sm:p-6 rounded-2xl shadow-lg shadow-cyan-500/20">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-blue-100 text-xs sm:text-sm">Total Forms</p>
-                  <p className="text-xl sm:text-3xl font-bold">{stats.total}</p>
+                  <p className="text-cyan-300 text-xs sm:text-sm">Total Forms</p>
+                  <p className="text-xl sm:text-3xl font-bold text-white">{stats.total}</p>
                 </div>
-                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-cyan-500/20 rounded-lg flex items-center justify-center border border-cyan-500/30">
+                  <svg className="w-4 h-4 sm:w-6 sm:h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                   </svg>
                 </div>
               </div>
             </div>
             
-            <div className="bg-gradient-to-r from-purple-500 to-purple-600 text-white p-3 sm:p-6 rounded-xl shadow-lg">
+            <div className="bg-gradient-to-r from-purple-500/20 to-pink-500/20 backdrop-blur-lg border border-purple-500/30 text-white p-3 sm:p-6 rounded-2xl shadow-lg shadow-purple-500/20">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-purple-100 text-xs sm:text-sm">Categories</p>
-                  <p className="text-xl sm:text-3xl font-bold">{stats.categories}</p>
+                  <p className="text-purple-300 text-xs sm:text-sm">Categories</p>
+                  <p className="text-xl sm:text-3xl font-bold text-white">{stats.categories}</p>
                 </div>
-                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-purple-500/20 rounded-lg flex items-center justify-center border border-purple-500/30">
+                  <svg className="w-4 h-4 sm:w-6 sm:h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                   </svg>
                 </div>
               </div>
             </div>
             
-            <div className="bg-gradient-to-r from-green-500 to-green-600 text-white p-3 sm:p-6 rounded-xl shadow-lg">
+            <div className="bg-gradient-to-r from-emerald-500/20 to-green-500/20 backdrop-blur-lg border border-emerald-500/30 text-white p-3 sm:p-6 rounded-2xl shadow-lg shadow-emerald-500/20">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-green-100 text-xs sm:text-sm">Recent (24h)</p>
-                  <p className="text-xl sm:text-3xl font-bold">{stats.recentForms}</p>
+                  <p className="text-emerald-300 text-xs sm:text-sm">Recent (24h)</p>
+                  <p className="text-xl sm:text-3xl font-bold text-white">{stats.recentForms}</p>
                 </div>
-                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <svg className="w-4 h-4 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-8 h-8 sm:w-12 sm:h-12 bg-emerald-500/20 rounded-lg flex items-center justify-center border border-emerald-500/30">
+                  <svg className="w-4 h-4 sm:w-6 sm:h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
@@ -643,25 +743,27 @@ export default function Dashboard({ session }) {
 
         {/* Search, Filter, and Controls */}
         {forms.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-xl p-6 mb-6 border border-gray-100">
-            <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-              {/* Search Bar */}
-              <div className="flex-1 max-w-md">
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                    </svg>
+          <div className="bg-gradient-to-br from-gray-800/80 via-slate-800/80 to-gray-800/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 mb-6 border border-gray-600/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl"></div>
+            <div className="relative z-10">
+              <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
+                {/* Search Bar */}
+                <div className="flex-1 max-w-md">
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <svg className="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Search forms..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="block w-full pl-10 pr-3 py-2 bg-gray-700/50 border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-white placeholder-gray-400 backdrop-blur-sm"
+                    />
                   </div>
-                  <input
-                    type="text"
-                    placeholder="Search forms..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
                 </div>
-              </div>
 
               {/* Filters and Controls */}
               <div className="flex flex-wrap gap-3">
@@ -669,7 +771,7 @@ export default function Dashboard({ session }) {
                 <select
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm text-white backdrop-blur-sm"
                 >
                   <option value="all">All Categories</option>
                   {categories.map(category => (
@@ -683,7 +785,7 @@ export default function Dashboard({ session }) {
                 <select
                   value={sortBy}
                   onChange={(e) => setSortBy(e.target.value)}
-                  className="px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+                  className="px-3 py-2 bg-gray-800/50 border border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-500 text-sm text-white backdrop-blur-sm"
                 >
                   <option value="newest">Newest First</option>
                   <option value="oldest">Oldest First</option>
@@ -691,13 +793,13 @@ export default function Dashboard({ session }) {
                 </select>
 
                 {/* View Mode Toggle */}
-                <div className="flex rounded-lg border border-gray-300 overflow-hidden">
+                <div className="flex rounded-lg border border-gray-600 overflow-hidden backdrop-blur-sm">
                   <button
                     onClick={() => setViewMode('category')}
                     className={`px-3 py-2 text-sm font-medium transition-colors ${
                       viewMode === 'category'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                        ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white'
+                        : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50'
                     }`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -708,8 +810,8 @@ export default function Dashboard({ session }) {
                     onClick={() => setViewMode('list')}
                     className={`px-3 py-2 text-sm font-medium transition-colors ${
                       viewMode === 'list'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-white text-gray-700 hover:bg-gray-50'
+                        ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white'
+                        : 'bg-gray-800/50 text-gray-300 hover:bg-gray-700/50'
                     }`}
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -722,15 +824,15 @@ export default function Dashboard({ session }) {
 
             {/* Quick Category Buttons */}
             {categories.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-gray-200">
-                <p className="text-sm text-gray-600 mb-2">Quick Access:</p>
+              <div className="mt-4 pt-4 border-t border-gray-600/50">
+                <p className="text-sm text-gray-400 mb-2">Quick Access:</p>
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setSelectedCategory('all')}
                     className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                       selectedCategory === 'all'
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white'
+                        : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
                     }`}
                   >
                     All ({forms.length})
@@ -743,8 +845,8 @@ export default function Dashboard({ session }) {
                         onClick={() => setSelectedCategory(category)}
                         className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
                           selectedCategory === category
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                            ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white'
+                            : 'bg-gray-700/50 text-gray-300 hover:bg-gray-600/50'
                         }`}
                       >
                         {category || 'Uncategorized'} ({count})
@@ -754,96 +856,109 @@ export default function Dashboard({ session }) {
                 </div>
               </div>
             )}
+            </div>
           </div>
         )}
 
         {/* Forms Display */}
         {forms.length === 0 ? (
           /* Empty State - No forms at all */
-          <div className="bg-white rounded-2xl shadow-xl p-12 text-center border border-gray-100">
-            <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
+          <div className="bg-gradient-to-br from-gray-800/80 via-slate-800/80 to-gray-800/80 backdrop-blur-lg rounded-3xl shadow-2xl p-12 text-center border border-gray-600/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl"></div>
+            <div className="relative z-10">
+              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-gray-700/50 to-slate-700/50 rounded-full flex items-center justify-center border border-gray-600/50">
+                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">No forms created yet</h3>
+              <p className="text-gray-400 mb-8">Create your first form to get started with collecting data</p>
+              <Link 
+                to="/create" 
+                className="inline-flex items-center bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white px-8 py-3 rounded-xl font-medium transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/40 transform hover:-translate-y-1 border border-cyan-500/30"
+              >
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Create Your First Form
+              </Link>
             </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No forms created yet</h3>
-            <p className="text-gray-500 mb-8">Create your first form to get started with collecting data</p>
-            <Link 
-              to="/create" 
-              className="inline-flex items-center bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-3 rounded-lg font-medium transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-            >
-              <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-              Create Your First Form
-            </Link>
           </div>
         ) : filteredForms.length === 0 ? (
           /* Empty State - No forms match filter */
-          <div className="bg-white rounded-2xl shadow-xl p-12 text-center border border-gray-100">
-            <div className="w-24 h-24 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
-              <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
+          <div className="bg-gradient-to-br from-gray-800/80 via-slate-800/80 to-gray-800/80 backdrop-blur-lg rounded-3xl shadow-2xl p-12 text-center border border-gray-600/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl"></div>
+            <div className="relative z-10">
+              <div className="w-24 h-24 mx-auto mb-6 bg-gradient-to-r from-gray-700/50 to-slate-700/50 rounded-full flex items-center justify-center border border-gray-600/50">
+                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-white mb-2">No forms found</h3>
+              <p className="text-gray-400 mb-6">
+                {searchTerm ? `No forms match "${searchTerm}"` : `No forms in "${selectedCategory}" category`}
+              </p>
+              <button
+                onClick={() => {
+                  setSearchTerm('');
+                  setSelectedCategory('all');
+                }}
+                className="text-cyan-400 hover:text-cyan-300 font-medium"
+              >
+                Clear filters
+              </button>
             </div>
-            <h3 className="text-xl font-semibold text-gray-700 mb-2">No forms found</h3>
-            <p className="text-gray-500 mb-6">
-              {searchTerm ? `No forms match "${searchTerm}"` : `No forms in "${selectedCategory}" category`}
-            </p>
-            <button
-              onClick={() => {
-                setSearchTerm('');
-                setSelectedCategory('all');
-              }}
-              className="text-blue-600 hover:text-blue-700 font-medium"
-            >
-              Clear filters
-            </button>
           </div>
         ) : viewMode === 'category' ? (
           /* Category View */
           <div className="space-y-8">
             {Object.entries(groupedFilteredForms).map(([type, categoryForms]) => (
-              <div key={type} className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-                <div className="flex items-center mb-6">
-                  <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mr-4">
-                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                    </svg>
+              <div key={type} className="bg-gradient-to-br from-gray-800/80 via-slate-800/80 to-gray-800/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border border-gray-600/50 relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl"></div>
+                <div className="relative z-10">
+                  <div className="flex items-center mb-6">
+                    <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-lg flex items-center justify-center mr-4 shadow-lg shadow-cyan-500/25">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                      </svg>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">{type || 'Uncategorized'}</h2>
+                      <p className="text-gray-400">{categoryForms.length} form{categoryForms.length !== 1 ? 's' : ''}</p>
+                    </div>
                   </div>
-                  <div>
-                    <h2 className="text-2xl font-bold text-gray-800">{type || 'Uncategorized'}</h2>
-                    <p className="text-gray-600">{categoryForms.length} form{categoryForms.length !== 1 ? 's' : ''}</p>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {categoryForms.map((form) => (
+                      <FormCard key={form.id} form={form} onDelete={handleDeleteForm} onShare={handleShare} />
+                    ))}
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {categoryForms.map((form) => (
-                    <FormCard key={form.id} form={form} onDelete={handleDeleteForm} onShare={handleShare} />
-                  ))}
                 </div>
               </div>
             ))}
           </div>
         ) : (
           /* List View */
-          <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100">
-            <div className="flex items-center mb-6">
-              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center mr-4">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
-                </svg>
+          <div className="bg-gradient-to-br from-gray-800/80 via-slate-800/80 to-gray-800/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 border border-gray-600/50 relative overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5 rounded-3xl"></div>
+            <div className="relative z-10">
+              <div className="flex items-center mb-6">
+                <div className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-lg flex items-center justify-center mr-4 shadow-lg shadow-cyan-500/25">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                </div>
+                <div>
+                  <h2 className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">All Forms</h2>
+                  <p className="text-gray-400">{sortedForms.length} form{sortedForms.length !== 1 ? 's' : ''}</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-2xl font-bold text-gray-800">All Forms</h2>
-                <p className="text-gray-600">{sortedForms.length} form{sortedForms.length !== 1 ? 's' : ''}</p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {sortedForms.map((form) => (
+                  <FormCard key={form.id} form={form} onDelete={handleDeleteForm} onShare={handleShare} />
+                ))}
               </div>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {sortedForms.map((form) => (
-                <FormCard key={form.id} form={form} onDelete={handleDeleteForm} onShare={handleShare} />
-              ))}
             </div>
           </div>
         )}
@@ -851,10 +966,11 @@ export default function Dashboard({ session }) {
 
       {/* AI Form Generation Modal */}
       {showAiModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+          <div className="bg-gradient-to-br from-gray-800 via-slate-800 to-gray-800 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-gray-600/50 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-pink-500/10 rounded-3xl"></div>
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4">
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4 relative z-10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
@@ -883,9 +999,9 @@ export default function Dashboard({ session }) {
             </div>
 
             {/* Modal Content */}
-            <div className="p-6">
+            <div className="p-6 relative z-10">
               <div className="mb-6">
-                <label htmlFor="ai-prompt" className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="ai-prompt" className="block text-sm font-medium text-gray-300 mb-2">
                   Describe the form you want to create
                 </label>
                 <textarea
@@ -894,17 +1010,17 @@ export default function Dashboard({ session }) {
                   onChange={(e) => setAiPrompt(e.target.value)}
                   placeholder="Example: Create a customer feedback form for a restaurant with rating questions and comments section..."
                   rows={6}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
+                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none text-white placeholder-gray-400 backdrop-blur-sm"
                   disabled={isGenerating}
                 />
-                <p className="text-xs text-gray-500 mt-2">
+                <p className="text-xs text-gray-400 mt-2">
                   Be specific about the type of form, questions you want, and any requirements.
                 </p>
               </div>
 
               {/* Example Prompts */}
               <div className="mb-6">
-                <p className="text-sm font-medium text-gray-700 mb-3">Example prompts:</p>
+                <p className="text-sm font-medium text-gray-300 mb-3">Example prompts:</p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {[
                     "Customer feedback form for a restaurant with food quality and service ratings",
@@ -915,7 +1031,7 @@ export default function Dashboard({ session }) {
                     <button
                       key={index}
                       onClick={() => setAiPrompt(example)}
-                      className="text-left p-2 text-xs bg-gray-50 hover:bg-purple-50 border border-gray-200 hover:border-purple-300 rounded transition-colors"
+                      className="text-left p-2 text-xs bg-gray-700/50 hover:bg-purple-500/20 border border-gray-600 hover:border-purple-500/50 rounded transition-colors text-gray-300 hover:text-white"
                       disabled={isGenerating}
                     >
                       {example}
@@ -929,7 +1045,7 @@ export default function Dashboard({ session }) {
                 <button
                   onClick={handleGenerateAiForm}
                   disabled={!aiPrompt.trim() || isGenerating}
-                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 disabled:from-gray-400 disabled:to-gray-500 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center"
+                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 disabled:from-gray-600 disabled:to-gray-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 border border-purple-500/30"
                 >
                   {isGenerating ? (
                     <>
@@ -954,7 +1070,7 @@ export default function Dashboard({ session }) {
                     setAiPrompt('');
                   }}
                   disabled={isGenerating}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 border border-gray-600 text-gray-300 rounded-xl font-medium hover:bg-gray-700/50 transition-colors"
                 >
                   Cancel
                 </button>
@@ -966,9 +1082,10 @@ export default function Dashboard({ session }) {
 
       {/* AI Review Modal */}
       {showAiReviewModal && aiGeneratedForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto">
-            <div className="bg-gradient-to-r from-purple-600 to-pink-600 px-6 py-4 flex items-center justify-between">
+        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
+          <div className="bg-gradient-to-br from-gray-800 via-slate-800 to-gray-800 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto border border-gray-600/50 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-pink-500/10 rounded-3xl"></div>
+            <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4 flex items-center justify-between relative z-10">
               <div className="flex items-center space-x-3">
                 <div className="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
                   <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -993,28 +1110,28 @@ export default function Dashboard({ session }) {
                 </svg>
               </button>
             </div>
-            <div className="p-6 space-y-4">
+            <div className="p-6 space-y-4 relative z-10">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Form Name</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Form Name</label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   value={aiGeneratedForm.name}
                   onChange={e => setAiGeneratedForm(f => ({ ...f, name: e.target.value }))}
                   disabled={isGenerating}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
                 <textarea
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
                   value={aiGeneratedForm.description}
                   onChange={e => setAiGeneratedForm(f => ({ ...f, description: e.target.value }))}
                   disabled={isGenerating}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Fields</label>
+                <label className="block text-sm font-medium text-gray-300 mb-1">Fields</label>
                 <div className="space-y-2">
                   {aiGeneratedForm.fields && aiGeneratedForm.fields.map((field, idx) => (
                     <div key={idx} className="flex flex-col md:flex-row md:items-center gap-2 border p-2 rounded-lg">

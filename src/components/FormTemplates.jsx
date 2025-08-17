@@ -310,17 +310,17 @@ export default function FormTemplates({ onSelectTemplate, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-gray-800/95 backdrop-blur-xl rounded-lg shadow-2xl border border-gray-700/50 max-w-6xl w-full max-h-[90vh] overflow-hidden drop-shadow-[0_0_40px_rgba(34,211,238,0.3)]">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
+        <div className="flex items-center justify-between p-6 border-b border-gray-600/50">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Choose a Template</h2>
-            <p className="text-gray-600 mt-1">Start with a pre-built form template and customize it</p>
+            <h2 className="text-2xl font-bold text-white">Choose a Template</h2>
+            <p className="text-gray-300 mt-1">Start with a pre-built form template and customize it</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            className="p-2 text-gray-400 hover:text-white transition-colors"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

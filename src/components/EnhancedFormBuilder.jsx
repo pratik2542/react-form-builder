@@ -38,7 +38,9 @@ const mobileStyles = `
       bottom: 0;
       left: 0;
       right: 0;
-      background: white;
+      background: rgb(55 65 81 / 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgb(147 51 234 / 0.3);
       border-radius: 20px 20px 20px 20px;
       max-height: 80vh;
       overflow-y: auto;
@@ -1073,10 +1075,10 @@ export default function EnhancedFormBuilder() {
 
   if (loading && isEditing) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-blue-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading form...</p>
+          <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]"></div>
+          <p className="text-gray-300">Loading form...</p>
         </div>
       </div>
     );
@@ -1129,7 +1131,7 @@ export default function EnhancedFormBuilder() {
     if (fields.length === 0) {
       return (
         <div 
-          className="text-center py-12 border-2 border-dashed border-gray-300 rounded-lg hover:border-purple-400 hover:bg-purple-50 transition-colors"
+          className="text-center py-12 border-2 border-dashed border-gray-600/50 rounded-lg hover:border-cyan-400/50 hover:bg-gray-800/30 transition-colors backdrop-blur-sm"
           onDragOver={handleDragOver}
           onDrop={handleEmptyFormDrop}
         >
@@ -1138,8 +1140,8 @@ export default function EnhancedFormBuilder() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No fields yet</h3>
-          <p className="text-gray-500">Add fields from the sidebar to start building your form</p>
+          <h3 className="text-lg font-medium text-white mb-2">No fields yet</h3>
+          <p className="text-gray-300">Add fields from the sidebar to start building your form</p>
           <p className="text-gray-400 text-sm mt-2">or drag and drop fields here</p>
         </div>
       );
@@ -1154,7 +1156,7 @@ export default function EnhancedFormBuilder() {
           <div key={field.id || index} className="relative">
             {/* Top Drop Zone - positioned OUTSIDE the field */}
             <div
-              className="absolute -top-2 left-0 right-0 h-4 bg-transparent hover:bg-purple-50 border-2 border-dashed border-transparent hover:border-purple-400 transition-all rounded z-20"
+              className="absolute -top-5 left-0 right-0 h-4 bg-transparent hover:bg-cyan-500/10 border-2 border-dashed border-transparent hover:border-cyan-400/50 transition-all rounded z-20 backdrop-blur-sm"
               onDragOver={handleDragOver}
               onDrop={(e) => {
                 handleDrop(e, index, 'before');
@@ -1171,9 +1173,9 @@ export default function EnhancedFormBuilder() {
             />
             
             <div
-              className={`drag-field-item relative group border-2 border-dashed border-gray-200 rounded-lg p-4 transition-colors ${
-                'cursor-move hover:border-blue-300'
-              } ${selectedField === index ? 'border-blue-500 bg-blue-50' : ''} ${draggedField === index ? 'opacity-50 border-blue-400 bg-blue-50 scale-95 dragging' : ''}`}
+              className={`drag-field-item relative group border-2 border-dashed border-gray-600/50 bg-gray-800/50 backdrop-blur-xl rounded-lg p-4 transition-colors ${
+                'cursor-move hover:border-cyan-400/50'
+              } ${selectedField === index ? 'border-cyan-400 bg-cyan-500/10 drop-shadow-[0_0_15px_rgba(34,211,238,0.3)]' : ''} ${draggedField === index ? 'opacity-50 border-cyan-400/50 bg-cyan-500/10 scale-95 dragging' : ''}`}
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedField(selectedField === index ? null : index);
@@ -1189,7 +1191,7 @@ export default function EnhancedFormBuilder() {
                     e.stopPropagation();
                     duplicateField(index);
                   }}
-                  className="p-1 bg-white rounded shadow-sm border border-gray-200 text-gray-400 hover:text-blue-600 hover:border-blue-300"
+                  className="p-1 bg-gray-700/80 backdrop-blur-sm rounded shadow-sm border border-gray-600/50 text-gray-400 hover:text-cyan-400 hover:border-cyan-400/50 transition-all duration-200"
                   title="Duplicate"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1201,7 +1203,7 @@ export default function EnhancedFormBuilder() {
                     e.stopPropagation();
                     removeField(index);
                   }}
-                  className="p-1 bg-white rounded shadow-sm border border-gray-200 text-gray-400 hover:text-red-600 hover:border-red-300"
+                  className="p-1 bg-gray-700/80 backdrop-blur-sm rounded shadow-sm border border-gray-600/50 text-gray-400 hover:text-red-400 hover:border-red-400/50 transition-all duration-200"
                   title="Delete"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1212,16 +1214,16 @@ export default function EnhancedFormBuilder() {
 
               {/* Field Preview */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-purple-300 mb-2">
                   {field.label}
-                  {field.is_required && <span className="text-red-500 ml-1">*</span>}
+                  {field.is_required && <span className="text-red-400 ml-1">*</span>}
                 </label>
               
               {field.field_type === 'text' && (
                 <input
                   type="text"
                   placeholder={field.placeholder}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                   disabled={!isModal}
                 />
               )}
@@ -1230,19 +1232,19 @@ export default function EnhancedFormBuilder() {
                 <textarea
                   placeholder={field.placeholder}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                   disabled={!isModal}
                 />
               )}
               
               {field.field_type === 'select' && (
-                <select className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" disabled={!isModal}>
+                <select className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300" disabled={!isModal}>
                   <option>Select an option</option>
                   {(() => {
                     const options = Array.isArray(field.options) ? field.options : 
                       (field.options ? JSON.parse(field.options || '[]') : []);
                     return options.map((option, optIndex) => (
-                      <option key={optIndex} value={option}>{option}</option>
+                      <option key={optIndex} value={option} className="bg-gray-700 text-white">{option}</option>
                     ));
                   })()}
                 </select>
@@ -1258,10 +1260,10 @@ export default function EnhancedFormBuilder() {
                         <input
                           type="radio"
                           name={`radio-${field.id || index}-${isModal ? 'modal' : 'preview'}`}
-                          className="mr-2"
+                          className="mr-2 text-cyan-400 bg-gray-700 border-purple-600 focus:ring-cyan-400"
                           disabled={!isModal}
                         />
-                        <label className="text-sm text-gray-700">{option}</label>
+                        <label className="text-sm text-purple-300">{option}</label>
                       </div>
                     ));
                   })()}
@@ -1277,10 +1279,10 @@ export default function EnhancedFormBuilder() {
                       <div key={optIndex} className="flex items-center">
                         <input
                           type="checkbox"
-                          className="mr-2"
+                          className="mr-2 text-cyan-400 bg-gray-700 border-purple-600 focus:ring-cyan-400"
                           disabled={!isModal}
                         />
-                        <label className="text-sm text-gray-700">{option}</label>
+                        <label className="text-sm text-purple-300">{option}</label>
                       </div>
                     ));
                   })()}
@@ -1294,13 +1296,13 @@ export default function EnhancedFormBuilder() {
                   min={field.min}
                   max={field.max}
                   step={field.step}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                  className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                   disabled={!isModal}
                 />
               )}
 
               {field.helpText && (
-                <p className="text-sm text-gray-500 mt-1">{field.helpText}</p>
+                <p className="text-sm text-purple-400 mt-1">{field.helpText}</p>
               )}
               </div>
             </div>
@@ -1381,23 +1383,23 @@ export default function EnhancedFormBuilder() {
     };
 
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+      <div className="fixed inset-0 bg-gray-900/95 backdrop-blur-md z-50 flex items-center justify-center p-4"
            onClick={(e) => {
              if (e.target === e.currentTarget) {
                setShowFieldManager(false);
              }
            }}>
-        <div className="bg-white rounded-lg shadow-xl w-full max-w-3xl h-[90vh] flex flex-col" 
+        <div className="bg-gray-800/90 backdrop-blur-sm border border-purple-700/30 rounded-lg shadow-2xl shadow-purple-900/50 w-full max-w-3xl h-[90vh] flex flex-col" 
              onClick={(e) => e.stopPropagation()}>
           {/* Modal Header */}
-          <div className="flex items-center justify-between p-6 border-b border-gray-200 flex-shrink-0">
-            <h3 className="text-xl font-semibold text-gray-800 flex items-center space-x-2">
+          <div className="flex items-center justify-between p-6 border-b border-purple-800/30 flex-shrink-0">
+            <h3 className="text-xl font-semibold text-white flex items-center space-x-2 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
               <span>📋</span>
               <span>Manage Form Fields</span>
             </h3>
             <button
               onClick={() => setShowFieldManager(false)}
-              className="p-2 text-gray-400 hover:text-gray-600 rounded-lg hover:bg-gray-100 transition-colors"
+              className="p-2 text-purple-400 hover:text-cyan-300 rounded-lg hover:bg-purple-800/30 transition-all duration-300"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -1408,17 +1410,17 @@ export default function EnhancedFormBuilder() {
           {/* Modal Content - Scrollable */}
           <div className="flex-1 min-h-0 flex flex-col">
             {fields.length === 0 ? (
-              <div className="text-center py-12 text-gray-500 p-6">
-                <svg className="mx-auto h-16 w-16 text-gray-400 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="text-center py-12 text-purple-300 p-6">
+                <svg className="mx-auto h-16 w-16 text-purple-400 mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                <p className="text-xl font-medium mb-2">No fields added yet</p>
-                <p className="text-gray-400">Add fields using the sidebar to see them here</p>
+                <p className="text-xl font-medium mb-2 text-white">No fields added yet</p>
+                <p className="text-purple-400">Add fields using the sidebar to see them here</p>
               </div>
             ) : (
               <>
                 <div className="p-6 pb-2 flex-shrink-0">
-                  <div className="text-sm text-gray-600 flex items-center space-x-2">
+                  <div className="text-sm text-purple-300 flex items-center space-x-2">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
@@ -1450,9 +1452,9 @@ export default function EnhancedFormBuilder() {
                           onDragStart={(e) => handleDragStart(e, index)}
                           onDragEnd={handleDragEnd}
                         >
-                          <div className="flex items-center space-x-2 sm:space-x-4 p-3 sm:p-4 bg-gray-50 rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-100 transition-all">
+                          <div className="flex items-center space-x-2 sm:space-x-4 p-3 sm:p-4 bg-gray-800/90 backdrop-blur-sm rounded-lg border border-purple-700/30 hover:border-purple-600/40 hover:bg-gray-700/70 transition-all duration-300 shadow-lg shadow-purple-900/20">
                             {/* Drag Handle */}
-                            <div className="flex-shrink-0 cursor-move text-gray-400 hover:text-gray-600">
+                            <div className="flex-shrink-0 cursor-move text-purple-400 hover:text-cyan-300">
                               <svg className="w-4 h-4 sm:w-5 sm:h-5" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM10 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM11.5 15.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
                                 <path d="M6 3a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM6 8.5a1.5 1.5 0 110 3 1.5 1.5 0 010-3zM7.5 15.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/>
@@ -1461,28 +1463,28 @@ export default function EnhancedFormBuilder() {
                             </div>
 
                             {/* Field Position */}
-                            <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-blue-100 text-blue-800 rounded-full flex items-center justify-center text-xs sm:text-sm font-medium">
+                            <div className="flex-shrink-0 w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-br from-purple-600 to-cyan-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm font-medium shadow-lg">
                               {index + 1}
                             </div>
 
                             {/* Field Info */}
                             <div className="flex-1 min-w-0 overflow-hidden">
                               <div className="flex items-center space-x-2 sm:space-x-3 mb-1">
-                                <h4 className="text-xs sm:text-sm font-medium text-gray-900 truncate">
+                                <h4 className="text-xs sm:text-sm font-medium text-white truncate bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                                   {field.label}
                                 </h4>
                                 {field.is_required && (
-                                  <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800 flex-shrink-0">
+                                  <span className="inline-flex items-center px-1.5 sm:px-2 py-0.5 rounded text-xs font-medium bg-gradient-to-r from-red-600 to-pink-600 text-white flex-shrink-0 shadow-lg">
                                     Required
                                   </span>
                                 )}
                               </div>
-                              <div className="flex items-center space-x-1 sm:space-x-2 text-xs text-gray-500">
-                                <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gray-200 rounded text-xs">
+                              <div className="flex items-center space-x-1 sm:space-x-2 text-xs text-purple-300">
+                                <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-gradient-to-r from-purple-700 to-cyan-700 text-white rounded text-xs border border-purple-600">
                                   {field.field_type.charAt(0).toUpperCase() + field.field_type.slice(1)}
                                 </span>
                                 {field.placeholder && (
-                                  <span className="truncate hidden sm:inline">• {field.placeholder}</span>
+                                  <span className="truncate hidden sm:inline text-purple-300">• {field.placeholder}</span>
                                 )}
                               </div>
                             </div>
@@ -1498,7 +1500,7 @@ export default function EnhancedFormBuilder() {
                                   }
                                 }}
                                 disabled={index === 0}
-                                className="p-1.5 sm:p-2 text-gray-400 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg hover:bg-white transition-colors"
+                                className="p-1.5 sm:p-2 text-purple-400 hover:text-cyan-300 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg hover:bg-gray-700/70 transition-all duration-300"
                                 title="Move up"
                               >
                                 <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1515,7 +1517,7 @@ export default function EnhancedFormBuilder() {
                                   }
                                 }}
                                 disabled={index === fields.length - 1}
-                                className="p-1.5 sm:p-2 text-gray-400 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg hover:bg-white transition-colors"
+                                className="p-1.5 sm:p-2 text-purple-400 hover:text-cyan-300 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg hover:bg-gray-700/70 transition-all duration-300"
                                 title="Move down"
                               >
                                 <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1529,7 +1531,7 @@ export default function EnhancedFormBuilder() {
                                   e.stopPropagation();
                                   duplicateField(index);
                                 }}
-                                className="p-1.5 sm:p-2 text-gray-400 hover:text-green-600 rounded-lg hover:bg-white transition-colors"
+                                className="p-1.5 sm:p-2 text-purple-400 hover:text-green-400 rounded-lg hover:bg-gray-700/70 transition-all duration-300"
                                 title="Duplicate field"
                               >
                                 <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1545,7 +1547,7 @@ export default function EnhancedFormBuilder() {
                                     removeField(index);
                                   }
                                 }}
-                                className="p-1.5 sm:p-2 text-gray-400 hover:text-red-600 rounded-lg hover:bg-white transition-colors"
+                                className="p-1.5 sm:p-2 text-purple-400 hover:text-red-400 rounded-lg hover:bg-gray-700/70 transition-all duration-300"
                                 title="Delete field"
                               >
                                 <svg className="w-3 h-3 sm:w-4 sm:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1576,13 +1578,13 @@ export default function EnhancedFormBuilder() {
           </div>
 
           {/* Modal Footer */}
-          <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50 flex-shrink-0">
-            <div className="text-sm text-gray-600">
-              <span className="font-medium">{fields.length}</span> field{fields.length !== 1 ? 's' : ''} in your form
+          <div className="flex items-center justify-between p-6 border-t border-purple-800/30 bg-gray-800/50 flex-shrink-0">
+            <div className="text-sm text-purple-300">
+              <span className="font-medium text-white">{fields.length}</span> field{fields.length !== 1 ? 's' : ''} in your form
             </div>
             <button
               onClick={() => setShowFieldManager(false)}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              className="px-6 py-2 bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-lg hover:from-purple-500 hover:to-cyan-500 transition-all duration-300 font-medium shadow-lg hover:shadow-purple-500/40"
             >
               Done
             </button>
@@ -1593,24 +1595,24 @@ export default function EnhancedFormBuilder() {
   };
 
   return (
-    <div className="mobile-form-builder bg-gray-50 flex flex-col overflow-hidden">
+    <div className="mobile-form-builder bg-gradient-to-br from-gray-900 via-purple-950 to-blue-950 flex flex-col overflow-hidden">
       {/* Mobile Header */}
-      <div className="bg-white border-b border-gray-200 flex-shrink-0 z-40">
+      <div className="bg-gray-900/90 backdrop-blur-md border-b border-purple-800/30 flex-shrink-0 z-40 shadow-lg shadow-purple-900/20">
         <div className="px-3 sm:px-4 lg:px-8">
           <div className="flex items-center justify-between py-2 lg:py-4">
             {/* Mobile Left Section */}
             <div className="flex items-center space-x-2 lg:space-x-4">
               <Link
                 to="/"
-                className="flex items-center space-x-1 lg:space-x-2 text-gray-600 hover:text-gray-800"
+                className="flex items-center space-x-1 lg:space-x-2 text-purple-300 hover:text-cyan-300 transition-all duration-300 hover:scale-105"
               >
                 <svg className="w-4 h-4 lg:w-5 lg:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
                 <span className="font-medium text-sm lg:text-base hidden sm:inline">Back</span>
               </Link>
-              <div className="h-4 lg:h-6 w-px bg-gray-300 hidden sm:block"></div>
-              <h1 className="text-sm sm:text-lg lg:text-xl font-semibold text-gray-800 truncate">
+              <div className="h-4 lg:h-6 w-px bg-purple-700/50 hidden sm:block"></div>
+              <h1 className="text-sm sm:text-lg lg:text-xl font-bold text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent truncate">
                 {isEditing ? 'Edit Form' : 'Create Form'}
               </h1>
             </div>
@@ -1620,7 +1622,7 @@ export default function EnhancedFormBuilder() {
               {/* Mobile Settings Button */}
               <button
                 onClick={() => setIsMobileSidebarOpen(true)}
-                className="lg:hidden bg-gray-100 text-gray-700 p-2 rounded-lg hover:bg-gray-200 transition-colors"
+                className="lg:hidden bg-purple-800/50 backdrop-blur-sm border border-purple-600/30 text-purple-200 p-2 rounded-lg hover:bg-purple-700/60 hover:border-purple-500/50 hover:text-white transition-all duration-300 hover:scale-105 hover:shadow-lg hover:shadow-purple-500/20"
                 title="Open Settings"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1632,7 +1634,7 @@ export default function EnhancedFormBuilder() {
               {!isEditing && (
                 <button
                   onClick={() => setShowTemplates(true)}
-                  className="hidden sm:flex items-center space-x-1 lg:space-x-2 px-2 lg:px-3 py-2 text-xs lg:text-sm bg-purple-100 text-purple-700 rounded-md hover:bg-purple-200 transition-colors h-10"
+                  className="hidden sm:flex items-center space-x-1 lg:space-x-2 px-2 lg:px-3 py-2 text-xs lg:text-sm bg-gradient-to-r from-purple-600 to-cyan-600 text-white rounded-md hover:from-purple-500 hover:to-cyan-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 h-10 border border-purple-500/30"
                 >
                   <svg className="w-3 h-3 lg:w-4 lg:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -1645,7 +1647,7 @@ export default function EnhancedFormBuilder() {
               {!isEditing && (
                 <button
                   onClick={() => setShowTemplates(true)}
-                  className="sm:hidden bg-purple-100 text-purple-700 p-2 rounded-lg hover:bg-purple-200 transition-colors h-10"
+                  className="sm:hidden bg-gradient-to-r from-purple-600 to-cyan-600 text-white p-2 rounded-lg hover:from-purple-500 hover:to-cyan-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 h-10 border border-purple-500/30"
                   title="Use Template"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1658,7 +1660,7 @@ export default function EnhancedFormBuilder() {
               <button
                 onClick={saveForm}
                 disabled={loading}
-                className="bg-blue-600 text-white px-2 sm:px-3 lg:px-4 py-2 rounded-md text-xs sm:text-sm lg:text-base font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center sm:space-x-1 h-10"
+                className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white px-2 sm:px-3 lg:px-4 py-2 rounded-md text-xs sm:text-sm lg:text-base font-medium disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center sm:space-x-1 h-10 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/25 border border-green-500/30"
               >
                 {loading && (
                   <div className="w-3 h-3 lg:w-4 lg:h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -1678,41 +1680,41 @@ export default function EnhancedFormBuilder() {
       <div className="flex-1 overflow-hidden">
         <div className="h-full flex">
           {/* Desktop Sidebar - Hidden on Mobile */}
-          <div className="hidden lg:flex w-80 xl:w-96 flex-shrink-0 bg-gray-50 border-r border-gray-200 overflow-y-auto">
+          <div className="hidden lg:flex w-80 xl:w-96 flex-shrink-0 bg-gray-900/90 backdrop-blur-md border-r border-purple-800/30 overflow-y-auto shadow-lg shadow-purple-900/20">
             <div className="p-4 space-y-4 w-full">
               {/* Desktop Form Settings */}
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <h3 className="text-base font-semibold text-gray-800 mb-3">Form Settings</h3>
+              <div className="bg-gray-800/50 backdrop-blur-sm border border-purple-700/30 rounded-lg p-4 shadow-lg shadow-purple-900/20">
+                <h3 className="text-base font-semibold text-white mb-3 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">Form Settings</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Form Name *</label>
+                    <label className="block text-sm font-medium text-purple-300 mb-2">Form Name *</label>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Enter form name"
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-400 transition-all duration-300"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                    <label className="block text-sm font-medium text-purple-300 mb-2">Description</label>
                     <textarea
                       value={description}
                       onChange={(e) => setDescription(e.target.value)}
                       placeholder="Enter form description"
                       rows={2}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+                      className="w-full px-3 py-2 text-sm bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-400 transition-all duration-300 resize-vertical"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Form Type</label>
+                    <label className="block text-sm font-medium text-purple-300 mb-2">Form Type</label>
                     <select
                       value={type}
                       onChange={(e) => {
                         setType(e.target.value);
                         if (e.target.value !== 'other') setCustomType('');
                       }}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                      className="w-full px-3 py-2 text-sm bg-gray-900/70 border border-purple-600/50 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-400 transition-all duration-300"
                     >
                       <option value="">Select type</option>
                       <option value="contact">Contact Form</option>
@@ -1729,7 +1731,7 @@ export default function EnhancedFormBuilder() {
                           value={customType}
                           onChange={(e) => setCustomType(e.target.value)}
                           placeholder="Enter custom form type"
-                          className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          className="w-full px-3 py-2 text-sm bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-400 transition-all duration-300"
                         />
                       </div>
                     )}
@@ -1738,16 +1740,17 @@ export default function EnhancedFormBuilder() {
               </div>
 
               {/* Desktop AI Assistant */}
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-4 relative overflow-hidden">
+              <div className="bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-cyan-900/50 backdrop-blur-sm border border-purple-700/30 rounded-lg p-4 relative overflow-hidden shadow-lg shadow-purple-900/20">
+                <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 animate-pulse"></div>
                 <div className="relative z-10">
-                  <h3 className="text-base font-semibold text-gray-800 mb-3 flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
+                  <h3 className="text-base font-semibold text-white mb-3 flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30 animate-pulse">
                       <svg className="w-5 h-5 text-white" fill="currentColor" stroke="none" viewBox="0 0 24 24">
                         <path d="M12 1l2 9L24 12l-10 2L12 23l-2-9L0 12l10-2L12 1z"/>
                         <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
                       </svg>
                     </div>
-                    <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">AI Assistant</span>
+                    <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent font-bold">AI Assistant</span>
                   </h3>
                   <div className="space-y-3">
                     <textarea
@@ -1755,12 +1758,12 @@ export default function EnhancedFormBuilder() {
                       onChange={(e) => setPrompt(e.target.value)}
                       placeholder="Describe your form..."
                       rows={2}
-                      className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-vertical"
+                      className="w-full px-3 py-2 text-sm bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-400 transition-all duration-300 resize-vertical"
                     />
                     <button
                       onClick={handleAIGenerate}
                       disabled={loadingAI || !prompt.trim()}
-                      className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white px-4 py-2 text-sm rounded-md font-medium hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+                      className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 text-white px-4 py-2 text-sm rounded-md font-medium hover:from-purple-500 hover:via-pink-500 hover:to-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 border border-purple-500/30"
                     >
                       {loadingAI ? (
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -1779,18 +1782,18 @@ export default function EnhancedFormBuilder() {
           </div>
 
           {/* Main Content */}
-          <div className="flex-1 flex flex-col bg-white overflow-hidden" style={{ maxHeight: '100vh' }}>
+          <div className="flex-1 flex flex-col bg-gray-900/90 backdrop-blur-md overflow-hidden" style={{ maxHeight: '100vh' }}>
             {/* Tab Navigation */}
-            <div className="border-b border-gray-200 flex-shrink-0">
+            <div className="border-b border-purple-800/30 flex-shrink-0 shadow-lg shadow-purple-900/20">
               <div className="flex overflow-x-auto scrollbar-hide">
                 {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    className={`flex items-center space-x-1 lg:space-x-2 py-3 px-3 lg:px-4 text-xs sm:text-sm font-medium border-b-2 transition-colors whitespace-nowrap flex-shrink-0 ${
+                    className={`flex items-center space-x-1 lg:space-x-2 py-3 px-3 lg:px-4 text-xs sm:text-sm font-medium border-b-2 transition-all duration-300 whitespace-nowrap flex-shrink-0 ${
                       activeTab === tab.id
-                        ? 'border-blue-600 text-blue-700'
-                        : 'border-transparent text-gray-600 hover:text-gray-800 hover:border-gray-300'
+                        ? 'border-cyan-400 text-cyan-300 bg-cyan-500/10'
+                        : 'border-transparent text-purple-300 hover:text-cyan-300 hover:border-purple-500/50 hover:bg-purple-900/20'
                     }`}
                   >
                     <span className="text-base lg:text-lg">{tab.icon}</span>
@@ -1810,9 +1813,9 @@ export default function EnhancedFormBuilder() {
                     <div className="flex-shrink-0 p-2 sm:p-3 lg:p-6 pb-0">
                       <div className="max-w-full lg:max-w-2xl mx-auto">
                         <div>
-                          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-800 mb-1 sm:mb-2">{name || 'Untitled Form'}</h2>
+                          <h2 className="text-lg sm:text-xl lg:text-2xl font-bold text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-1 sm:mb-2">{name || 'Untitled Form'}</h2>
                           {(type || customType) && (
-                            <span className="inline-block bg-blue-100 text-blue-800 text-xs sm:text-sm font-medium px-2 sm:px-3 py-1 rounded-full">
+                            <span className="inline-block bg-gradient-to-r from-cyan-600 to-purple-600 text-white text-xs sm:text-sm font-medium px-2 sm:px-3 py-1 rounded-full border border-cyan-500/30 shadow-lg shadow-cyan-500/20">
                               {type === 'other' ? customType : type}
                             </span>
                           )}
@@ -1833,8 +1836,8 @@ export default function EnhancedFormBuilder() {
                               onDragOver={handleDragOver}
                               onDrop={(e) => handleDrop(e, index)}
                               onDragEnd={handleDragEnd}
-                              className={`relative group border-2 border-dashed border-gray-200 rounded-lg p-3 sm:p-4 cursor-move hover:border-blue-300 transition-colors ${
-                                selectedField === index ? 'border-blue-500 bg-blue-50' : ''
+                              className={`relative group border-2 border-dashed border-purple-600/50 bg-gray-800/50 backdrop-blur-sm rounded-lg p-3 sm:p-4 cursor-move hover:border-cyan-400/70 hover:bg-gray-700/60 transition-all duration-300 hover:shadow-lg hover:shadow-purple-500/25 ${
+                                selectedField === index ? 'border-cyan-400 bg-cyan-900/20 shadow-lg shadow-cyan-500/30' : ''
                               } ${draggedField === index ? 'opacity-50' : ''} mobile-field-card`}
                               onClick={() => setSelectedField(selectedField === index ? null : index)}
                             >
@@ -1846,7 +1849,7 @@ export default function EnhancedFormBuilder() {
                                       e.stopPropagation();
                                       duplicateField(index);
                                     }}
-                                    className="p-1 text-gray-400 hover:text-blue-600"
+                                    className="p-1 text-purple-400 hover:text-cyan-300 transition-colors"
                                     title="Duplicate"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1858,14 +1861,14 @@ export default function EnhancedFormBuilder() {
                                       e.stopPropagation();
                                       removeField(index);
                                     }}
-                                    className="p-1 text-gray-400 hover:text-red-600"
+                                    className="p-1 text-purple-400 hover:text-red-400 transition-colors"
                                     title="Delete"
                                   >
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                     </svg>
                                   </button>
-                                  <div className="cursor-move text-gray-400" title="Drag to reorder">
+                                  <div className="cursor-move text-purple-400 hover:text-cyan-300 transition-colors" title="Drag to reorder">
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
                                     </svg>
@@ -1880,7 +1883,7 @@ export default function EnhancedFormBuilder() {
                                     e.stopPropagation();
                                     duplicateField(index);
                                   }}
-                                  className="p-2 bg-white rounded-full shadow-sm border border-gray-200 text-gray-400 hover:text-blue-600 hover:border-blue-300"
+                                  className="p-2 bg-gray-800/80 backdrop-blur-sm rounded-full shadow-lg border border-cyan-500/30 text-cyan-300 hover:text-white hover:border-cyan-400/50 hover:bg-cyan-600/20 transition-all duration-300"
                                   title="Duplicate"
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1892,7 +1895,7 @@ export default function EnhancedFormBuilder() {
                                     e.stopPropagation();
                                     removeField(index);
                                   }}
-                                  className="p-2 bg-white rounded-full shadow-sm border border-gray-200 text-gray-400 hover:text-red-600 hover:border-red-300"
+                                  className="p-2 bg-gray-800/80 backdrop-blur-sm rounded-full shadow-lg border border-red-500/30 text-red-300 hover:text-white hover:border-red-400/50 hover:bg-red-600/20 transition-all duration-300"
                                   title="Delete"
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1903,16 +1906,16 @@ export default function EnhancedFormBuilder() {
 
                               {/* Field Preview */}
                               <div className="pr-16 lg:pr-20">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">
+                                <label className="block text-sm font-medium text-purple-300 mb-2">
                                   {field.label}
-                                  {field.is_required && <span className="text-red-500 ml-1">*</span>}
+                                  {field.is_required && <span className="text-red-400 ml-1">*</span>}
                                 </label>
                                 
                                 {field.field_type === 'text' && (
                                   <input
                                     type="text"
                                     placeholder={field.placeholder}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                                     disabled
                                   />
                                 )}
@@ -1921,13 +1924,13 @@ export default function EnhancedFormBuilder() {
                                   <textarea
                                     placeholder={field.placeholder}
                                     rows={3}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                                     disabled
                                   />
                                 )}
                                 
                                 {field.field_type === 'select' && (
-                                  <select className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" disabled>
+                                  <select className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300" disabled>
                                     <option>Select an option</option>
                                     {(() => {
                                       try {
@@ -1963,8 +1966,8 @@ export default function EnhancedFormBuilder() {
                                         (field.options ? JSON.parse(field.options || '[]') : []);
                                       const displayOptions = options.length > 0 ? options : ['Option 1', 'Option 2'];
                                       return displayOptions.map((option, optIndex) => (
-                                        <label key={optIndex} className="flex items-center">
-                                          <input type="radio" name={`radio-${index}`} className="mr-2" disabled />
+                                        <label key={optIndex} className="flex items-center text-purple-300">
+                                          <input type="radio" name={`radio-${index}`} className="mr-2 text-cyan-400 bg-gray-700 border-purple-600 focus:ring-cyan-400" disabled />
                                           <span>{option}</span>
                                         </label>
                                       ));
@@ -1979,8 +1982,8 @@ export default function EnhancedFormBuilder() {
                                         (field.options ? JSON.parse(field.options || '[]') : []);
                                       const displayOptions = options.length > 0 ? options : ['Option 1', 'Option 2'];
                                       return displayOptions.map((option, optIndex) => (
-                                        <label key={optIndex} className="flex items-center">
-                                          <input type="checkbox" className="mr-2" disabled />
+                                        <label key={optIndex} className="flex items-center text-purple-300">
+                                          <input type="checkbox" className="mr-2 text-cyan-400 bg-gray-700 border-purple-600 focus:ring-cyan-400" disabled />
                                           <span>{option}</span>
                                         </label>
                                       ));
@@ -1992,7 +1995,7 @@ export default function EnhancedFormBuilder() {
                                   <input
                                     type="email"
                                     placeholder={field.placeholder || 'Enter email address'}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                                     disabled
                                   />
                                 )}
@@ -2004,7 +2007,7 @@ export default function EnhancedFormBuilder() {
                                     min={field.min}
                                     max={field.max}
                                     step={field.step}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                                     disabled
                                   />
                                 )}
@@ -2013,7 +2016,7 @@ export default function EnhancedFormBuilder() {
                                   <input
                                     type="tel"
                                     placeholder={field.placeholder || 'Enter phone number'}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                                     disabled
                                   />
                                 )}
@@ -2022,7 +2025,7 @@ export default function EnhancedFormBuilder() {
                                   <input
                                     type="url"
                                     placeholder={field.placeholder || 'Enter URL'}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                                     disabled
                                   />
                                 )}
@@ -2031,7 +2034,7 @@ export default function EnhancedFormBuilder() {
                                   <input
                                     type="password"
                                     placeholder={field.placeholder || 'Enter password'}
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                                     disabled
                                   />
                                 )}
@@ -2039,7 +2042,7 @@ export default function EnhancedFormBuilder() {
                                 {field.field_type === 'time' && (
                                   <input
                                     type="time"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                                     disabled
                                   />
                                 )}
@@ -2047,7 +2050,7 @@ export default function EnhancedFormBuilder() {
                                 {field.field_type === 'datetime-local' && (
                                   <input
                                     type="datetime-local"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                                     disabled
                                   />
                                 )}
@@ -2063,7 +2066,7 @@ export default function EnhancedFormBuilder() {
                                       className="w-full"
                                       disabled
                                     />
-                                    <div className="flex justify-between text-xs text-gray-500 mt-1">
+                                    <div className="flex justify-between text-xs text-purple-300 mt-1">
                                       <span>{field.min || "0"}</span>
                                       <span>{Math.round((parseInt(field.min || "0") + parseInt(field.max || "100")) / 2)}</span>
                                       <span>{field.max || "100"}</span>
@@ -2075,7 +2078,7 @@ export default function EnhancedFormBuilder() {
                                   <input
                                     type="color"
                                     defaultValue="#000000"
-                                    className="w-full h-10 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full h-10 bg-gray-900/70 border border-purple-600/50 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                                     disabled
                                   />
                                 )}
@@ -2083,26 +2086,26 @@ export default function EnhancedFormBuilder() {
                                 {field.field_type === 'date' && (
                                   <input
                                     type="date"
-                                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                    className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                                     disabled
                                   />
                                 )}
                                 
                                 {field.field_type === 'file' && (
-                                  <div className="border-2 border-dashed border-gray-300 rounded-lg p-4 text-center">
-                                    <svg className="mx-auto h-8 w-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <div className="border-2 border-dashed border-purple-600/50 bg-gray-800/30 rounded-lg p-4 text-center">
+                                    <svg className="mx-auto h-8 w-8 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
                                     </svg>
-                                    <p className="text-sm text-gray-500 mt-2">Click to upload or drag and drop</p>
+                                    <p className="text-sm text-purple-300 mt-2">Click to upload or drag and drop</p>
                                   </div>
                                 )}
 
                                 {field.helpText && (
-                                  <p className="text-xs text-gray-500 mt-1">{field.helpText}</p>
+                                  <p className="text-xs text-purple-400 mt-1">{field.helpText}</p>
                                 )}
                                 
                                 {/* Mobile tap to edit indicator */}
-                                <div className="mt-2 text-xs text-gray-400 flex items-center">
+                                <div className="mt-2 text-xs text-purple-400 flex items-center">
                                   <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                   </svg>
@@ -2144,7 +2147,7 @@ export default function EnhancedFormBuilder() {
                       {/* Add Fields Button */}
                       <button
                         onClick={() => setIsMobileFieldsOpen(true)}
-                        className="bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 transition-colors touch-friendly flex items-center justify-center"
+                        className="bg-gradient-to-r from-purple-600 to-cyan-600 text-white p-4 rounded-full shadow-lg hover:from-purple-500 hover:to-cyan-500 transition-all duration-300 transform hover:scale-110 hover:shadow-xl hover:shadow-purple-500/25 touch-friendly flex items-center justify-center border border-purple-500/30"
                         title="Add Fields"
                       >
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2154,57 +2157,55 @@ export default function EnhancedFormBuilder() {
                     </div>
 
                     {/* Desktop Sidebar Layout */}
-                    <div className="hidden lg:block desktop-form-builder relative h-screen">
+                    <div className="hidden lg:block desktop-form-builder relative h-screen bg-gray-900/95 backdrop-blur-md">
                       {/* Floating Hamburger Button - Only shown when sidebar is collapsed */}
                       {!isDesktopSidebarOpen && (
                         <button
                           onClick={() => setIsDesktopSidebarOpen(true)}
-                          className="fixed top-4 left-4 z-50 p-3 bg-white rounded-lg shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+                          className="fixed top-4 left-4 z-50 p-3 bg-gray-900/90 backdrop-blur-md rounded-lg shadow-lg border border-purple-700/30 hover:bg-gray-800/90 hover:border-purple-600/50 transition-all duration-300 transform hover:scale-105 hover:shadow-xl hover:shadow-purple-500/25"
                           title="Open sidebar"
                         >
-                          <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                           </svg>
                         </button>
                       )}
                       
                       <div className="flex h-full">{/* Left Sidebar - Add Fields */}
-                        <div className={`${isDesktopSidebarOpen ? 'w-64' : 'w-12'} bg-white border-r border-gray-200 desktop-sidebar transition-all duration-300`}>
-                          <div className="p-4 border-b border-gray-200">
-                            <div className="flex items-center justify-right space-x-10">
-                              <button
-                                onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
-                                className=" rounded-lg hover:bg-gray-100 transition-colors"
-                                title={isDesktopSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
-                              >
-                                <svg className="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                                </svg>
-                              </button>
-                              {isDesktopSidebarOpen && (
+                        {isDesktopSidebarOpen && (
+                          <div className="w-64 bg-gray-900/90 backdrop-blur-md border-r border-purple-800/30 desktop-sidebar transition-all duration-300 shadow-lg shadow-purple-900/20">
+                            <div className="p-4 border-b border-purple-800/30">
+                              <div className="flex items-center justify-right space-x-10">
+                                <button
+                                  onClick={() => setIsDesktopSidebarOpen(!isDesktopSidebarOpen)}
+                                  className="rounded-lg hover:bg-purple-800/30 transition-colors p-2"
+                                  title={isDesktopSidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
+                                >
+                                  <svg className="w-5 h-5 text-purple-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                                  </svg>
+                                </button>
                                 <div className="ml-3">
-                                  <h3 className="text-lg font-semibold text-gray-800 flex items-center space-x-2">
+                                  <h3 className="text-lg font-semibold text-white flex items-center space-x-2 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                                     <span>🧩</span>
                                     <span>Add Fields</span>
                                   </h3>
-                                  <p className="text-sm text-gray-600 mt-1">Drag or click to add</p>
+                                  <p className="text-sm text-purple-300 mt-1">Drag or click to add</p>
                                 </div>
-                              )}
+                              </div>
                             </div>
-                          </div>
-                          {isDesktopSidebarOpen && (
                             <div className="desktop-sidebar-content">
                               <WidgetLibrary onAddField={addField} className="border-0 p-0 widget-library" />
                             </div>
-                          )}
-                        </div>
+                          </div>
+                        )}
 
                         {/* Main Content Area */}
-                        <div className="flex-1 desktop-main-content bg-gray-50 overflow-y-auto">
-                          <div className="pb-12">
-                            <div className="max-w-2xl mx-auto">
+                        <div className="flex-1 desktop-main-content bg-gray-900/90 backdrop-blur-md">
+                          <div className="h-full bg-gray-900/50 rounded-lg">
+                            <div className="max-w-2xl mx-auto h-full">
                               <div 
-                                className={`bg-white rounded-lg shadow-sm border border-gray-200 p-6 form-preview-card ${isScrolling ? 'scrolling' : ''}`}
+                                className={`bg-gray-800/50 backdrop-blur-sm rounded-lg shadow-xl border border-purple-700/30 p-6 form-preview-card ${isScrolling ? 'scrolling' : ''} hover:shadow-2xl hover:shadow-purple-900/30 transition-all duration-300 h-full min-h-screen`}
                                 onDragOver={handleDragOver}
                                 onDrop={(e) => {
                                   // If there are no fields, use empty form drop handler
@@ -2219,13 +2220,13 @@ export default function EnhancedFormBuilder() {
                                 <div className="mb-6 flex-shrink-0 relative">
                                   <div className="flex items-start justify-between">
                                     <div>
-                                      <h2 className="text-xl font-semibold text-gray-800 mb-2">Form Preview</h2>
-                                      <p className="text-sm text-gray-600">Click on any field to edit its properties</p>
+                                      <h2 className="text-xl font-bold text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2">Form Preview</h2>
+                                      <p className="text-sm text-purple-300">Click on any field to edit its properties</p>
                                     </div>
                                     <div className="flex space-x-2">
                                       <button
                                         onClick={() => setShowFieldManager(true)}
-                                        className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+                                        className="p-2 text-purple-300 hover:text-cyan-300 hover:bg-purple-800/30 rounded-lg transition-all duration-300 border border-purple-600/30 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-purple-500/20"
                                         title="Manage & Reorder Fields"
                                       >
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2234,7 +2235,7 @@ export default function EnhancedFormBuilder() {
                                       </button>
                                       <button
                                         onClick={() => setIsModalOpen(true)}
-                                        className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors border border-gray-200"
+                                        className="p-2 text-purple-300 hover:text-cyan-300 hover:bg-purple-800/30 rounded-lg transition-all duration-300 border border-purple-600/30 hover:border-cyan-500/50 hover:shadow-lg hover:shadow-purple-500/20"
                                         title="Open in fullscreen"
                                       >
                                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
@@ -2256,15 +2257,15 @@ export default function EnhancedFormBuilder() {
 
                   {/* Field Properties Panel */}
                   {selectedField !== null && (
-                    <div className="hidden lg:block w-80 bg-gray-50 border-l border-gray-200 desktop-properties-panel">
+                    <div className="hidden lg:block w-80 bg-gray-800/90 backdrop-blur-sm border-l border-purple-800/30 desktop-properties-panel">
                       <div className="mb-4 flex items-center justify-between">
                         <div>
-                          <h3 className="text-lg font-semibold text-gray-800 mb-2">Field Properties</h3>
-                          <p className="text-sm text-gray-600">Configure the selected field</p>
+                          <h3 className="text-lg font-semibold text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2">Field Properties</h3>
+                          <p className="text-sm text-purple-300">Configure the selected field</p>
                         </div>
                         <button
                           onClick={() => setSelectedField(null)}
-                          className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                          className="p-1 text-purple-400 hover:text-cyan-300 transition-colors"
                           title="Close Properties Panel"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2301,17 +2302,17 @@ export default function EnhancedFormBuilder() {
                             type="text"
                             value={fields[selectedField]?.label || ''}
                             onChange={(e) => updateFieldProperty(selectedField, 'label', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                           />
                         </div>
 
                         {/* Field Type */}
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Field Type</label>
+                          <label className="block text-sm font-medium text-purple-300 mb-1">Field Type</label>
                           <select
                             value={fields[selectedField]?.field_type || 'text'}
                             onChange={(e) => updateFieldProperty(selectedField, 'field_type', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                           >
                             <option value="text">Text</option>
                             <option value="email">Email</option>
@@ -2335,12 +2336,12 @@ export default function EnhancedFormBuilder() {
                         {/* Placeholder */}
                         {['text', 'email', 'number', 'tel', 'url', 'password', 'textarea'].includes(fields[selectedField]?.field_type) && (
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Placeholder</label>
+                            <label className="block text-sm font-medium text-purple-300 mb-1">Placeholder</label>
                             <input
                               type="text"
                               value={fields[selectedField]?.placeholder || ''}
                               onChange={(e) => updateFieldProperty(selectedField, 'placeholder', e.target.value)}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                             />
                           </div>
                         )}
@@ -2349,21 +2350,21 @@ export default function EnhancedFormBuilder() {
                         {['number', 'range'].includes(fields[selectedField]?.field_type) && (
                           <div className="grid grid-cols-2 gap-2">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Min Value</label>
+                              <label className="block text-sm font-medium text-purple-300 mb-1">Min Value</label>
                               <input
                                 type="number"
                                 value={fields[selectedField]?.min || ''}
                                 onChange={(e) => updateFieldProperty(selectedField, 'min', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Max Value</label>
+                              <label className="block text-sm font-medium text-purple-300 mb-1">Max Value</label>
                               <input
                                 type="number"
                                 value={fields[selectedField]?.max || ''}
                                 onChange={(e) => updateFieldProperty(selectedField, 'max', e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                               />
                             </div>
                           </div>
@@ -2372,25 +2373,25 @@ export default function EnhancedFormBuilder() {
                         {/* Step for number and range fields */}
                         {['number', 'range'].includes(fields[selectedField]?.field_type) && (
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">Step</label>
+                            <label className="block text-sm font-medium text-purple-300 mb-1">Step</label>
                             <input
                               type="number"
                               value={fields[selectedField]?.step || ''}
                               onChange={(e) => updateFieldProperty(selectedField, 'step', e.target.value)}
                               placeholder="1"
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                              className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                             />
                           </div>
                         )}
 
                         {/* Help Text */}
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">Help Text</label>
+                          <label className="block text-sm font-medium text-purple-300 mb-1">Help Text</label>
                           <textarea
                             value={fields[selectedField]?.helpText || ''}
                             onChange={(e) => updateFieldProperty(selectedField, 'helpText', e.target.value)}
                             rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                           />
                         </div>
 
@@ -2401,9 +2402,9 @@ export default function EnhancedFormBuilder() {
                             id="required"
                             checked={fields[selectedField]?.is_required || false}
                             onChange={(e) => updateFieldProperty(selectedField, 'is_required', e.target.checked)}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-cyan-400 bg-gray-700 border-purple-600 focus:ring-cyan-400 rounded"
                           />
-                          <label htmlFor="required" className="ml-2 block text-sm text-gray-700">
+                          <label htmlFor="required" className="ml-2 block text-sm text-purple-300">
                             Required field
                           </label>
                         </div>
@@ -2415,9 +2416,9 @@ export default function EnhancedFormBuilder() {
                             id="readonly"
                             checked={fields[selectedField]?.is_readonly || false}
                             onChange={(e) => updateFieldProperty(selectedField, 'is_readonly', e.target.checked)}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-cyan-400 bg-gray-700 border-purple-600 focus:ring-cyan-400 rounded"
                           />
-                          <label htmlFor="readonly" className="ml-2 block text-sm text-gray-700">
+                          <label htmlFor="readonly" className="ml-2 block text-sm text-purple-300">
                             Read-only field
                           </label>
                         </div>
@@ -2425,7 +2426,7 @@ export default function EnhancedFormBuilder() {
                         {/* Options for select, radio, checkbox */}
                         {['select', 'radio', 'checkbox'].includes(fields[selectedField]?.field_type) && (
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
+                            <label className="block text-sm font-medium text-purple-300 mb-2">Options</label>
                             <div className="space-y-2">
                               {(() => {
                                 const fieldOptions = fields[selectedField]?.options;
@@ -2438,7 +2439,7 @@ export default function EnhancedFormBuilder() {
                                       value={option}
                                       onChange={(e) => updateFieldOption(selectedField, optIndex, e.target.value)}
                                       placeholder={`Option ${optIndex + 1}`}
-                                      className="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                                      className="flex-1 px-3 py-2 bg-gray-700/80 backdrop-blur-sm border border-purple-600/30 text-white placeholder-purple-300 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all duration-300"
                                     />
                                     <button
                                       onClick={() => removeFieldOption(selectedField, optIndex)}
@@ -2453,7 +2454,7 @@ export default function EnhancedFormBuilder() {
                               })()}
                               <button
                                 onClick={() => addFieldOption(selectedField)}
-                                className="w-full py-2 px-3 border border-dashed border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+                                className="w-full py-2 px-3 border border-dashed border-purple-600/50 bg-gray-800/30 rounded-md text-sm text-purple-300 hover:bg-gray-700/50 hover:border-purple-500/60 transition-all duration-300"
                               >
                                 + Add Option
                               </button>
@@ -2483,7 +2484,7 @@ export default function EnhancedFormBuilder() {
               )}
 
               {activeTab === 'logic' && (
-                <div className="h-full overflow-y-auto p-6">
+                <div className="h-full overflow-y-auto p-6 bg-gray-900/50 backdrop-blur-sm">
                   <ConditionalLogic
                     fields={fields}
                     onUpdateConditions={setConditionalLogic}
@@ -2493,37 +2494,37 @@ export default function EnhancedFormBuilder() {
               )}
 
               {activeTab === 'analytics' && formId && (
-                <div className="h-full overflow-y-auto">
+                <div className="h-full overflow-y-auto bg-gray-900/50 backdrop-blur-sm">
                   <FormAnalytics formId={formId} />
                 </div>
               )}
 
               {activeTab === 'analytics' && !formId && (
-                <div className="h-full overflow-y-auto p-6">
-                  <div className="text-center py-12 text-gray-500">
-                    <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="h-full overflow-y-auto p-6 bg-gray-900/50 backdrop-blur-sm">
+                  <div className="text-center py-12">
+                    <svg className="mx-auto h-12 w-12 text-purple-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                     </svg>
-                    <p className="text-lg font-medium">Save your form first</p>
-                    <p className="text-sm">Analytics are available after you save the form</p>
+                    <p className="text-lg font-medium text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">Save your form first</p>
+                    <p className="text-sm text-purple-300">Analytics are available after you save the form</p>
                   </div>
                 </div>
               )}
 
               {activeTab === 'share' && formId && (
-                <div className="h-full overflow-y-auto p-6">
+                <div className="h-full overflow-y-auto p-6 bg-gray-900/50 backdrop-blur-sm">
                   <FormShare form={{ name, description }} formId={formId} />
                 </div>
               )}
 
               {activeTab === 'share' && !formId && (
-                <div className="h-full overflow-y-auto p-6">
-                  <div className="text-center py-12 text-gray-500">
-                    <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="h-full overflow-y-auto p-6 bg-gray-900/50 backdrop-blur-sm">
+                  <div className="text-center py-12">
+                    <svg className="mx-auto h-12 w-12 text-cyan-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.367 2.684 3 3 0 00-5.367-2.684z" />
                     </svg>
-                    <p className="text-lg font-medium">Save your form first</p>
-                    <p className="text-sm">You need to save the form before you can share it</p>
+                    <p className="text-lg font-medium text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">Save your form first</p>
+                    <p className="text-sm text-purple-300">You need to save the form before you can share it</p>
                   </div>
                 </div>
               )}
@@ -2539,21 +2540,21 @@ export default function EnhancedFormBuilder() {
           onClick={() => setSelectedField(null)}
         >
           <div 
-            className="absolute bottom-0 left-0 right-0 bg-white rounded-t-lg shadow-lg max-h-[85vh] overflow-hidden mobile-field-properties-panel"
+            className="absolute bottom-0 left-0 right-0 bg-gray-800/95 backdrop-blur-md border border-purple-700/30 rounded-t-lg shadow-2xl shadow-purple-900/40 max-h-[85vh] overflow-hidden mobile-field-properties-panel"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Pull indicator */}
-            <div className="mobile-pull-indicator w-full h-6 bg-white rounded-t-lg"></div>
+            <div className="mobile-pull-indicator w-full h-6 bg-gray-700/80 rounded-t-lg"></div>
             
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
+            <div className="flex items-center justify-between p-4 border-b border-purple-800/30 bg-gray-800/90">
               <div>
-                <h3 className="text-lg font-semibold text-gray-800">Field Properties</h3>
-                <p className="text-sm text-gray-600">Configure "{fields[selectedField]?.label || 'Field'}"</p>
+                <h3 className="text-lg font-semibold text-purple-200">Field Properties</h3>
+                <p className="text-sm text-purple-300/80">Configure "{fields[selectedField]?.label || 'Field'}"</p>
               </div>
               <button
                 onClick={() => setSelectedField(null)}
-                className="p-2 text-gray-400 hover:text-gray-600 transition-colors touch-friendly"
+                className="p-2 text-purple-300/60 hover:text-purple-300 transition-colors touch-friendly"
                 title="Close Properties Panel"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2567,7 +2568,7 @@ export default function EnhancedFormBuilder() {
               <div className="space-y-4">
                 {/* Label */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-purple-200 mb-1">
                     Label
                     {(() => {
                       const fieldTypeLabels = {
@@ -2584,7 +2585,7 @@ export default function EnhancedFormBuilder() {
                         currentLabel.match(/^(Field \d+|Text Input|Email Address|Number|Phone Number|Website URL|Password|Message|Dropdown Selection|Radio Buttons|Checkboxes|Date|Time|Date & Time|File Upload|Range Slider|Color Picker)$/);
                       
                       return isDefaultLabel ? (
-                        <span className="text-xs text-blue-600 ml-1">(auto-updates with field type)</span>
+                        <span className="text-xs text-cyan-400 ml-1">(auto-updates with field type)</span>
                       ) : null;
                     })()}
                   </label>
@@ -2592,17 +2593,17 @@ export default function EnhancedFormBuilder() {
                     type="text"
                     value={fields[selectedField]?.label || ''}
                     onChange={(e) => updateFieldProperty(selectedField, 'label', e.target.value)}
-                    className="w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mobile-compact-input"
+                    className="w-full px-3 py-3 border border-purple-800/30 bg-gray-700/50 text-purple-100 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 mobile-compact-input"
                   />
                 </div>
 
                 {/* Field Type */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Field Type</label>
+                  <label className="block text-sm font-medium text-purple-200 mb-1">Field Type</label>
                   <select
                     value={fields[selectedField]?.field_type || 'text'}
                     onChange={(e) => updateFieldProperty(selectedField, 'field_type', e.target.value)}
-                    className="w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mobile-compact-input"
+                    className="w-full px-3 py-3 border border-purple-800/30 bg-gray-700/50 text-purple-100 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 mobile-compact-input"
                   >
                     <option value="text">Text</option>
                     <option value="email">Email</option>
@@ -2626,12 +2627,12 @@ export default function EnhancedFormBuilder() {
                 {/* Placeholder */}
                 {['text', 'email', 'number', 'tel', 'url', 'password', 'textarea'].includes(fields[selectedField]?.field_type) && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Placeholder</label>
+                    <label className="block text-sm font-medium text-purple-200 mb-1">Placeholder</label>
                     <input
                       type="text"
                       value={fields[selectedField]?.placeholder || ''}
                       onChange={(e) => updateFieldProperty(selectedField, 'placeholder', e.target.value)}
-                      className="w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mobile-compact-input"
+                      className="w-full px-3 py-3 border border-purple-800/30 bg-gray-700/50 text-purple-100 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 mobile-compact-input"
                     />
                   </div>
                 )}
@@ -2640,21 +2641,21 @@ export default function EnhancedFormBuilder() {
                 {['number', 'range'].includes(fields[selectedField]?.field_type) && (
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Min Value</label>
+                      <label className="block text-sm font-medium text-purple-200 mb-1">Min Value</label>
                       <input
                         type="number"
                         value={fields[selectedField]?.min || ''}
                         onChange={(e) => updateFieldProperty(selectedField, 'min', e.target.value)}
-                        className="w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mobile-compact-input"
+                        className="w-full px-3 py-3 border border-purple-800/30 bg-gray-700/50 text-purple-100 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 mobile-compact-input"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Max Value</label>
+                      <label className="block text-sm font-medium text-purple-200 mb-1">Max Value</label>
                       <input
                         type="number"
                         value={fields[selectedField]?.max || ''}
                         onChange={(e) => updateFieldProperty(selectedField, 'max', e.target.value)}
-                        className="w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mobile-compact-input"
+                        className="w-full px-3 py-3 border border-purple-800/30 bg-gray-700/50 text-purple-100 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 mobile-compact-input"
                       />
                     </div>
                   </div>
@@ -2663,25 +2664,25 @@ export default function EnhancedFormBuilder() {
                 {/* Step for number and range fields */}
                 {['number', 'range'].includes(fields[selectedField]?.field_type) && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Step</label>
+                    <label className="block text-sm font-medium text-purple-200 mb-1">Step</label>
                     <input
                       type="number"
                       value={fields[selectedField]?.step || ''}
                       onChange={(e) => updateFieldProperty(selectedField, 'step', e.target.value)}
                       placeholder="1"
-                      className="w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mobile-compact-input"
+                      className="w-full px-3 py-3 border border-purple-800/30 bg-gray-700/50 text-purple-100 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 mobile-compact-input"
                     />
                   </div>
                 )}
 
                 {/* Help Text */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Help Text</label>
+                  <label className="block text-sm font-medium text-purple-200 mb-1">Help Text</label>
                   <textarea
                     value={fields[selectedField]?.helpText || ''}
                     onChange={(e) => updateFieldProperty(selectedField, 'helpText', e.target.value)}
                     rows={2}
-                    className="w-full px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mobile-compact-input"
+                    className="w-full px-3 py-3 border border-purple-800/30 bg-gray-700/50 text-purple-100 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 mobile-compact-input"
                   />
                 </div>
 
@@ -2692,9 +2693,9 @@ export default function EnhancedFormBuilder() {
                     id="required-mobile"
                     checked={fields[selectedField]?.is_required || false}
                     onChange={(e) => updateFieldProperty(selectedField, 'is_required', e.target.checked)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-cyan-400 focus:ring-cyan-500 border-purple-800/30 rounded"
                   />
-                  <label htmlFor="required-mobile" className="ml-2 block text-sm text-gray-700">
+                  <label htmlFor="required-mobile" className="ml-2 block text-sm text-purple-200">
                     Required field
                   </label>
                 </div>
@@ -2706,9 +2707,9 @@ export default function EnhancedFormBuilder() {
                     id="readonly-mobile"
                     checked={fields[selectedField]?.is_readonly || false}
                     onChange={(e) => updateFieldProperty(selectedField, 'is_readonly', e.target.checked)}
-                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                    className="h-4 w-4 text-cyan-400 focus:ring-cyan-500 border-purple-800/30 rounded"
                   />
-                  <label htmlFor="readonly-mobile" className="ml-2 block text-sm text-gray-700">
+                  <label htmlFor="readonly-mobile" className="ml-2 block text-sm text-purple-200">
                     Read-only field
                   </label>
                 </div>
@@ -2716,7 +2717,7 @@ export default function EnhancedFormBuilder() {
                 {/* Options for select, radio, checkbox */}
                 {['select', 'radio', 'checkbox'].includes(fields[selectedField]?.field_type) && (
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">Options</label>
+                    <label className="block text-sm font-medium text-purple-200 mb-2">Options</label>
                     <div className="space-y-2">
                       {(() => {
                         const fieldOptions = fields[selectedField]?.options;
@@ -2729,11 +2730,11 @@ export default function EnhancedFormBuilder() {
                               value={option}
                               onChange={(e) => updateFieldOption(selectedField, optIndex, e.target.value)}
                               placeholder={`Option ${optIndex + 1}`}
-                              className="flex-1 px-3 py-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 mobile-compact-input"
+                              className="flex-1 px-3 py-3 border border-purple-800/30 bg-gray-700/50 text-purple-100 rounded-md shadow-sm focus:outline-none focus:ring-cyan-500 focus:border-cyan-500 mobile-compact-input"
                             />
                             <button
                               onClick={() => removeFieldOption(selectedField, optIndex)}
-                              className="p-2 text-red-500 hover:text-red-700 touch-friendly"
+                              className="p-2 text-red-400 hover:text-red-300 touch-friendly"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -2744,7 +2745,7 @@ export default function EnhancedFormBuilder() {
                       })()}
                       <button
                         onClick={() => addFieldOption(selectedField)}
-                        className="w-full py-3 px-3 border border-dashed border-gray-300 rounded-md text-sm text-gray-600 hover:bg-gray-50 transition-colors touch-friendly"
+                        className="w-full py-3 px-3 border border-dashed border-purple-800/30 rounded-md text-sm text-purple-300/80 hover:bg-purple-900/20 transition-colors touch-friendly"
                       >
                         + Add Option
                       </button>
@@ -2766,15 +2767,15 @@ export default function EnhancedFormBuilder() {
             onClick={() => setIsMobileFieldsOpen(false)}
           >
             <div 
-              className="absolute top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-white shadow-lg transform transition-transform duration-300 ease-in-out"
+              className="absolute top-0 right-0 bottom-0 w-80 max-w-[85vw] bg-gray-800/95 backdrop-blur-md shadow-lg shadow-purple-900/40 transform transition-transform duration-300 ease-in-out"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-                <h2 className="text-lg font-semibold text-gray-800">Form Fields</h2>
+              <div className="flex items-center justify-between p-4 border-b border-purple-800/30 bg-gray-800/90">
+                <h2 className="text-lg font-semibold text-purple-200">Form Fields</h2>
                 <button
                   onClick={() => setIsMobileFieldsOpen(false)}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg touch-friendly"
+                  className="p-2 text-purple-300/60 hover:text-purple-300 rounded-lg touch-friendly"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -2783,11 +2784,11 @@ export default function EnhancedFormBuilder() {
               </div>
 
               {/* Content */}
-              <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
+              <div className="flex-1 overflow-y-auto bg-gray-900/50 p-4">
                 <div className="space-y-4">
                   {/* Quick Add Section */}
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center space-x-2">
+                  <div className="bg-gray-800/60 backdrop-blur-sm rounded-lg p-4 border border-purple-800/30">
+                    <h3 className="text-sm font-semibold text-purple-200 mb-3 flex items-center space-x-2">
                       <span>🧩</span>
                       <span>Quick Add</span>
                     </h3>
@@ -2797,7 +2798,7 @@ export default function EnhancedFormBuilder() {
                           addField({ field_type: 'text', label: 'Text Input' });
                           setIsMobileFieldsOpen(false);
                         }}
-                        className="p-2 text-xs bg-blue-100 text-blue-700 rounded-md hover:bg-blue-200 transition-colors touch-friendly"
+                        className="p-2 text-xs bg-blue-900/60 text-blue-300 rounded-md hover:bg-blue-900/80 transition-colors touch-friendly"
                       >
                         Text
                       </button>
@@ -2806,7 +2807,7 @@ export default function EnhancedFormBuilder() {
                           addField({ field_type: 'email', label: 'Email Address' });
                           setIsMobileFieldsOpen(false);
                         }}
-                        className="p-2 text-xs bg-green-100 text-green-700 rounded-md hover:bg-green-200 transition-colors touch-friendly"
+                        className="p-2 text-xs bg-green-900/60 text-green-300 rounded-md hover:bg-green-900/80 transition-colors touch-friendly"
                       >
                         Email
                       </button>
@@ -2835,15 +2836,15 @@ export default function EnhancedFormBuilder() {
                         setMobileActiveSection('fields');
                         setIsMobileSidebarOpen(true);
                       }}
-                      className="w-full mt-3 p-2 text-xs bg-gray-100 text-gray-700 rounded-md hover:bg-gray-200 transition-colors touch-friendly"
+                      className="w-full mt-3 p-2 text-xs bg-purple-900/60 text-purple-300 rounded-md hover:bg-purple-900/80 transition-colors touch-friendly"
                     >
                       View All Field Types
                     </button>
                   </div>
 
                   {/* Fields List */}
-                  <div className="bg-white rounded-lg p-4 border border-gray-200">
-                    <h3 className="text-sm font-semibold text-gray-800 mb-3 flex items-center justify-between">
+                  <div className="bg-gray-800/60 backdrop-blur-sm rounded-lg p-4 border border-purple-800/30">
+                    <h3 className="text-sm font-semibold text-purple-200 mb-3 flex items-center justify-between">
                       <div className="flex items-center space-x-2">
                         <span>📝</span>
                         <span>Current Fields ({fields.length})</span>
@@ -2854,17 +2855,17 @@ export default function EnhancedFormBuilder() {
                         fields.map((field, index) => (
                           <div
                             key={field.id || index}
-                            className={`p-3 border border-gray-200 rounded-md transition-colors ${
-                              selectedField === index ? 'border-blue-500 bg-blue-50' : 'hover:border-gray-300'
+                            className={`p-3 border border-purple-800/30 rounded-md transition-colors ${
+                              selectedField === index ? 'border-cyan-500 bg-cyan-900/30' : 'hover:border-purple-600/50 bg-gray-800/30'
                             }`}
                             onClick={() => setSelectedField(selectedField === index ? null : index)}
                           >
                             <div className="flex items-center justify-between">
                               <div className="flex-1 min-w-0">
-                                <h4 className="text-sm font-medium text-gray-800 truncate">
+                                <h4 className="text-sm font-medium text-purple-200 truncate">
                                   {field.label || `Field ${index + 1}`}
                                 </h4>
-                                <p className="text-xs text-gray-500 uppercase">{field.field_type}</p>
+                                <p className="text-xs text-purple-400/70 uppercase">{field.field_type}</p>
                               </div>
                               <div className="flex items-center space-x-1">
                                 <button
@@ -2872,7 +2873,7 @@ export default function EnhancedFormBuilder() {
                                     e.stopPropagation();
                                     duplicateField(index);
                                   }}
-                                  className="p-1 text-gray-400 hover:text-blue-600 touch-friendly"
+                                  className="p-1 text-purple-400/60 hover:text-cyan-400 touch-friendly"
                                   title="Duplicate"
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2884,7 +2885,7 @@ export default function EnhancedFormBuilder() {
                                     e.stopPropagation();
                                     removeField(index);
                                   }}
-                                  className="p-1 text-gray-400 hover:text-red-600 touch-friendly"
+                                  className="p-1 text-purple-400/60 hover:text-red-400 touch-friendly"
                                   title="Delete"
                                 >
                                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -2895,15 +2896,15 @@ export default function EnhancedFormBuilder() {
                             </div>
                             {(field.is_required || field.is_readonly) && (
                               <div className="flex space-x-1 mt-1">
-                                {field.is_required && <span className="inline-block bg-red-100 text-red-800 px-1 py-0.5 text-xs rounded">Required</span>}
-                                {field.is_readonly && <span className="inline-block bg-gray-100 text-gray-800 px-1 py-0.5 text-xs rounded">Read-only</span>}
+                                {field.is_required && <span className="inline-block bg-red-900/60 text-red-300 px-1 py-0.5 text-xs rounded">Required</span>}
+                                {field.is_readonly && <span className="inline-block bg-purple-900/60 text-purple-300 px-1 py-0.5 text-xs rounded">Read-only</span>}
                               </div>
                             )}
                           </div>
                         ))
                       ) : (
-                        <div className="text-center py-6 text-gray-500">
-                          <svg className="mx-auto h-8 w-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="text-center py-6 text-purple-400/70">
+                          <svg className="mx-auto h-8 w-8 text-purple-400/60 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                           </svg>
                           <p className="text-sm">No fields added yet</p>
@@ -2932,11 +2933,11 @@ export default function EnhancedFormBuilder() {
               onClick={(e) => e.stopPropagation()}
             >
               {/* Mobile Sidebar Header */}
-              <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-                <h2 className="text-lg font-semibold text-gray-800">Form Tools</h2>
+              <div className="flex items-center justify-between p-4 border-b border-purple-800/30 bg-gray-800/90">
+                <h2 className="text-lg font-semibold text-purple-200">Form Tools</h2>
                 <button
                   onClick={() => setIsMobileSidebarOpen(false)}
-                  className="p-2 text-gray-400 hover:text-gray-600 rounded-lg touch-friendly"
+                  className="p-2 text-purple-300/60 hover:text-purple-300 rounded-lg touch-friendly"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -2945,13 +2946,13 @@ export default function EnhancedFormBuilder() {
               </div>
 
               {/* Mobile Sidebar Tabs */}
-              <div className="flex border-b border-gray-200 bg-white">
+              <div className="flex border-b border-purple-800/30 bg-gray-800/60">
                 <button
                   onClick={() => setMobileActiveSection('settings')}
                   className={`flex-1 py-3 px-2 text-sm font-medium border-b-2 transition-colors touch-friendly ${
                     mobileActiveSection === 'settings'
-                      ? 'border-blue-600 text-blue-700 bg-blue-50'
-                      : 'border-transparent text-gray-600'
+                      ? 'border-cyan-400 text-cyan-300 bg-cyan-900/20'
+                      : 'border-transparent text-purple-300'
                   }`}
                 >
                   <div className="flex flex-col items-center space-y-1">
@@ -2965,8 +2966,8 @@ export default function EnhancedFormBuilder() {
                   onClick={() => setMobileActiveSection('ai')}
                   className={`flex-1 py-3 px-2 text-sm font-medium border-b-2 transition-colors touch-friendly ${
                     mobileActiveSection === 'ai'
-                      ? 'border-blue-600 text-blue-700 bg-blue-50'
-                      : 'border-transparent text-gray-600'
+                      ? 'border-cyan-400 text-cyan-300 bg-cyan-900/20'
+                      : 'border-transparent text-purple-300'
                   }`}
                 >
                   <div className="flex flex-col items-center space-y-1">
@@ -2980,10 +2981,10 @@ export default function EnhancedFormBuilder() {
                 </button>
                 <button
                   onClick={() => setMobileActiveSection('fields')}
-                  className={`flex-1 py-3 px-2 text-sm font-medium border-b-2 transition-colors touch-friendly ${
+                  className={`flex-1 py-3 px-2 text-sm font-medium border-b-2 transition-all duration-300 touch-friendly ${
                     mobileActiveSection === 'fields'
-                      ? 'border-blue-600 text-blue-700 bg-blue-50'
-                      : 'border-transparent text-gray-600'
+                      ? 'border-cyan-400 text-cyan-300 bg-cyan-900/20'
+                      : 'border-transparent text-purple-300 hover:text-cyan-300 hover:bg-purple-900/20'
                   }`}
                 >
                   <div className="flex flex-col items-center space-y-1">
@@ -2996,40 +2997,40 @@ export default function EnhancedFormBuilder() {
               </div>
 
               {/* Mobile Sidebar Content */}
-              <div className="flex-1 overflow-y-auto bg-gray-50">
+              <div className="flex-1 overflow-y-auto bg-gray-900/90 backdrop-blur-md">
                 <div className="p-4 space-y-4">
                   {/* Settings Section */}
                   {mobileActiveSection === 'settings' && (
                     <div className="space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Form Name *</label>
+                        <label className="block text-sm font-medium text-purple-300 mb-2">Form Name *</label>
                         <input
                           type="text"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           placeholder="Enter form name"
-                          className="w-full px-3 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mobile-compact-input"
+                          className="w-full px-3 py-3 text-base bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 mobile-compact-input transition-all duration-300"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
+                        <label className="block text-sm font-medium text-purple-300 mb-2">Description</label>
                         <textarea
                           value={description}
                           onChange={(e) => setDescription(e.target.value)}
                           placeholder="Enter form description"
                           rows={3}
-                          className="w-full px-3 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mobile-compact-input"
+                          className="w-full px-3 py-3 text-base bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 resize-none mobile-compact-input transition-all duration-300"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">Form Type</label>
+                        <label className="block text-sm font-medium text-purple-300 mb-2">Form Type</label>
                         <select
                           value={type}
                           onChange={(e) => {
                             setType(e.target.value);
                             if (e.target.value !== 'other') setCustomType('');
                           }}
-                          className="w-full px-3 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mobile-compact-input"
+                          className="w-full px-3 py-3 text-base bg-gray-900/70 border border-purple-600/50 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 mobile-compact-input transition-all duration-300"
                         >
                           <option value="">Select type</option>
                           <option value="contact">Contact Form</option>
@@ -3045,7 +3046,7 @@ export default function EnhancedFormBuilder() {
                             value={customType}
                             onChange={(e) => setCustomType(e.target.value)}
                             placeholder="Enter custom form type"
-                            className="w-full px-3 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mt-3 mobile-compact-input"
+                            className="w-full px-3 py-3 text-base bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 mt-3 mobile-compact-input transition-all duration-300"
                           />
                         )}
                       </div>
@@ -3055,7 +3056,7 @@ export default function EnhancedFormBuilder() {
                             setShowTemplates(true);
                             setIsMobileSidebarOpen(false);
                           }}
-                          className="w-full bg-purple-100 text-purple-700 py-3 px-4 rounded-md font-medium hover:bg-purple-200 transition-colors touch-friendly flex items-center justify-center space-x-2"
+                          className="w-full bg-gradient-to-r from-purple-600 to-cyan-600 text-white py-3 px-4 rounded-md font-medium hover:from-purple-500 hover:to-cyan-500 transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 touch-friendly flex items-center justify-center space-x-2 border border-purple-500/30"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
@@ -3069,41 +3070,44 @@ export default function EnhancedFormBuilder() {
                   {/* AI Section */}
                   {mobileActiveSection === 'ai' && (
                     <div className="space-y-4">
-                      <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-lg p-4 border border-purple-200">
-                        <h3 className="text-base font-semibold text-gray-800 mb-3 flex items-center space-x-2">
-                          <div className="w-6 h-6 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                            <svg className="w-3 h-3 text-white" fill="currentColor" stroke="none" viewBox="0 0 24 24">
-                              <path d="M12 3l1.5 7.5L21 12l-7.5 1.5L12 21l-1.5-7.5L3 12l7.5-1.5L12 3z"/>
-                              <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
-                            </svg>
-                          </div>
-                          <span className="text-blue-700">AI Assistant</span>
-                        </h3>
-                        <textarea
-                          value={prompt}
-                          onChange={(e) => setPrompt(e.target.value)}
-                          placeholder="Describe your form and I'll generate fields for you..."
-                          rows={4}
-                          className="w-full px-3 py-3 text-base border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none mb-3 mobile-compact-input"
-                        />
-                        <button
-                          onClick={() => {
-                            handleAIGenerate();
-                            setIsMobileSidebarOpen(false);
-                          }}
-                          disabled={loadingAI || !prompt.trim()}
-                          className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-md font-medium hover:from-purple-700 hover:to-pink-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 touch-friendly"
-                        >
-                          {loadingAI ? (
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          ) : (
-                            <svg className="w-4 h-4 text-white" fill="currentColor" stroke="none" viewBox="0 0 24 24">
-                              <path d="M12 3l1.5 7.5L21 12l-7.5 1.5L12 21l-1.5-7.5L3 12l7.5-1.5L12 3z"/>
-                              <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
-                            </svg>
-                          )}
-                          <span>{loadingAI ? 'Generating...' : 'Generate Fields'}</span>
-                        </button>
+                      <div className="bg-gradient-to-br from-purple-900/50 via-blue-900/50 to-cyan-900/50 backdrop-blur-sm rounded-lg p-4 border border-purple-700/30 shadow-lg shadow-purple-900/20">
+                        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 animate-pulse rounded-lg"></div>
+                        <div className="relative z-10">
+                          <h3 className="text-base font-semibold text-white mb-3 flex items-center space-x-2">
+                            <div className="w-6 h-6 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-full flex items-center justify-center shadow-lg shadow-purple-500/30 animate-pulse">
+                              <svg className="w-3 h-3 text-white" fill="currentColor" stroke="none" viewBox="0 0 24 24">
+                                <path d="M12 3l1.5 7.5L21 12l-7.5 1.5L12 21l-1.5-7.5L3 12l7.5-1.5L12 3z"/>
+                                <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
+                              </svg>
+                            </div>
+                            <span className="bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent font-bold">AI Assistant</span>
+                          </h3>
+                          <textarea
+                            value={prompt}
+                            onChange={(e) => setPrompt(e.target.value)}
+                            placeholder="Describe your form and I'll generate fields for you..."
+                            rows={4}
+                            className="w-full px-3 py-3 text-base bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 resize-none mb-3 mobile-compact-input transition-all duration-300"
+                          />
+                          <button
+                            onClick={() => {
+                              handleAIGenerate();
+                              setIsMobileSidebarOpen(false);
+                            }}
+                            disabled={loadingAI || !prompt.trim()}
+                            className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-cyan-600 text-white py-3 px-4 rounded-md font-medium hover:from-purple-500 hover:via-pink-500 hover:to-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2 touch-friendly transition-all duration-300 transform hover:scale-105 hover:shadow-lg hover:shadow-purple-500/25 border border-purple-500/30"
+                          >
+                            {loadingAI ? (
+                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            ) : (
+                              <svg className="w-4 h-4 text-white" fill="currentColor" stroke="none" viewBox="0 0 24 24">
+                                <path d="M12 3l1.5 7.5L21 12l-7.5 1.5L12 21l-1.5-7.5L3 12l7.5-1.5L12 3z"/>
+                                <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
+                              </svg>
+                            )}
+                            <span>{loadingAI ? 'Generating...' : 'Generate Fields'}</span>
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -3111,11 +3115,11 @@ export default function EnhancedFormBuilder() {
                   {/* Add Fields Section */}
                   {mobileActiveSection === 'fields' && (
                     <div className="space-y-3">
-                      <h3 className="text-base font-semibold text-gray-800 flex items-center space-x-2">
+                      <h3 className="text-base font-semibold text-white flex items-center space-x-2 bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">
                         <span>🧩</span>
                         <span>Add Field</span>
                       </h3>
-                      <div className="bg-white rounded-lg p-3 border border-gray-200">
+                      <div className="bg-gray-800/50 backdrop-blur-sm rounded-lg p-3 border border-purple-700/30 shadow-lg shadow-purple-900/20">
                         <WidgetLibrary 
                           onAddField={(field) => {
                             addField(field);
@@ -3143,22 +3147,22 @@ export default function EnhancedFormBuilder() {
 
       {/* Resizable Form Preview Modal */}
       {isModalOpen && (
-        <div className={`form-preview-modal ${isModalOpen ? 'open' : ''}`}>
-          <div className="form-preview-modal-content">
-            <div className="form-preview-modal-header">
-              <h2 className="form-preview-modal-title">
+        <div className={`form-preview-modal ${isModalOpen ? 'open' : ''} bg-gray-900/95 backdrop-blur-md`}>
+          <div className="form-preview-modal-content bg-gray-800/90 backdrop-blur-md border border-purple-700/30 shadow-2xl shadow-purple-900/50">
+            <div className="form-preview-modal-header bg-gray-900/90 backdrop-blur-md border-b border-purple-800/30">
+              <h2 className="form-preview-modal-title text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent font-bold">
                 {name || 'Form Preview'}
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="form-preview-modal-close"
+                className="form-preview-modal-close text-purple-300 hover:text-cyan-300 hover:bg-purple-800/30 rounded-lg p-2 transition-all duration-300"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className="form-preview-modal-body">
+            <div className="form-preview-modal-body bg-gray-900/90">
               <div className="flex h-full">
                 {/* Form Preview Area - Scrollable */}
                 <div className="flex-1 pr-4 overflow-y-auto">
@@ -3167,15 +3171,15 @@ export default function EnhancedFormBuilder() {
                 
                 {/* Properties Panel - Fixed */}
                 {selectedField !== null && (
-                  <div className="w-80 bg-gray-50 border-l border-gray-200 pl-4 flex flex-col">
+                  <div className="w-80 bg-gray-800/50 backdrop-blur-sm border-l border-purple-800/30 pl-4 flex flex-col shadow-lg shadow-purple-900/20">
                     <div className="mb-4 flex items-center justify-between flex-shrink-0">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">Field Properties</h3>
-                        <p className="text-sm text-gray-600">Configure the selected field</p>
+                        <h3 className="text-lg font-semibold text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2">Field Properties</h3>
+                        <p className="text-sm text-purple-300">Configure the selected field</p>
                       </div>
                       <button
                         onClick={() => setSelectedField(null)}
-                        className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
+                        className="p-1 text-purple-400 hover:text-cyan-300 hover:bg-purple-800/30 rounded-lg transition-all duration-300"
                         title="Close Properties Panel"
                       >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -3187,27 +3191,27 @@ export default function EnhancedFormBuilder() {
                     <div className="flex-1 overflow-y-auto space-y-4 scrollbar-hide">
                       {/* Field Label */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-purple-300 mb-1">
                           Field Label
                         </label>
                         <input
                           type="text"
                           value={fields[selectedField]?.label || ''}
                           onChange={(e) => updateFieldProperty(selectedField, 'label', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                           placeholder="Enter field label"
                         />
                       </div>
 
                       {/* Field Type */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-purple-300 mb-1">
                           Field Type
                         </label>
                         <select
                           value={fields[selectedField]?.field_type || 'text'}
                           onChange={(e) => updateFieldProperty(selectedField, 'field_type', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                         >
                           <option value="text">Text Input</option>
                           <option value="email">Email</option>
@@ -3228,14 +3232,14 @@ export default function EnhancedFormBuilder() {
                       {/* Placeholder */}
                       {['text', 'email', 'number', 'tel', 'url', 'password', 'textarea'].includes(fields[selectedField]?.field_type) && (
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-purple-300 mb-1">
                             Placeholder
                           </label>
                           <input
                             type="text"
                             value={fields[selectedField]?.placeholder || ''}
                             onChange={(e) => updateFieldProperty(selectedField, 'placeholder', e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                             placeholder="Enter placeholder text"
                           />
                         </div>
@@ -3243,14 +3247,14 @@ export default function EnhancedFormBuilder() {
 
                       {/* Help Text */}
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
+                        <label className="block text-sm font-medium text-purple-300 mb-1">
                           Help Text
                         </label>
                         <input
                           type="text"
                           value={fields[selectedField]?.helpText || ''}
                           onChange={(e) => updateFieldProperty(selectedField, 'helpText', e.target.value)}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                          className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                           placeholder="Enter help text"
                         />
                       </div>
@@ -3261,15 +3265,15 @@ export default function EnhancedFormBuilder() {
                           type="checkbox"
                           checked={fields[selectedField]?.is_required || false}
                           onChange={(e) => updateFieldProperty(selectedField, 'is_required', e.target.checked)}
-                          className="mr-2"
+                          className="mr-2 bg-gray-900/70 border border-purple-600/50 text-cyan-500 focus:ring-cyan-500 focus:ring-2 rounded"
                         />
-                        <label className="text-sm text-gray-700">Required field</label>
+                        <label className="text-sm text-purple-300">Required field</label>
                       </div>
 
                       {/* Options for select, radio, checkbox */}
                       {['select', 'radio', 'checkbox'].includes(fields[selectedField]?.field_type) && (
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
+                          <label className="block text-sm font-medium text-purple-300 mb-1">
                             Options (one per line)
                           </label>
                           <textarea
@@ -3292,7 +3296,7 @@ export default function EnhancedFormBuilder() {
                               updateFieldProperty(selectedField, 'options', options);
                             }}
                             rows={4}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                            className="w-full px-3 py-2 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-md shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 transition-all duration-300"
                             placeholder="Option 1&#10;Option 2&#10;Option 3"
                           />
                         </div>
@@ -3308,24 +3312,24 @@ export default function EnhancedFormBuilder() {
 
       {/* Form Details Input Modal */}
       {showNameInputModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-11/12 max-w-md mx-4 max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-gray-900/95 backdrop-blur-md flex items-center justify-center z-50">
+          <div className="bg-gray-800/90 backdrop-blur-sm border border-purple-700/30 rounded-lg p-6 w-11/12 max-w-md mx-4 max-h-[90vh] overflow-y-auto shadow-2xl shadow-purple-900/50">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-800 mb-2">Complete Form Details</h3>
-              <p className="text-sm text-gray-600">Please fill in the required details to save your form.</p>
+              <h3 className="text-lg font-semibold text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent mb-2">Complete Form Details</h3>
+              <p className="text-sm text-purple-300">Please fill in the required details to save your form.</p>
             </div>
             
             <div className="space-y-4 mb-6">
               {/* Form Name */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-purple-300 mb-2">
                   Form Name *
                 </label>
                 <input
                   type="text"
                   value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                  className="w-full px-3 py-3 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 text-base transition-all duration-300"
                   placeholder="Enter form name..."
                   autoFocus
                 />
@@ -3333,27 +3337,27 @@ export default function EnhancedFormBuilder() {
 
               {/* Form Description */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-purple-300 mb-2">
                   Description
                 </label>
                 <textarea
                   value={tempDescription}
                   onChange={(e) => setTempDescription(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base resize-none"
+                  className="w-full px-3 py-3 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 text-base resize-none transition-all duration-300"
                   placeholder="Describe your form (optional)..."
                 />
               </div>
 
               {/* Form Type */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-purple-300 mb-2">
                   Form Type *
                 </label>
                 <select
                   value={tempType}
                   onChange={(e) => setTempType(e.target.value)}
-                  className="w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                  className="w-full px-3 py-3 bg-gray-900/70 border border-purple-600/50 text-white rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 text-base transition-all duration-300"
                 >
                   <option value="">Select form type...</option>
                   <option value="contact">Contact Form</option>
@@ -3373,14 +3377,14 @@ export default function EnhancedFormBuilder() {
               {/* Custom Type (when Other is selected) */}
               {tempType === 'other' && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label className="block text-sm font-medium text-purple-300 mb-2">
                     Custom Form Type *
                   </label>
                   <input
                     type="text"
                     value={tempCustomType}
                     onChange={(e) => setTempCustomType(e.target.value)}
-                    className="w-full px-3 py-3 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-base"
+                    className="w-full px-3 py-3 bg-gray-900/70 border border-purple-600/50 text-white placeholder-gray-400 rounded-lg shadow-lg focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:border-cyan-400 text-base transition-all duration-300"
                     placeholder="Enter custom form type..."
                   />
                 </div>
@@ -3396,14 +3400,14 @@ export default function EnhancedFormBuilder() {
                   setTempType('');
                   setTempCustomType('');
                 }}
-                className="flex-1 px-4 py-3 text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-base font-medium"
+                className="flex-1 px-4 py-3 text-purple-300 bg-gray-800/50 hover:bg-gray-700/60 rounded-lg transition-all duration-300 text-base font-medium border border-purple-600/30 hover:border-purple-500/50"
               >
                 Cancel
               </button>
               <button
                 onClick={handleSaveWithName}
                 disabled={!tempName.trim() || !tempType.trim() || (tempType === 'other' && !tempCustomType.trim()) || loading}
-                className="flex-1 px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors text-base font-medium"
+                className="flex-1 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-500 hover:to-emerald-500 text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 text-base font-medium transform hover:scale-105 hover:shadow-lg hover:shadow-green-500/25 border border-green-500/30"
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && tempName.trim() && tempType.trim() && (tempType !== 'other' || tempCustomType.trim())) {
                     handleSaveWithName();

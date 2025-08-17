@@ -252,12 +252,12 @@ export default function FormAnalytics({ formId }) {
 
   if (loading) {
     return (
-      <div className="p-6">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-blue-950 p-6">
         {/* Header with Back Button (loading state) */}
         <div className="flex items-center space-x-4 mb-6">
           <button
             onClick={() => navigate('/')}
-            className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+            className="flex items-center space-x-2 text-cyan-400 hover:text-cyan-300 transition-colors duration-200"
             title="Back to Dashboard"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -265,29 +265,29 @@ export default function FormAnalytics({ formId }) {
             </svg>
             <span className="text-sm font-medium">Back to Dashboard</span>
           </button>
-          <div className="h-6 w-px bg-gray-300"></div>
-          <h1 className="text-3xl font-bold text-gray-900">Form Analytics</h1>
+          <div className="h-6 w-px bg-gray-600/50"></div>
+          <h1 className="text-3xl font-bold text-white">Form Analytics</h1>
         </div>
         
         <div className="animate-pulse space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[...Array(4)].map((_, i) => (
-              <div key={i} className="bg-gray-200 rounded-lg h-24"></div>
+              <div key={i} className="bg-gray-700/50 rounded-lg h-24 border border-gray-600/50"></div>
             ))}
           </div>
-          <div className="bg-gray-200 rounded-lg h-64"></div>
+          <div className="bg-gray-700/50 rounded-lg h-64 border border-gray-600/50"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-blue-950 p-6 space-y-6">
       {/* Header with Back Button */}
       <div className="flex items-center space-x-4 mb-6">
         <button
           onClick={() => navigate('/')}
-          className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors duration-200"
+          className="flex items-center space-x-2 text-cyan-400 hover:text-cyan-300 transition-colors duration-200"
           title="Back to Dashboard"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -295,17 +295,17 @@ export default function FormAnalytics({ formId }) {
           </svg>
           <span className="text-sm font-medium">Back to Dashboard</span>
         </button>
-        <div className="h-6 w-px bg-gray-300"></div>
-        <h1 className="text-3xl font-bold text-gray-900">Form Analytics</h1>
+        <div className="h-6 w-px bg-gray-600/50"></div>
+        <h1 className="text-3xl font-bold text-white">Form Analytics</h1>
       </div>
 
       {/* Time Range Selector */}
       <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-gray-800">Analytics Overview</h2>
+        <h2 className="text-2xl font-bold text-white">Analytics Overview</h2>
         <select
           value={timeRange}
           onChange={(e) => setTimeRange(e.target.value)}
-          className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-3 py-2 bg-gray-700/50 border border-gray-600/50 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-400 text-white backdrop-blur-sm"
         >
           <option value="all">All Time</option>
           <option value="24hours">Last 24 Hours</option>
@@ -317,59 +317,59 @@ export default function FormAnalytics({ formId }) {
 
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-gray-800/80 backdrop-blur-xl rounded-lg border border-gray-700/50 p-6 drop-shadow-[0_0_20px_rgba(34,211,238,0.2)]">
           <div className="flex items-center">
-            <div className="p-2 bg-blue-100 rounded-lg">
-              <svg className="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 bg-gradient-to-r from-cyan-500/20 to-blue-500/20 rounded-lg border border-cyan-400/30">
+              <svg className="w-6 h-6 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Total Views</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics.totalViews.toLocaleString()}</p>
+              <p className="text-sm font-medium text-gray-300">Total Views</p>
+              <p className="text-2xl font-bold text-white">{analytics.totalViews.toLocaleString()}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-gray-800/80 backdrop-blur-xl rounded-lg border border-gray-700/50 p-6 drop-shadow-[0_0_20px_rgba(16,185,129,0.2)]">
           <div className="flex items-center">
-            <div className="p-2 bg-green-100 rounded-lg">
-              <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 bg-gradient-to-r from-emerald-500/20 to-green-500/20 rounded-lg border border-emerald-400/30">
+              <svg className="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Submissions</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics.totalSubmissions}</p>
+              <p className="text-sm font-medium text-gray-300">Submissions</p>
+              <p className="text-2xl font-bold text-white">{analytics.totalSubmissions}</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-gray-800/80 backdrop-blur-xl rounded-lg border border-gray-700/50 p-6 drop-shadow-[0_0_20px_rgba(147,51,234,0.2)]">
           <div className="flex items-center">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 bg-gradient-to-r from-purple-500/20 to-purple-500/20 rounded-lg border border-purple-400/30">
+              <svg className="w-6 h-6 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Conversion Rate</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics.conversionRate}%</p>
+              <p className="text-sm font-medium text-gray-300">Conversion Rate</p>
+              <p className="text-2xl font-bold text-white">{analytics.conversionRate}%</p>
             </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
+        <div className="bg-gray-800/80 backdrop-blur-xl rounded-lg border border-gray-700/50 p-6 drop-shadow-[0_0_20px_rgba(251,146,60,0.2)]">
           <div className="flex items-center">
-            <div className="p-2 bg-orange-100 rounded-lg">
-              <svg className="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="p-2 bg-gradient-to-r from-orange-500/20 to-orange-500/20 rounded-lg border border-orange-400/30">
+              <svg className="w-6 h-6 text-orange-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
             </div>
             <div className="ml-4">
-              <p className="text-sm font-medium text-gray-600">Avg. Completion</p>
-              <p className="text-2xl font-bold text-gray-900">{analytics.averageCompletionTime}m</p>
+              <p className="text-sm font-medium text-gray-300">Avg. Completion</p>
+              <p className="text-2xl font-bold text-white">{analytics.averageCompletionTime}m</p>
             </div>
           </div>
         </div>
@@ -378,20 +378,20 @@ export default function FormAnalytics({ formId }) {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Submission Trends */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Submission Trends</h3>
+        <div className="bg-gray-800/80 backdrop-blur-xl rounded-lg border border-gray-700/50 p-6 drop-shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+          <h3 className="text-lg font-semibold text-white mb-4">Submission Trends</h3>
           <div className="space-y-3">
             {analytics.submissionTrends.map((trend, index) => (
               <div key={index} className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">{new Date(trend.date).toLocaleDateString()}</span>
+                <span className="text-sm text-gray-300">{new Date(trend.date).toLocaleDateString()}</span>
                 <div className="flex items-center space-x-2">
-                  <div className="w-32 bg-gray-200 rounded-full h-2">
+                  <div className="w-32 bg-gray-700/50 rounded-full h-2">
                     <div 
-                      className="bg-blue-600 h-2 rounded-full" 
+                      className="bg-gradient-to-r from-cyan-500 to-blue-500 h-2 rounded-full" 
                       style={{ width: `${Math.max((trend.submissions / Math.max(...analytics.submissionTrends.map(t => t.submissions), 1)) * 100, 5)}%` }}
                     ></div>
                   </div>
-                  <span className="text-sm font-medium text-gray-900 w-8">{trend.submissions}</span>
+                  <span className="text-sm font-medium text-white w-8">{trend.submissions}</span>
                 </div>
               </div>
             ))}
@@ -399,37 +399,37 @@ export default function FormAnalytics({ formId }) {
         </div>
 
         {/* Device Breakdown */}
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Device Breakdown</h3>
+        <div className="bg-gray-800/80 backdrop-blur-xl rounded-lg border border-gray-700/50 p-6 drop-shadow-[0_0_20px_rgba(147,51,234,0.2)]">
+          <h3 className="text-lg font-semibold text-white mb-4">Device Breakdown</h3>
           <div className="space-y-4">
             {Object.entries(analytics.deviceBreakdown).map(([device, count]) => (
               <div key={device} className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className={`p-2 rounded-lg ${
-                    device === 'desktop' ? 'bg-blue-100' :
-                    device === 'mobile' ? 'bg-green-100' : 'bg-purple-100'
+                  <div className={`p-2 rounded-lg border ${
+                    device === 'desktop' ? 'bg-blue-500/20 border-blue-400/30' :
+                    device === 'mobile' ? 'bg-green-500/20 border-green-400/30' : 'bg-purple-500/20 border-purple-400/30'
                   }`}>
                     {device === 'desktop' && (
-                      <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                       </svg>
                     )}
                     {device === 'mobile' && (
-                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M8 21h8a1 1 0 001-1V4a1 1 0 00-1-1H8a1 1 0 00-1 1v16a1 1 0 001 1z" />
                       </svg>
                     )}
                     {device === 'tablet' && (
-                      <svg className="w-5 h-5 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 18h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                       </svg>
                     )}
                   </div>
-                  <span className="text-sm font-medium text-gray-700 capitalize">{device}</span>
+                  <span className="text-sm font-medium text-white capitalize">{device}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <span className="text-sm font-bold text-gray-900">{count}</span>
-                  <span className="text-xs text-gray-500">
+                  <span className="text-sm font-bold text-white">{count}</span>
+                  <span className="text-xs text-gray-300">
                     ({analytics.totalSubmissions > 0 ? Math.round((count / analytics.totalSubmissions) * 100) : 0}%)
                   </span>
                 </div>
@@ -441,30 +441,30 @@ export default function FormAnalytics({ formId }) {
 
       {/* Drop-off Analysis */}
       {analytics.dropOffPoints.length > 0 && (
-        <div className="bg-white rounded-lg border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Drop-off Analysis</h3>
-          <p className="text-sm text-gray-600 mb-4">
+        <div className="bg-gray-800/80 backdrop-blur-xl rounded-lg border border-gray-700/50 p-6 drop-shadow-[0_0_20px_rgba(239,68,68,0.2)]">
+          <h3 className="text-lg font-semibold text-white mb-4">Drop-off Analysis</h3>
+          <p className="text-sm text-gray-300 mb-4">
             Fields where users are most likely to abandon the form
           </p>
           <div className="space-y-3">
             {analytics.dropOffPoints.map((point, index) => (
               <div key={index} className="flex items-center justify-between">
-                <span className="text-sm font-medium text-gray-700">{point.fieldName}</span>
+                <span className="text-sm font-medium text-gray-200">{point.fieldName}</span>
                 <div className="flex items-center space-x-2">
-                  <div className="w-24 bg-gray-200 rounded-full h-2">
+                  <div className="w-24 bg-gray-700/50 rounded-full h-2">
                     <div 
-                      className="bg-red-500 h-2 rounded-full" 
+                      className="bg-gradient-to-r from-red-500 to-red-400 h-2 rounded-full" 
                       style={{ width: `${point.dropOffRate}%` }}
                     ></div>
                   </div>
-                  <span className="text-sm font-bold text-red-600 w-12">{point.dropOffRate}%</span>
+                  <span className="text-sm font-bold text-red-400 w-12">{point.dropOffRate}%</span>
                 </div>
               </div>
             ))}
           </div>
-          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-            <p className="text-sm text-yellow-800">
-              <strong>Tip:</strong> Consider making high drop-off fields optional or adding help text to improve completion rates.
+          <div className="mt-4 p-3 bg-yellow-500/20 border border-yellow-400/30 rounded-md">
+            <p className="text-sm text-yellow-300">
+              <strong className="text-yellow-200">Tip:</strong> Consider making high drop-off fields optional or adding help text to improve completion rates.
             </p>
           </div>
         </div>

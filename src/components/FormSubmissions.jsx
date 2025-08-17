@@ -11,6 +11,39 @@ export default function FormSubmissions() {
   const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [showInfoModal, setShowInfoModal] = useState(false);
 
+  // Function to generate consistent color for form names
+  const getFormNameColor = (formName) => {
+    if (!formName) return 'from-gray-400 to-gray-500';
+    
+    // Create a simple hash from the form name
+    let hash = 0;
+    for (let i = 0; i < formName.length; i++) {
+      const char = formName.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // Convert to 32-bit integer
+    }
+    
+    // Define color combinations that work well with dark theme
+    const colorCombinations = [
+      'from-cyan-400 to-blue-500',
+      'from-purple-400 to-pink-500',
+      'from-green-400 to-teal-500',
+      'from-yellow-400 to-orange-500',
+      'from-rose-400 to-red-500',
+      'from-indigo-400 to-purple-500',
+      'from-emerald-400 to-green-500',
+      'from-amber-400 to-yellow-500',
+      'from-violet-400 to-purple-500',
+      'from-teal-400 to-cyan-500',
+      'from-orange-400 to-red-500',
+      'from-sky-400 to-blue-500',
+    ];
+    
+    // Use absolute value and modulo to get consistent index
+    const index = Math.abs(hash) % colorCombinations.length;
+    return colorCombinations[index];
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -111,23 +144,23 @@ export default function FormSubmissions() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-blue-950 flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading submissions...</p>
+          <div className="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4 drop-shadow-[0_0_15px_rgba(34,211,238,0.5)]"></div>
+          <p className="text-gray-300">Loading submissions...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-950 to-blue-950">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         {/* Header */}
-        <div className="mb-8">
+                <div className="mb-8">
           <Link 
             to="/" 
-            className="inline-flex items-center text-blue-600 hover:text-blue-700 font-medium mb-4 transition-colors duration-200"
+            className="inline-flex items-center text-cyan-400 hover:text-cyan-300 font-medium mb-4 transition-colors duration-200"
           >
             <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -135,52 +168,48 @@ export default function FormSubmissions() {
             Back to Dashboard
           </Link>
           
-          <div className="bg-white rounded-2xl shadow-xl p-6 sm:p-8 border border-gray-100">
-            <div className="flex items-center justify-between mb-2">
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-800">Form Submissions</h1>
-              <button
+          <div className="bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-gray-700/50 p-6 sm:p-8 drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+              <h1 className="text-2xl sm:text-3xl font-bold text-white">Form Submissions</h1>
+              <button 
                 onClick={() => setShowInfoModal(true)}
-                className="flex items-center justify-center w-8 h-8 bg-blue-100 hover:bg-blue-200 text-blue-600 rounded-full transition-colors duration-200"
-                title="Information about preserved form data"
+                className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white rounded-full transition-all duration-200 drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]"
+                title="Help"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </button>
             </div>
-            <p className="text-gray-600">View and manage form submissions</p>
+            <p className="text-gray-300">View and manage form submissions</p>
           </div>
         </div>
 
         {/* Filter */}
-        <div className="bg-white rounded-xl shadow-lg p-4 sm:p-6 mb-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <label className="text-sm font-medium text-gray-700">Filter by form:</label>
+        <div className="bg-gray-800/80 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-700/50 p-4 sm:p-6 mb-6 drop-shadow-[0_0_20px_rgba(34,211,238,0.2)]">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+            <label className="text-sm font-medium text-gray-300">Filter by form:</label>
             <select 
-              value={selectedForm}
+              value={selectedForm} 
               onChange={(e) => setSelectedForm(e.target.value)}
-              className="px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm"
+              className="px-3 sm:px-4 py-2 bg-gray-700/50 border border-gray-600/50 rounded-lg focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 text-sm text-white backdrop-blur-sm"
             >
               <option value="all">All Forms</option>
-              {forms.map(form => (
-                <option key={form.id} value={form.id}>
-                  {form.name} ({form.type})
-                </option>
+              {forms.map((form) => (
+                <option key={form.id} value={form.id}>{form.name}</option>
               ))}
             </select>
-            <div className="text-sm text-gray-500">
-              {filteredSubmissions.length} submission{filteredSubmissions.length !== 1 ? 's' : ''}
+            <div className="text-sm text-gray-400 sm:ml-auto">
+              {filteredSubmissions.length} submission{filteredSubmissions.length !== 1 ? 's' : ''} found
             </div>
           </div>
-        </div>
-
-        {/* Submissions Content */}
+        </div>        {/* Submissions Content */}
         {selectedSubmission ? (
           /* Full-width form view */
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="p-4 sm:p-6 border-b border-gray-200">
+          <div className="bg-gray-800/80 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-700/50 overflow-hidden drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+            <div className="p-4 sm:p-6 border-b border-gray-600/50">
               <div className="flex items-center justify-between">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Form View</h2>
+                <h2 className="text-lg sm:text-xl font-semibold text-white">Form View</h2>
               </div>
             </div>
             
@@ -193,39 +222,39 @@ export default function FormSubmissions() {
           </div>
         ) : (
           /* Submissions table */
-          <div className="bg-white rounded-xl shadow-lg overflow-hidden">
-            <div className="p-4 sm:p-6 border-b border-gray-200">
-              <h2 className="text-lg sm:text-xl font-semibold text-gray-800">Submissions</h2>
+          <div className="bg-gray-800/80 backdrop-blur-xl rounded-xl shadow-2xl border border-gray-700/50 overflow-hidden drop-shadow-[0_0_30px_rgba(34,211,238,0.3)]">
+            <div className="p-4 sm:p-6 border-b border-gray-600/50">
+              <h2 className="text-lg sm:text-xl font-semibold text-white">Submissions</h2>
             </div>
             
             <div className="max-h-96 overflow-y-auto">
               {filteredSubmissions.length === 0 ? (
                 <div className="p-8 text-center">
-                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
+                  <div className="w-16 h-16 mx-auto mb-4 bg-gray-700/50 rounded-full flex items-center justify-center border border-gray-600/50">
                     <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                   </div>
-                  <h3 className="text-lg font-medium text-gray-700 mb-2">No submissions found</h3>
-                  <p className="text-gray-500">No one has submitted any forms yet.</p>
+                  <h3 className="text-lg font-medium text-white mb-2">No submissions found</h3>
+                  <p className="text-gray-400">No one has submitted any forms yet.</p>
                 </div>
               ) : (
-                <div className="divide-y divide-gray-200">
+                <div className="divide-y divide-gray-600/50">
                   {filteredSubmissions.map((submission) => (
                     <div 
                       key={submission.id}
                       onClick={() => setSelectedSubmission(submission)}
-                      className={`p-3 sm:p-4 hover:bg-gray-50 cursor-pointer transition-colors ${
-                        selectedSubmission?.id === submission.id ? 'bg-blue-50 border-r-4 border-blue-500' : ''
+                      className={`p-3 sm:p-4 hover:bg-gray-700/30 cursor-pointer transition-colors ${
+                        selectedSubmission?.id === submission.id ? 'bg-cyan-500/10 border-r-4 border-cyan-400' : ''
                       }`}
                     >
                       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-2">
-                        <h3 className="font-medium text-gray-900 text-sm sm:text-base">
+                        <h3 className={`font-medium text-transparent bg-clip-text bg-gradient-to-r ${getFormNameColor(submission.forms?.name)} text-sm sm:text-base`}>
                           {submission.forms?.name || 'Unknown Form'}
                         </h3>
                         <div className="flex items-center gap-2">
                           {submission.stored_locally && (
-                            <span className="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">
+                            <span className="text-xs bg-yellow-500/20 text-yellow-300 px-2 py-1 rounded-full border border-yellow-500/30">
                               Local
                             </span>
                           )}
@@ -234,23 +263,23 @@ export default function FormSubmissions() {
                               e.stopPropagation();
                               setSelectedSubmission(submission);
                             }}
-                            className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full hover:bg-blue-200 transition-colors"
+                            className="text-xs bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded-full hover:bg-cyan-500/30 transition-colors border border-cyan-500/30"
                             title="View as filled form"
                           >
                             View Form
                           </button>
                         </div>
                       </div>
-                      <p className="text-sm text-gray-600 mb-1">
+                      <p className="text-sm text-gray-300 mb-1">
                         Type: {submission.forms?.type || 'Unknown'}
                       </p>
-                      <p className="text-xs text-gray-500">
+                      <p className="text-xs text-gray-400">
                         Submitted: {formatDate(submission.submitted_at)}
                         {submission.submitter_name && submission.submitter_name !== 'Anonymous' && (
-                          <span className="font-medium text-gray-700"> by {submission.submitter_name}</span>
+                          <span className="font-medium text-gray-300"> by {submission.submitter_name}</span>
                         )}
                         {submission.submitter_name === 'Anonymous' && (
-                          <span className="text-gray-500"> (anonymous)</span>
+                          <span className="text-gray-400"> (anonymous)</span>
                         )}
                       </p>
                     </div>
@@ -264,29 +293,29 @@ export default function FormSubmissions() {
         {/* Info Modal */}
         {showInfoModal && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-xl shadow-2xl max-w-md w-full max-h-96 overflow-y-auto">
+            <div className="bg-gray-800/95 backdrop-blur-xl rounded-xl shadow-2xl max-w-md w-full max-h-96 overflow-y-auto border border-gray-700/50">
               <div className="p-6">
                 <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-lg font-semibold text-gray-800">Preserved Form Data</h3>
+                  <h3 className="text-lg font-semibold text-white">Preserved Form Data</h3>
                   <button
                     onClick={() => setShowInfoModal(false)}
-                    className="text-gray-400 hover:text-gray-600 transition-colors"
+                    className="text-gray-400 hover:text-gray-300 transition-colors"
                   >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                     </svg>
                   </button>
                 </div>
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-4">
                   <div className="flex items-start gap-3">
-                    <svg className="w-5 h-5 text-green-600 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5 text-green-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <div className="text-sm">
-                      <p className="text-green-700">
+                      <p className="text-green-300">
                         Form submissions are preserved exactly as they were submitted, with the original field names and data. 
                         You can edit, update, or delete forms without affecting previously submitted data.
-                        Use the <strong>Form View</strong> button to see submissions as they appeared when filled out.
+                        Use the <strong className="text-green-200">Form View</strong> button to see submissions as they appeared when filled out.
                       </p>
                     </div>
                   </div>
