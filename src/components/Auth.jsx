@@ -229,9 +229,9 @@ export default function Auth() {
           
           {/* Footer Links */}
           <div className="mt-8 text-center text-xs text-gray-500 flex justify-center space-x-6">
-            <a href="#" className="hover:text-gray-300 transition-colors">Privacy Policy</a>
-            <a href="#" className="hover:text-gray-300 transition-colors">Terms of Service</a>
-            <a href="#" className="hover:text-gray-300 transition-colors">Contact Support</a>
+            <button type="button" className="hover:text-gray-300 transition-colors bg-transparent border-none cursor-pointer">Privacy Policy</button>
+            <button type="button" className="hover:text-gray-300 transition-colors bg-transparent border-none cursor-pointer">Terms of Service</button>
+            <button type="button" className="hover:text-gray-300 transition-colors bg-transparent border-none cursor-pointer">Contact Support</button>
           </div>
         </div>
       </div>
