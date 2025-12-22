@@ -310,17 +310,17 @@ export default function FormTemplates({ onSelectTemplate, onClose }) {
   };
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-gray-800/95 backdrop-blur-xl rounded-lg shadow-2xl border border-gray-700/50 max-w-6xl w-full max-h-[90vh] overflow-hidden drop-shadow-[0_0_40px_rgba(34,211,238,0.3)]">
+    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in">
+      <div className="bg-gray-900/95 backdrop-blur-xl rounded-2xl shadow-2xl border border-purple-700/30 max-w-6xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-purple-900/50">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-600/50">
+        <div className="flex items-center justify-between p-6 border-b border-purple-800/30 bg-gray-900/50">
           <div>
-            <h2 className="text-2xl font-bold text-white">Choose a Template</h2>
-            <p className="text-gray-300 mt-1">Start with a pre-built form template and customize it</p>
+            <h2 className="text-2xl font-bold text-white bg-gradient-to-r from-purple-400 to-cyan-400 bg-clip-text text-transparent">Choose a Template</h2>
+            <p className="text-purple-300 mt-1">Start with a pre-built form template and customize it</p>
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-white transition-colors"
+            className="p-2 text-purple-400 hover:text-cyan-300 hover:bg-purple-800/30 rounded-lg transition-all duration-300"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -329,12 +329,12 @@ export default function FormTemplates({ onSelectTemplate, onClose }) {
         </div>
 
         {/* Search and Filters */}
-        <div className="p-6 border-b border-gray-200 bg-gray-50">
+        <div className="p-6 border-b border-purple-800/30 bg-gray-800/30">
           <div className="flex flex-col lg:flex-row gap-4">
             {/* Search */}
             <div className="flex-1">
               <div className="relative">
-                <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
                 <input
@@ -342,7 +342,7 @@ export default function FormTemplates({ onSelectTemplate, onClose }) {
                   placeholder="Search templates..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full pl-10 pr-4 py-2.5 bg-gray-900/50 border border-purple-600/30 rounded-lg focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent text-white placeholder-purple-300/50 transition-all duration-300"
                 />
               </div>
             </div>
@@ -353,10 +353,10 @@ export default function FormTemplates({ onSelectTemplate, onClose }) {
                 <button
                   key={category}
                   onClick={() => setSelectedCategory(category)}
-                  className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
+                  className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
                     selectedCategory === category
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white text-gray-600 hover:bg-gray-100 border border-gray-300'
+                      ? 'bg-gradient-to-r from-purple-600 to-cyan-600 text-white shadow-lg shadow-purple-500/25'
+                      : 'bg-gray-800/50 text-purple-300 hover:bg-purple-900/30 hover:text-white border border-purple-700/30'
                   }`}
                 >
                   {category}
@@ -367,62 +367,69 @@ export default function FormTemplates({ onSelectTemplate, onClose }) {
         </div>
 
         {/* Templates Grid */}
-        <div className="p-6 overflow-y-auto max-h-[60vh]">
+        <div className="p-6 overflow-y-auto flex-1 scrollbar-hide">
           {/* AI Assistant Card */}
-          <div className="mb-6">
-            <div className="bg-gradient-to-r from-purple-500 to-blue-600 text-white rounded-lg p-6 mb-4">
-              <div className="flex items-center mb-4">
-                <div className="relative mr-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-yellow-300 via-orange-400 to-pink-500 rounded-full flex items-center justify-center shadow-lg">
-                    <svg className="w-6 h-6 text-white" fill="currentColor" stroke="none" viewBox="0 0 24 24" style={{ transform: 'rotate(2deg)' }}>
-                      <path d="M12 1l2 9L24 12l-10 2L12 23l-2-9L0 12l10-2L12 1z" transform="translate(0,1)"/>
-                      <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
-                    </svg>
+          <div className="mb-8">
+            <div className="bg-gradient-to-br from-purple-900/40 via-blue-900/40 to-cyan-900/40 border border-purple-500/30 rounded-xl p-6 relative overflow-hidden group hover:border-cyan-500/50 transition-all duration-500">
+              <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-cyan-600/10 opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+              
+              <div className="flex flex-col md:flex-row md:items-center gap-6 relative z-10">
+                <div className="flex items-center gap-4 flex-1">
+                  <div className="relative">
+                    <div className="w-14 h-14 bg-gradient-to-br from-purple-500 via-pink-500 to-cyan-500 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 animate-pulse">
+                      <svg className="w-8 h-8 text-white" fill="currentColor" stroke="none" viewBox="0 0 24 24">
+                        <path d="M12 1l2 9L24 12l-10 2L12 23l-2-9L0 12l10-2L12 1z"/>
+                        <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
+                      </svg>
+                    </div>
                   </div>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-green-400 rounded-full border-2 border-white animate-pulse"></div>
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-xl font-semibold mb-1">✨ AI Assistant</h3>
-                  <p className="text-purple-100">Describe your form and let AI create it for you</p>
+                  <div>
+                    <h3 className="text-xl font-bold text-white mb-1">AI Form Assistant</h3>
+                    <p className="text-purple-200 text-sm">Describe your form and let AI create it for you instantly</p>
+                  </div>
                 </div>
                 <button
                   onClick={() => setShowAIAssistant(!showAIAssistant)}
-                  className="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-md transition-colors"
+                  className="px-6 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white rounded-lg transition-all duration-300 backdrop-blur-sm font-medium whitespace-nowrap"
                 >
-                  {showAIAssistant ? 'Hide' : 'Try AI'}
+                  {showAIAssistant ? 'Hide Assistant' : 'Try AI Assistant'}
                 </button>
               </div>
               
               {showAIAssistant && (
-                <div className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-purple-100 mb-2">
-                      Describe your form
-                    </label>
-                    <textarea
-                      value={aiPrompt}
-                      onChange={(e) => setAiPrompt(e.target.value)}
-                      placeholder="e.g., Contact form for a restaurant with name, email, phone, and message fields"
-                      rows={3}
-                      className="w-full px-3 py-2 text-gray-800 border border-purple-200 rounded-md focus:outline-none focus:ring-2 focus:ring-white focus:border-transparent resize-vertical"
-                    />
-                  </div>
+                <div className="mt-6 pt-6 border-t border-white/10 animate-fade-in">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-purple-200 mb-2">
+                        Describe your form
+                      </label>
+                      <textarea
+                        value={aiPrompt}
+                        onChange={(e) => setAiPrompt(e.target.value)}
+                        placeholder="e.g., Create a customer satisfaction survey for a restaurant with rating fields, comment box, and contact info..."
+                        rows={3}
+                        className="w-full px-4 py-3 bg-gray-900/60 border border-purple-500/30 rounded-xl focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-transparent text-white placeholder-purple-300/40 resize-none transition-all duration-300"
+                      />
+                    </div>
 
-                  <button
-                    onClick={handleAIGenerate}
-                    disabled={loadingAI || !aiPrompt.trim()}
-                    className="bg-white text-purple-600 px-6 py-2 rounded-md font-medium hover:bg-purple-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
-                  >
-                    {loadingAI ? (
-                      <div className="w-4 h-4 border-2 border-purple-600 border-t-transparent rounded-full animate-spin"></div>
-                    ) : (
-                      <svg className="w-4 h-4 text-purple-600" fill="currentColor" stroke="none" viewBox="0 0 24 24" style={{ transform: 'rotate(2deg)' }}>
-                        <path d="M12 1l2 9L24 12l-10 2L12 23l-2-9L0 12l10-2L12 1z" transform="translate(0,1)"/>
-                        <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
-                      </svg>
-                    )}
-                    <span>{loadingAI ? 'Generating...' : 'Generate Form with AI'}</span>
-                  </button>
+                    <div className="flex justify-end">
+                      <button
+                        onClick={handleAIGenerate}
+                        disabled={loadingAI || !aiPrompt.trim()}
+                        className="bg-gradient-to-r from-purple-600 to-cyan-600 text-white px-8 py-3 rounded-xl font-medium hover:from-purple-500 hover:to-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 shadow-lg shadow-purple-500/25 transition-all duration-300 transform hover:scale-105"
+                      >
+                        {loadingAI ? (
+                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <svg className="w-5 h-5 text-white" fill="currentColor" stroke="none" viewBox="0 0 24 24">
+                            <path d="M12 1l2 9L24 12l-10 2L12 23l-2-9L0 12l10-2L12 1z"/>
+                            <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
+                          </svg>
+                        )}
+                        <span>{loadingAI ? 'Generating Magic...' : 'Generate Form'}</span>
+                      </button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
@@ -430,138 +437,139 @@ export default function FormTemplates({ onSelectTemplate, onClose }) {
 
           {filteredTemplates.length > 0 ? (
             <div>
-              <h3 className="text-lg font-semibold text-gray-800 mb-4">Pre-built Templates</h3>
+              <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <span className="text-2xl">📚</span> Pre-built Templates
+              </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredTemplates.map(template => (
                 <div
                   key={template.id}
-                  className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow group"
+                  className="bg-gray-800/40 backdrop-blur-sm border border-purple-700/20 rounded-xl p-6 hover:bg-gray-800/60 hover:border-cyan-500/30 hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300 group flex flex-col h-full"
                 >
-                  <div className="flex items-center mb-4">
-                    <div className="text-3xl mr-3">{template.icon}</div>
-                    <div className="flex-1">
-                      <h3 className="text-lg font-semibold text-gray-800 group-hover:text-blue-600 transition-colors">
-                        {template.name}
-                      </h3>
-                      <span className="inline-block px-2 py-1 text-xs font-medium text-blue-600 bg-blue-100 rounded-full">
-                        {template.category}
-                      </span>
+                  <div className="flex items-start justify-between mb-4">
+                    <div className="text-4xl p-3 bg-gray-900/50 rounded-xl border border-purple-500/20 group-hover:scale-110 transition-transform duration-300">
+                      {template.icon}
                     </div>
+                    <span className="inline-block px-3 py-1 text-xs font-medium text-cyan-300 bg-cyan-900/20 border border-cyan-500/20 rounded-full">
+                      {template.category}
+                    </span>
                   </div>
                   
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                  <h3 className="text-lg font-bold text-white mb-2 group-hover:text-cyan-300 transition-colors">
+                    {template.name}
+                  </h3>
+                  
+                  <p className="text-purple-300/80 text-sm mb-6 line-clamp-2 flex-1">
                     {template.description}
                   </p>
 
-                  <div className="space-y-2 mb-4">
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="text-gray-500">Fields:</span>
-                      <span className="font-medium text-gray-700">{template.fields.length}</span>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1">
-                      {template.fields.slice(0, 3).map((field, index) => (
-                        <span key={index} className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
-                          {field.label}
-                        </span>
-                      ))}
-                      {template.fields.length > 3 && (
-                        <span className="inline-block px-2 py-1 text-xs bg-gray-100 text-gray-600 rounded">
-                          +{template.fields.length - 3} more
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* AI Enhancement Section */}
-                  {enhancingTemplate === template.id && (
-                    <div className="border-t border-gray-200 pt-4 mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        How should AI enhance this template?
-                      </label>
-                      <textarea
-                        value={enhancePrompt}
-                        onChange={(e) => setEnhancePrompt(e.target.value)}
-                        placeholder="e.g., Add fields for social media links and company information"
-                        rows={2}
-                        className="w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-vertical"
-                      />
-                      <div className="flex gap-2 mt-2">
-                        <button
-                          onClick={() => handleEnhanceTemplate(template)}
-                          disabled={loadingAI || !enhancePrompt.trim()}
-                          className="flex-1 bg-purple-600 text-white px-3 py-2 text-sm rounded-md font-medium hover:bg-purple-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-1"
-                        >
-                          {loadingAI && (
-                            <div className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          )}
-                          <span>{loadingAI ? 'Enhancing...' : 'Enhance'}</span>
-                        </button>
-                        <button
-                          onClick={() => {
-                            setEnhancingTemplate(null);
-                            setEnhancePrompt('');
-                          }}
-                          className="px-3 py-2 text-sm text-gray-600 hover:text-gray-800 transition-colors"
-                        >
-                          Cancel
-                        </button>
+                  <div className="space-y-4 mt-auto">
+                    <div className="flex items-center justify-between text-xs text-purple-400/60 border-t border-purple-800/30 pt-4">
+                      <span>Includes {template.fields.length} fields</span>
+                      <div className="flex -space-x-2">
+                        {template.fields.slice(0, 3).map((_, i) => (
+                          <div key={i} className="w-6 h-6 rounded-full bg-gray-800 border border-purple-500/30 flex items-center justify-center text-[10px] text-purple-300">
+                            {i + 1}
+                          </div>
+                        ))}
+                        {template.fields.length > 3 && (
+                          <div className="w-6 h-6 rounded-full bg-gray-800 border border-purple-500/30 flex items-center justify-center text-[10px] text-purple-300">
+                            +
+                          </div>
+                        )}
                       </div>
                     </div>
-                  )}
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => handleTemplateSelect(template)}
-                      className="flex-1 bg-blue-600 text-white px-4 py-2 text-sm rounded-md font-medium hover:bg-blue-700 transition-colors"
-                    >
-                      Use Template
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setEnhancingTemplate(enhancingTemplate === template.id ? null : template.id);
-                        setEnhancePrompt('');
-                      }}
-                      className="px-3 py-2 text-sm text-purple-600 hover:text-purple-700 border border-purple-200 hover:border-purple-300 rounded-md transition-colors flex items-center space-x-1"
-                      title="Enhance with AI"
-                    >
-                      <svg className="w-3 h-3" fill="currentColor" stroke="none" viewBox="0 0 24 24" style={{ transform: 'rotate(2deg)' }}>
-                        <path d="M12 1l2 9L24 12l-10 2L12 23l-2-9L0 12l10-2L12 1z" transform="translate(0,1)"/>
-                        <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
-                      </svg>
-                      <span>AI</span>
-                    </button>
+                    {/* AI Enhancement Section */}
+                    {enhancingTemplate === template.id && (
+                      <div className="bg-purple-900/20 rounded-lg p-3 border border-purple-500/30 animate-fade-in">
+                        <label className="block text-xs font-medium text-cyan-300 mb-2">
+                          How should AI enhance this?
+                        </label>
+                        <textarea
+                          value={enhancePrompt}
+                          onChange={(e) => setEnhancePrompt(e.target.value)}
+                          placeholder="e.g., Add social media links..."
+                          rows={2}
+                          className="w-full px-3 py-2 text-xs bg-gray-900/80 border border-purple-500/30 rounded-lg focus:outline-none focus:ring-1 focus:ring-cyan-400 text-white placeholder-purple-300/30 resize-none mb-2"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleEnhanceTemplate(template)}
+                            disabled={loadingAI || !enhancePrompt.trim()}
+                            className="flex-1 bg-purple-600 text-white px-3 py-1.5 text-xs rounded-md font-medium hover:bg-purple-500 disabled:opacity-50"
+                          >
+                            {loadingAI ? 'Enhancing...' : 'Enhance'}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEnhancingTemplate(null);
+                              setEnhancePrompt('');
+                            }}
+                            className="px-3 py-1.5 text-xs text-purple-300 hover:text-white transition-colors"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => handleTemplateSelect(template)}
+                        className="flex-1 bg-gradient-to-r from-purple-600 to-cyan-600 text-white px-4 py-2.5 text-sm rounded-lg font-medium hover:from-purple-500 hover:to-cyan-500 transition-all duration-300 shadow-lg shadow-purple-900/20 hover:shadow-purple-500/25"
+                      >
+                        Use Template
+                      </button>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setEnhancingTemplate(enhancingTemplate === template.id ? null : template.id);
+                          setEnhancePrompt('');
+                        }}
+                        className={`px-3 py-2.5 rounded-lg transition-all duration-300 border ${
+                          enhancingTemplate === template.id
+                            ? 'bg-purple-500/20 border-purple-500 text-white'
+                            : 'bg-transparent border-purple-600/30 text-purple-400 hover:text-cyan-300 hover:border-cyan-500/50'
+                        }`}
+                        title="Enhance with AI"
+                      >
+                        <svg className="w-5 h-5" fill="currentColor" stroke="none" viewBox="0 0 24 24">
+                          <path d="M12 1l2 9L24 12l-10 2L12 23l-2-9L0 12l10-2L12 1z"/>
+                          <path d="M18 2l0.7 2.8L21.5 5.5l-2.8 0.7L18 9l-0.7-2.8L14.5 5.5l2.8-0.7L18 2z"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
             </div>
           ) : (
-            <div className="text-center py-12">
-              <svg className="mx-auto h-12 w-12 text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <h3 className="text-lg font-medium text-gray-800 mb-2">No templates found</h3>
-              <p className="text-gray-600">Try adjusting your search or category filter</p>
+            <div className="text-center py-20">
+              <div className="w-20 h-20 bg-gray-800/50 rounded-full flex items-center justify-center mx-auto mb-6 border border-purple-500/20">
+                <svg className="h-10 w-10 text-purple-400/50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-medium text-white mb-2">No templates found</h3>
+              <p className="text-purple-300">Try adjusting your search or category filter</p>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="p-6 border-t border-gray-200 bg-gray-50">
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600">
-              Choose a template, use AI assistant, or start from scratch
-            </p>
-            <button
-              onClick={handleStartFromScratch}
-              className="px-4 py-2 text-gray-600 hover:text-gray-800 transition-colors"
-            >
-              Start from scratch instead
-            </button>
-          </div>
+        <div className="p-6 border-t border-purple-800/30 bg-gray-900/50 flex items-center justify-between">
+          <p className="text-sm text-purple-300">
+            Choose a template, use AI assistant, or start from scratch
+          </p>
+          <button
+            onClick={handleStartFromScratch}
+            className="px-6 py-2.5 text-sm font-medium text-purple-300 hover:text-white hover:bg-purple-800/20 rounded-lg transition-all duration-300 border border-transparent hover:border-purple-500/30"
+          >
+            Start from scratch instead
+          </button>
         </div>
       </div>
     </div>

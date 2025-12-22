@@ -86,43 +86,50 @@ const ShareModal = ({ isOpen, onClose, formUrl, formTitle }) => {
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" onClick={onClose}>
-      <div className="bg-white rounded-lg p-6 w-full max-w-md mx-4" onClick={(e) => e.stopPropagation()}>
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold text-gray-800">Share Form</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-xl font-bold"
-          >
-            ×
-          </button>
-        </div>
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 backdrop-blur-sm" onClick={onClose}>
+      <div className="bg-gradient-to-br from-gray-800 via-slate-800 to-gray-800 rounded-2xl p-6 w-full max-w-md mx-4 border border-gray-600/50 relative overflow-hidden shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        {/* Neon accent */}
+        <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 pointer-events-none"></div>
         
-        <p className="text-sm text-gray-600 mb-6">Share "{formTitle}" with others</p>
-        
-        <div className="space-y-3">
-          {shareOptions.map((option) => (
-            <a
-              key={option.name}
-              href={option.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`${option.color} text-white px-4 py-3 rounded-lg flex items-center space-x-3 transition-colors duration-200 w-full`}
+        <div className="relative z-10">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">Share Form</h3>
+            <button
+              onClick={onClose}
+              className="text-gray-400 hover:text-white transition-colors p-1 rounded-full hover:bg-gray-700/50"
             >
-              {option.icon}
-              <span className="font-medium">Share on {option.name}</span>
-            </a>
-          ))}
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
           
-          <button
-            onClick={copyToClipboard}
-            className="copy-btn bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-lg flex items-center space-x-3 transition-colors duration-200 w-full"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-            </svg>
-            <span className="font-medium">Copy Link</span>
-          </button>
+          <p className="text-sm text-gray-300 mb-6">Share "<span className="text-white font-medium">{formTitle}</span>" with others</p>
+          
+          <div className="space-y-3">
+            {shareOptions.map((option) => (
+              <a
+                key={option.name}
+                href={option.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`${option.color} text-white px-4 py-3 rounded-xl flex items-center space-x-3 transition-all duration-200 w-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-white/10`}
+              >
+                {option.icon}
+                <span className="font-medium">Share on {option.name}</span>
+              </a>
+            ))}
+            
+            <button
+              onClick={copyToClipboard}
+              className="copy-btn bg-gray-700 hover:bg-gray-600 text-white px-4 py-3 rounded-xl flex items-center space-x-3 transition-all duration-200 w-full shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 border border-gray-600"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span className="font-medium">Copy Link</span>
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -591,15 +598,15 @@ export default function Dashboard({ session }) {
 
       <div className="container mx-auto px-4 py-8 max-w-7xl relative z-10">
         {/* Header Section - Dark Theme */}
-        <div className="bg-gradient-to-r from-slate-800/80 via-gray-800/80 to-slate-800/80 backdrop-blur-lg rounded-3xl shadow-2xl p-8 mb-8 border border-gray-700/50 relative overflow-hidden">
+        <div className="bg-gradient-to-r from-slate-800/80 via-gray-800/80 to-slate-800/80 backdrop-blur-lg rounded-3xl shadow-2xl p-6 sm:p-8 mb-8 border border-gray-700/50 relative overflow-hidden">
           {/* Neon accent border */}
           <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 rounded-3xl"></div>
           
-          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 relative z-10">
+          <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-6 relative z-10">
             <div className="min-w-0 flex-1">
               {/* Mobile Design - Simple header with user info button */}
               <div className="block sm:hidden">
-                <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center justify-between mb-4">
                   <div className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-400">
                     Dashboard
                   </div>
@@ -643,47 +650,52 @@ export default function Dashboard({ session }) {
                 </div>
               </div>
               
-              <p className="text-gray-300">Manage your forms and track submissions</p>
+              <p className="text-gray-300 text-sm sm:text-base">Manage your forms and track submissions</p>
             </div>
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 lg:flex-shrink-0">
+            
+            {/* Action Buttons Grid */}
+            <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3 lg:flex-shrink-0">
               <Link 
                 to="/create" 
-                className="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-cyan-500/30"
+                className="col-span-2 sm:col-span-1 bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white px-4 sm:px-6 py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-cyan-500/25 hover:shadow-xl hover:shadow-cyan-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-cyan-500/30"
               >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
                 Create New Form
               </Link>
+              
               <button
                 onClick={() => setShowAiModal(true)}
-                className="bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-purple-500/30"
+                className="col-span-2 sm:col-span-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 text-white px-4 sm:px-6 py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-purple-500/30"
               >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                 </svg>
-                AI Generate Form
+                AI Generate
               </button>
+              
               <Link 
                 to="/submissions" 
-                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-emerald-500/30"
+                className="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white px-4 sm:px-6 py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-emerald-500/25 hover:shadow-xl hover:shadow-emerald-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-emerald-500/30"
               >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
-                View Submissions
+                <span className="hidden sm:inline">Submissions</span>
               </Link>
+              
               <button
                 onClick={async () => {
                   await supabase.auth.signOut();
                   window.location.reload();
                 }}
-                className="bg-gradient-to-r from-red-500/80 to-pink-500/80 hover:from-red-500 hover:to-pink-500 text-white px-4 sm:px-6 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-red-500/30"
+                className="bg-gradient-to-r from-red-500/80 to-pink-500/80 hover:from-red-500 hover:to-pink-500 text-white px-4 sm:px-6 py-3 rounded-xl text-sm sm:text-base font-medium transition-all duration-300 shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/40 transform hover:-translate-y-1 flex items-center justify-center border border-red-500/30"
               >
-                <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                 </svg>
-                Logout
+                <span className="hidden sm:inline">Logout</span>
               </button>
             </div>
           </div>
@@ -967,14 +979,14 @@ export default function Dashboard({ session }) {
       {/* AI Form Generation Modal */}
       {showAiModal && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-gray-800 via-slate-800 to-gray-800 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-gray-600/50 relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-pink-500/10 rounded-3xl"></div>
+          <div className="bg-gradient-to-br from-gray-800/95 via-slate-800/95 to-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden border border-gray-600/50 relative">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-pink-500/10 rounded-3xl pointer-events-none"></div>
             {/* Modal Header */}
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4 relative z-10">
+            <div className="bg-gradient-to-r from-purple-600/90 to-pink-600/90 px-6 py-4 relative z-10 border-b border-white/10">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                    <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm shadow-lg">
+                    <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
                   </div>
@@ -988,7 +1000,7 @@ export default function Dashboard({ session }) {
                     setShowAiModal(false);
                     setAiPrompt('');
                   }}
-                  className="text-white hover:text-purple-200 transition-colors"
+                  className="text-white/80 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-lg"
                   disabled={isGenerating}
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1010,7 +1022,7 @@ export default function Dashboard({ session }) {
                   onChange={(e) => setAiPrompt(e.target.value)}
                   placeholder="Example: Create a customer feedback form for a restaurant with rating questions and comments section..."
                   rows={6}
-                  className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none text-white placeholder-gray-400 backdrop-blur-sm"
+                  className="w-full px-4 py-3 bg-gray-900/50 border border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 resize-none text-white placeholder-gray-500 backdrop-blur-sm transition-all duration-200"
                   disabled={isGenerating}
                 />
                 <p className="text-xs text-gray-400 mt-2">
@@ -1031,7 +1043,7 @@ export default function Dashboard({ session }) {
                     <button
                       key={index}
                       onClick={() => setAiPrompt(example)}
-                      className="text-left p-2 text-xs bg-gray-700/50 hover:bg-purple-500/20 border border-gray-600 hover:border-purple-500/50 rounded transition-colors text-gray-300 hover:text-white"
+                      className="text-left p-3 text-xs bg-gray-700/30 hover:bg-purple-500/20 border border-gray-600/50 hover:border-purple-500/50 rounded-xl transition-all duration-200 text-gray-300 hover:text-white hover:shadow-lg hover:shadow-purple-500/10"
                       disabled={isGenerating}
                     >
                       {example}
@@ -1041,11 +1053,11 @@ export default function Dashboard({ session }) {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 pt-2">
                 <button
                   onClick={handleGenerateAiForm}
                   disabled={!aiPrompt.trim() || isGenerating}
-                  className="flex-1 bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-400 hover:to-pink-400 disabled:from-gray-600 disabled:to-gray-700 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 border border-purple-500/30"
+                  className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 disabled:from-gray-700 disabled:to-gray-800 disabled:text-gray-500 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 border border-purple-500/30 transform hover:-translate-y-0.5"
                 >
                   {isGenerating ? (
                     <>
@@ -1070,7 +1082,7 @@ export default function Dashboard({ session }) {
                     setAiPrompt('');
                   }}
                   disabled={isGenerating}
-                  className="px-6 py-3 border border-gray-600 text-gray-300 rounded-xl font-medium hover:bg-gray-700/50 transition-colors"
+                  className="px-6 py-3 border border-gray-600 text-gray-300 rounded-xl font-medium hover:bg-gray-700/50 hover:text-white transition-all duration-200"
                 >
                   Cancel
                 </button>
@@ -1083,18 +1095,18 @@ export default function Dashboard({ session }) {
       {/* AI Review Modal */}
       {showAiReviewModal && aiGeneratedForm && (
         <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-          <div className="bg-gradient-to-br from-gray-800 via-slate-800 to-gray-800 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto border border-gray-600/50 relative">
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-pink-500/10 rounded-3xl"></div>
-            <div className="bg-gradient-to-r from-purple-500 to-pink-500 px-6 py-4 flex items-center justify-between relative z-10">
+          <div className="bg-gradient-to-br from-gray-800/95 via-slate-800/95 to-gray-800/95 backdrop-blur-xl rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-auto border border-gray-600/50 relative custom-scrollbar">
+            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 via-cyan-500/10 to-pink-500/10 rounded-3xl pointer-events-none"></div>
+            <div className="bg-gradient-to-r from-purple-600/90 to-pink-600/90 px-6 py-4 flex items-center justify-between relative z-10 border-b border-white/10 sticky top-0">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
-                  <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center backdrop-blur-sm shadow-lg">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                   </svg>
                 </div>
                 <div>
-                  <h3 className="text-xl font-bold text-white">Review & Save AI-Generated Form</h3>
-                  <p className="text-purple-100 text-sm">Review the generated form below. Edit if needed, then save.</p>
+                  <h3 className="text-xl font-bold text-white">Review & Save</h3>
+                  <p className="text-purple-100 text-sm">Review the generated form below</p>
                 </div>
               </div>
               <button
@@ -1102,7 +1114,7 @@ export default function Dashboard({ session }) {
                   setShowAiReviewModal(false);
                   setAiGeneratedForm(null);
                 }}
-                className="text-white hover:text-purple-200 transition-colors"
+                className="text-white/80 hover:text-white transition-colors p-1 hover:bg-white/10 rounded-lg"
                 disabled={isGenerating}
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1110,92 +1122,117 @@ export default function Dashboard({ session }) {
                 </svg>
               </button>
             </div>
-            <div className="p-6 space-y-4 relative z-10">
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Form Name</label>
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  value={aiGeneratedForm.name}
-                  onChange={e => setAiGeneratedForm(f => ({ ...f, name: e.target.value }))}
-                  disabled={isGenerating}
-                />
+            <div className="p-6 space-y-6 relative z-10">
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Form Name</label>
+                  <input
+                    type="text"
+                    className="w-full px-4 py-2 bg-gray-900/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                    value={aiGeneratedForm.name}
+                    onChange={e => setAiGeneratedForm(f => ({ ...f, name: e.target.value }))}
+                    disabled={isGenerating}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
+                  <textarea
+                    className="w-full px-4 py-2 bg-gray-900/50 border border-gray-600 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-200"
+                    value={aiGeneratedForm.description}
+                    onChange={e => setAiGeneratedForm(f => ({ ...f, description: e.target.value }))}
+                    disabled={isGenerating}
+                    rows={3}
+                  />
+                </div>
               </div>
+              
               <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Description</label>
-                <textarea
-                  className="w-full px-3 py-2 bg-gray-700/50 border border-gray-600 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500"
-                  value={aiGeneratedForm.description}
-                  onChange={e => setAiGeneratedForm(f => ({ ...f, description: e.target.value }))}
-                  disabled={isGenerating}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-300 mb-1">Fields</label>
-                <div className="space-y-2">
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-300">Form Fields</label>
+                  <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded-lg border border-gray-700">
+                    {aiGeneratedForm.fields?.length || 0} fields
+                  </span>
+                </div>
+                <div className="space-y-3">
                   {aiGeneratedForm.fields && aiGeneratedForm.fields.map((field, idx) => (
-                    <div key={idx} className="flex flex-col md:flex-row md:items-center gap-2 border p-2 rounded-lg">
-                      <input
-                        type="text"
-                        className="flex-1 px-2 py-1 border border-gray-300 rounded"
-                        value={field.label}
-                        onChange={e => setAiGeneratedForm(f => {
-                          const fields = [...f.fields];
-                          fields[idx] = { ...fields[idx], label: e.target.value };
-                          return { ...f, fields };
-                        })}
-                        disabled={isGenerating}
-                      />
-                      <select
-                        className="px-2 py-1 border border-gray-300 rounded"
-                        value={field.type}
-                        onChange={e => setAiGeneratedForm(f => {
-                          const fields = [...f.fields];
-                          fields[idx] = { ...fields[idx], type: e.target.value };
-                          return { ...f, fields };
-                        })}
-                        disabled={isGenerating}
-                      >
-                        {['text','email','tel','textarea','select','radio','checkbox','number','date','url','file'].map(opt => (
-                          <option key={opt} value={opt}>{opt}</option>
-                        ))}
-                      </select>
-                      <label className="flex items-center gap-1 text-xs">
-                        <input
-                          type="checkbox"
-                          checked={!!field.required}
-                          onChange={e => setAiGeneratedForm(f => {
-                            const fields = [...f.fields];
-                            fields[idx] = { ...fields[idx], required: e.target.checked };
-                            return { ...f, fields };
-                          })}
-                          disabled={isGenerating}
-                        />
-                        Required
-                      </label>
-                      {(field.type === 'select' || field.type === 'radio' || field.type === 'checkbox') && (
-                        <input
-                          type="text"
-                          className="flex-1 px-2 py-1 border border-gray-300 rounded"
-                          placeholder="Comma separated options"
-                          value={field.options ? field.options.join(', ') : ''}
-                          onChange={e => setAiGeneratedForm(f => {
-                            const fields = [...f.fields];
-                            fields[idx] = { ...fields[idx], options: e.target.value.split(',').map(s => s.trim()).filter(Boolean) };
-                            return { ...f, fields };
-                          })}
-                          disabled={isGenerating}
-                        />
-                      )}
+                    <div key={idx} className="flex flex-col gap-3 border border-gray-600/50 p-4 rounded-xl bg-gray-800/30 hover:bg-gray-800/50 transition-colors">
+                      <div className="flex flex-col md:flex-row gap-3">
+                        <div className="flex-1">
+                          <label className="text-xs text-gray-500 mb-1 block">Label</label>
+                          <input
+                            type="text"
+                            className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-purple-500 text-sm"
+                            value={field.label}
+                            onChange={e => setAiGeneratedForm(f => {
+                              const fields = [...f.fields];
+                              fields[idx] = { ...fields[idx], label: e.target.value };
+                              return { ...f, fields };
+                            })}
+                            disabled={isGenerating}
+                          />
+                        </div>
+                        <div className="w-full md:w-1/3">
+                          <label className="text-xs text-gray-500 mb-1 block">Type</label>
+                          <select
+                            className="w-full px-3 py-2 bg-gray-900/50 border border-gray-600 rounded-lg text-white focus:outline-none focus:border-purple-500 text-sm"
+                            value={field.type}
+                            onChange={e => setAiGeneratedForm(f => {
+                              const fields = [...f.fields];
+                              fields[idx] = { ...fields[idx], type: e.target.value };
+                              return { ...f, fields };
+                            })}
+                            disabled={isGenerating}
+                          >
+                            {['text','email','tel','textarea','select','radio','checkbox','number','date','url','file'].map(opt => (
+                              <option key={opt} value={opt}>{opt}</option>
+                            ))}
+                          </select>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between pt-1">
+                        <label className="flex items-center gap-2 text-sm text-gray-300 cursor-pointer hover:text-white">
+                          <input
+                            type="checkbox"
+                            checked={!!field.required}
+                            onChange={e => setAiGeneratedForm(f => {
+                              const fields = [...f.fields];
+                              fields[idx] = { ...fields[idx], required: e.target.checked };
+                              return { ...f, fields };
+                            })}
+                            disabled={isGenerating}
+                            className="rounded border-gray-600 text-purple-500 focus:ring-purple-500 bg-gray-700"
+                          />
+                          Required Field
+                        </label>
+                        
+                        {(field.type === 'select' || field.type === 'radio' || field.type === 'checkbox') && (
+                          <div className="flex-1 ml-4">
+                            <input
+                              type="text"
+                              className="w-full px-3 py-1.5 bg-gray-900/50 border border-gray-600 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 text-sm"
+                              placeholder="Options (comma separated)"
+                              value={field.options ? field.options.join(', ') : ''}
+                              onChange={e => setAiGeneratedForm(f => {
+                                const fields = [...f.fields];
+                                fields[idx] = { ...fields[idx], options: e.target.value.split(',').map(s => s.trim()).filter(Boolean) };
+                                return { ...f, fields };
+                              })}
+                              disabled={isGenerating}
+                            />
+                          </div>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
-              <div className="flex gap-3 justify-end pt-4">
+              
+              <div className="flex gap-3 justify-end pt-4 border-t border-gray-600/50">
                 <button
                   onClick={handleSaveReviewedForm}
                   disabled={isGenerating}
-                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white px-6 py-3 rounded-lg font-medium transition-all duration-200 flex items-center justify-center"
+                  className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white px-8 py-3 rounded-xl font-medium transition-all duration-200 flex items-center justify-center shadow-lg shadow-purple-500/25 hover:shadow-xl hover:shadow-purple-500/40 transform hover:-translate-y-0.5"
                 >
                   {isGenerating ? 'Saving...' : 'Save Form'}
                 </button>
@@ -1205,7 +1242,7 @@ export default function Dashboard({ session }) {
                     setAiGeneratedForm(null);
                   }}
                   disabled={isGenerating}
-                  className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+                  className="px-6 py-3 border border-gray-600 text-gray-300 rounded-xl font-medium hover:bg-gray-700/50 hover:text-white transition-all duration-200"
                 >
                   Cancel
                 </button>

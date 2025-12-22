@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function WidgetLibrary({ onAddField, className = "" }) {
+export default function WidgetLibrary({ onAddField, className = "", isMobile = false }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
@@ -217,9 +217,9 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
   };
 
   return (
-    <div className={`bg-gray-800/80 backdrop-blur-xl ${className} flex h-full overflow-hidden max-h-full border border-gray-700/50 rounded-lg`}>
+    <div className={`bg-gray-800/80 backdrop-blur-xl ${className} flex ${isMobile ? 'flex-col h-auto' : 'h-full overflow-hidden max-h-full'} border border-gray-700/50 rounded-lg`}>
       {/* Desktop Sidebar */}
-      {showFilters && (
+      {showFilters && !isMobile && (
         <div className="hidden lg:block">
           <div className="w-48 flex-shrink-0 border-r border-gray-600/50 bg-gray-900/50 flex flex-col h-full overflow-hidden">
           {/* Search */}
@@ -327,7 +327,7 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
       )}
 
       {/* Widget Grid */}
-      <div className="flex-1 flex flex-col overflow-hidden h-full max-h-full">
+      <div className={`flex-1 flex flex-col ${isMobile ? 'h-auto' : 'overflow-hidden h-full max-h-full'}`}>
         {/* Header with Toggle Button */}
         <div className="flex-shrink-0 flex items-center justify-between p-2 border-b border-purple-800/30 bg-gray-900/50 backdrop-blur-sm">
           <div className="flex items-center space-x-2 min-w-0 flex-1">
@@ -428,7 +428,7 @@ export default function WidgetLibrary({ onAddField, className = "" }) {
             </div>
           </div>
         )}        {/* Widget List */}
-        <div className="flex-1 overflow-y-auto widget-grid min-h-0 scrollbar-hide">
+        <div className={`flex-1 widget-grid min-h-0 scrollbar-hide ${isMobile ? '' : 'overflow-y-auto'}`}>
           <div className="p-2 pb-6">
             {filteredWidgets.length > 0 ? (
               <div className="space-y-2">

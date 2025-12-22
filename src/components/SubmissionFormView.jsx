@@ -152,12 +152,7 @@ export default function SubmissionFormView({ submission, onBack }) {
 
   const renderField = (field) => {
     const value = getFieldValue(field.id);
-    
-    // Field info is already from the correct time (either metadata or current)
-    const fieldLabel = field.label;
     const fieldType = field.field_type;
-    
-    const baseClasses = "w-full px-4 py-3 bg-gray-700/50 border border-gray-600/50 rounded-lg text-white cursor-default backdrop-blur-sm";
     
     switch (fieldType) {
       case 'text':
@@ -165,43 +160,36 @@ export default function SubmissionFormView({ submission, onBack }) {
       case 'number':
       case 'tel':
       case 'url':
-        return (
-          <input
-            type={fieldType}
-            value={value || ''}
-            readOnly
-            className={baseClasses}
-          />
-        );
-
+      case 'date':
+      case 'time':
       case 'textarea':
         return (
-          <textarea
-            value={value || ''}
-            readOnly
-            rows={field.rows || 4}
-            className={baseClasses}
-          />
+          <div className="bg-gray-900/50 border border-purple-500/20 rounded-lg p-4 text-gray-200">
+            {value || <span className="text-gray-500 italic">No answer provided</span>}
+          </div>
         );
-
+      
       case 'checkbox':
-        // If field has options, treat it as a checkbox group
         if (field.options && field.options.length > 0) {
-          const checkboxValues = Array.isArray(value) ? value : [];
-          
+          const checkedValues = Array.isArray(value) ? value : [];
           return (
             <div className="space-y-3">
               {field.options.map((option, i) => {
-                const isSelected = checkboxValues.includes(option);
+                const isSelected = checkedValues.includes(option);
                 return (
                   <div key={i} className="flex items-center space-x-3">
-                    <input
-                      type="checkbox"
-                      checked={isSelected}
-                      readOnly
-                      className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded cursor-default"
-                    />
-                    <label className={`text-sm cursor-default select-none ${isSelected ? 'text-gray-200 font-medium' : 'text-gray-400'}`}>
+                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                      isSelected 
+                        ? 'bg-gradient-to-r from-purple-600 to-cyan-600 border-transparent' 
+                        : 'bg-gray-800 border-gray-600'
+                    }`}>
+                      {isSelected && (
+                        <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                        </svg>
+                      )}
+                    </div>
+                    <label className={`text-sm cursor-default select-none ${isSelected ? 'text-white font-medium' : 'text-gray-400'}`}>
                       {option}
                     </label>
                   </div>
@@ -213,14 +201,19 @@ export default function SubmissionFormView({ submission, onBack }) {
           // Single checkbox (no options)
           return (
             <div className="flex items-center space-x-3">
-              <input
-                type="checkbox"
-                checked={value || false}
-                readOnly
-                className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded cursor-default"
-              />
+              <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                value 
+                  ? 'bg-gradient-to-r from-purple-600 to-cyan-600 border-transparent' 
+                  : 'bg-gray-800 border-gray-600'
+              }`}>
+                {value && (
+                  <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </div>
               <label className="text-sm text-gray-300 cursor-default select-none">
-                {fieldLabel}
+                {field.label}
                 {field.is_required && <span className="text-red-400 ml-1">*</span>}
               </label>
             </div>
@@ -245,13 +238,18 @@ export default function SubmissionFormView({ submission, onBack }) {
               const isSelected = checkboxValues.includes(option);
               return (
                 <div key={i} className="flex items-center space-x-3">
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    readOnly
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded cursor-default"
-                  />
-                  <label className={`text-sm cursor-default select-none ${isSelected ? 'text-gray-900 font-medium' : 'text-gray-600'}`}>
+                  <div className={`w-5 h-5 rounded border flex items-center justify-center transition-colors ${
+                    isSelected 
+                      ? 'bg-gradient-to-r from-purple-600 to-cyan-600 border-transparent' 
+                      : 'bg-gray-800 border-gray-600'
+                  }`}>
+                    {isSelected && (
+                      <svg className="w-3.5 h-3.5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                      </svg>
+                    )}
+                  </div>
+                  <label className={`text-sm cursor-default select-none ${isSelected ? 'text-white font-medium' : 'text-gray-400'}`}>
                     {option}
                   </label>
                 </div>
@@ -276,13 +274,16 @@ export default function SubmissionFormView({ submission, onBack }) {
               const isSelected = value === option;
               return (
                 <div key={i} className="flex items-center space-x-3">
-                  <input
-                    type="radio"
-                    checked={isSelected}
-                    readOnly
-                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 cursor-default"
-                  />
-                  <label className={`text-sm cursor-default select-none ${isSelected ? 'text-gray-200 font-medium' : 'text-gray-400'}`}>
+                  <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+                    isSelected 
+                      ? 'border-cyan-500' 
+                      : 'border-gray-600 bg-gray-800'
+                  }`}>
+                    {isSelected && (
+                      <div className="w-2.5 h-2.5 rounded-full bg-gradient-to-r from-purple-500 to-cyan-500" />
+                    )}
+                  </div>
+                  <label className={`text-sm cursor-default select-none ${isSelected ? 'text-white font-medium' : 'text-gray-400'}`}>
                     {option}
                   </label>
                 </div>
@@ -307,28 +308,32 @@ export default function SubmissionFormView({ submission, onBack }) {
         
         return (
           <div className="space-y-2">
-            <div className="border border-gray-600/50 rounded-lg p-4 bg-gray-700/50">
-              <p className="text-xs text-gray-400 mb-2">Selected option{selectedValues.length > 1 ? 's' : ''}:</p>
+            <div className="bg-gray-900/50 border border-purple-500/20 rounded-lg p-4">
+              <p className="text-xs text-purple-300/70 mb-2">Selected option{selectedValues.length > 1 ? 's' : ''}:</p>
               {selectedValues.length > 0 ? (
                 <div className="space-y-1">
                   {selectedValues.map((selectedValue, i) => (
-                    <p key={i} className="text-sm font-medium text-gray-200">
+                    <p key={i} className="text-sm font-medium text-cyan-300">
                       {selectedValue}
                     </p>
                   ))}
                 </div>
               ) : (
-                <p className="text-sm text-gray-400 italic">No options selected</p>
+                <p className="text-sm text-gray-500 italic">No options selected</p>
               )}
             </div>
-            <div className="border border-gray-600/50 rounded-lg p-3">
-              <p className="text-xs text-gray-400 mb-2">All available options:</p>
-              <div className="space-y-1">
+            <div className="bg-gray-800/30 border border-gray-700/50 rounded-lg p-3">
+              <p className="text-xs text-gray-500 mb-2">All available options:</p>
+              <div className="flex flex-wrap gap-2">
                 {field.options.map((opt, i) => {
                   const isSelected = selectedValues.includes(opt);
                   return (
-                    <div key={i} className={`text-sm px-2 py-1 rounded ${isSelected ? 'bg-cyan-500/20 text-cyan-300 font-medium border border-cyan-500/30' : 'text-gray-400'}`}>
-                      {isSelected && <span className="mr-2">✓</span>}
+                    <div key={i} className={`text-xs px-2 py-1 rounded-md border transition-colors ${
+                      isSelected 
+                        ? 'bg-purple-500/20 text-purple-200 border-purple-500/30' 
+                        : 'bg-gray-800/50 text-gray-500 border-gray-700'
+                    }`}>
+                      {isSelected && <span className="mr-1">✓</span>}
                       {opt}
                     </div>
                   );
@@ -342,8 +347,8 @@ export default function SubmissionFormView({ submission, onBack }) {
         const fileValue = value;
         if (!fileValue) {
           return (
-            <div className="border border-gray-600/50 rounded-lg p-4 bg-gray-700/50">
-              <p className="text-gray-400 text-sm">No file uploaded</p>
+            <div className="bg-gray-900/50 border border-gray-700/50 rounded-lg p-4">
+              <p className="text-gray-500 text-sm italic">No file uploaded</p>
             </div>
           );
         }
@@ -352,23 +357,36 @@ export default function SubmissionFormView({ submission, onBack }) {
         
         return (
           <div className="space-y-3">
-            <div className="border border-gray-600/50 rounded-lg p-4 bg-gray-700/50">
-              <p className="font-medium text-sm text-gray-300 mb-2">Uploaded Files:</p>
+            <div className="bg-gray-900/50 border border-purple-500/20 rounded-lg p-4">
+              <p className="font-medium text-sm text-purple-300 mb-3">Uploaded Files:</p>
               <div className="space-y-2">
                 {files.map((file, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-gray-800/80 p-3 rounded-lg border border-gray-600/50">
-                    <svg className="w-5 h-5 text-cyan-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                  <div key={i} className="flex items-center gap-3 bg-gray-800/80 p-3 rounded-lg border border-gray-700/50 hover:border-cyan-500/30 transition-colors">
+                    <div className="p-2 bg-cyan-500/10 rounded-lg">
+                      <svg className="w-5 h-5 text-cyan-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      </svg>
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-gray-200 truncate">
                         {file.name}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-500">
                         {file.size ? `${(file.size / 1024).toFixed(1)} KB` : 'Size unknown'}
                         {file.type && ` • ${file.type}`}
                       </p>
                     </div>
+                    <a 
+                      href={file.url || '#'} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="p-2 text-gray-400 hover:text-cyan-400 transition-colors"
+                      title="Download"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                    </a>
                   </div>
                 ))}
               </div>
@@ -378,7 +396,7 @@ export default function SubmissionFormView({ submission, onBack }) {
 
       default:
         return (
-          <div className="border border-gray-600/50 rounded-lg p-4 bg-gray-700/50">
+          <div className="bg-gray-900/50 border border-gray-700/50 rounded-lg p-4">
             <p className="text-sm text-gray-300">
               {typeof value === 'object' ? JSON.stringify(value, null, 2) : String(value)}
             </p>
@@ -389,118 +407,149 @@ export default function SubmissionFormView({ submission, onBack }) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-8">
-        <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin"></div>
+      <div className="flex items-center justify-center py-12">
+        <div className="w-10 h-10 border-3 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
       </div>
     );
   }
 
   if (!form) {
     return (
-      <div className="text-center py-8">
-        <p className="text-gray-400">Form not found or no longer available</p>
+      <div className="text-center py-12">
+        <div className="w-16 h-16 mx-auto mb-4 bg-gray-800/50 rounded-full flex items-center justify-center border border-gray-700">
+          <svg className="w-8 h-8 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+        </div>
+        <h3 className="text-lg font-medium text-white mb-2">Form not found</h3>
+        <p className="text-gray-400">The form you are looking for is not available.</p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-3xl mx-auto animate-fade-in">
       {/* Back Button */}
       {onBack && (
-        <div className="mb-4 sm:mb-6">
+        <div className="mb-6">
           <button
             onClick={onBack}
-            className="inline-flex items-center text-cyan-400 hover:text-cyan-300 font-medium transition-colors duration-200 text-sm sm:text-base"
+            className="group inline-flex items-center text-gray-400 hover:text-cyan-400 font-medium transition-colors duration-200"
           >
-            <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
+            <div className="w-8 h-8 rounded-full bg-gray-800/50 flex items-center justify-center mr-3 group-hover:bg-cyan-500/10 transition-colors border border-gray-700 group-hover:border-cyan-500/30">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </div>
             Back to Submission List
           </button>
         </div>
       )}
       
       {/* Form Header */}
-      <div className="bg-gray-800/80 backdrop-blur-xl rounded-lg shadow-2xl border border-gray-700/50 p-4 sm:p-6 mb-4 sm:mb-6 drop-shadow-[0_0_20px_rgba(34,211,238,0.2)]">
-        <h2 className={`text-xl sm:text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${getFormNameColor(form.name)} mb-2`}>{form.name}</h2>
-        <p className="text-gray-300 mb-4">{form.description}</p>
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 text-sm text-gray-400 mb-3">
-          <span className="bg-cyan-500/20 text-cyan-300 px-2 py-1 rounded-full text-xs sm:text-sm border border-cyan-500/30">
-            {form.type}
-          </span>
-          <span className="hidden sm:inline">•</span>
-          <span className="text-xs sm:text-sm">
-            Submitted: {new Date(submission.submitted_at).toLocaleString()}
-            {submission.submitter_name && submission.submitter_name !== 'Anonymous' && (
-              <span className="font-medium text-gray-300"> by {submission.submitter_name}</span>
-            )}
-            {submission.submitter_name === 'Anonymous' && (
-              <span className="text-gray-400"> (anonymous)</span>
-            )}
-          </span>
-        </div>
+      <div className="bg-gray-800/40 backdrop-blur-xl rounded-2xl shadow-xl border border-purple-500/10 p-6 sm:p-8 mb-6 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/10 rounded-full blur-3xl -mr-32 -mt-32 pointer-events-none"></div>
+        <div className="absolute bottom-0 left-0 w-64 h-64 bg-cyan-500/10 rounded-full blur-3xl -ml-32 -mb-32 pointer-events-none"></div>
         
-        {/* Form version indicator */}
-        {submission.field_metadata ? (
-          <div className="bg-green-500/20 border border-green-500/30 rounded-lg p-3">
-            <div className="flex items-center gap-2 text-green-400">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <span className="text-sm font-medium">
-                Viewing original form as it was when submitted
+        <div className="relative z-10">
+          <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
+            <div>
+              <h2 className={`text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r ${getFormNameColor(form.name)} mb-2`}>
+                {form.name}
+              </h2>
+              <p className="text-gray-400 text-lg">{form.description}</p>
+            </div>
+            <div className="flex items-center gap-2 bg-gray-900/50 px-3 py-1.5 rounded-lg border border-gray-700/50">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              <span className="text-sm font-medium text-gray-300">
+                {form.type}
               </span>
             </div>
-            <p className="text-xs text-green-300 mt-1">
-              This shows the exact form structure and field names that were present when this submission was made.
-            </p>
           </div>
-        ) : (
-          <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg p-3">
-            <div className="flex items-center gap-2 text-amber-400">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.866-.833-2.536 0L3.278 16.5c-.77.833.192 2.5 1.732 2.5z" />
+
+          <div className="flex flex-wrap items-center gap-4 text-sm text-gray-400 pt-4 border-t border-gray-700/50">
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-purple-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
-              <span className="text-sm font-medium">
-                Legacy submission - showing current form structure
+              <span>Submitted: <span className="text-gray-200">{new Date(submission.submitted_at).toLocaleString()}</span></span>
+            </div>
+            
+            <div className="flex items-center gap-2">
+              <svg className="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <span>
+                By: <span className="text-gray-200 font-medium">{submission.submitter_name || 'Anonymous'}</span>
               </span>
             </div>
-            <p className="text-xs text-amber-300 mt-1">
-              This submission was made before field metadata was stored, so it shows the current form structure which may differ from when it was originally filled.
-            </p>
           </div>
-        )}
+        </div>
       </div>
+        
+      {/* Form version indicator */}
+      {submission.field_metadata ? (
+        <div className="mb-6 bg-green-500/10 border border-green-500/20 rounded-xl p-4 flex items-start gap-3">
+          <div className="p-2 bg-green-500/20 rounded-lg shrink-0">
+            <svg className="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium text-green-400 mb-1">Original Form Structure</h4>
+            <p className="text-xs text-green-300/70 leading-relaxed">
+              This view uses the exact form structure stored at the time of submission.
+            </p>
+          </div>
+        </div>
+      ) : (
+        <div className="mb-6 bg-amber-500/10 border border-amber-500/20 rounded-xl p-4 flex items-start gap-3">
+          <div className="p-2 bg-amber-500/20 rounded-lg shrink-0">
+            <svg className="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.866-.833-2.536 0L3.278 16.5c-.77.833.192 2.5 1.732 2.5z" />
+            </svg>
+          </div>
+          <div>
+            <h4 className="text-sm font-medium text-amber-400 mb-1">Legacy Submission</h4>
+            <p className="text-xs text-amber-300/70 leading-relaxed">
+              This submission was made before versioning was enabled. Showing current form structure.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Form Fields */}
-      <div className="space-y-4 sm:space-y-6">
+      <div className="space-y-6">
         {fields.map((field) => {
           return (
-            <div key={field.id} className="bg-gray-800/80 backdrop-blur-xl rounded-lg shadow-2xl border border-gray-700/50 p-4 sm:p-6 drop-shadow-[0_0_20px_rgba(34,211,238,0.2)]">
-              <div className="mb-3 sm:mb-4">
-                <label className="block text-sm font-medium text-gray-300 mb-2">
+            <div key={field.id} className="bg-gray-800/40 backdrop-blur-sm rounded-xl border border-gray-700/50 p-6 hover:border-purple-500/20 transition-colors duration-300">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-200 mb-1">
                   {field.label}
                   {field.is_required && <span className="text-red-400 ml-1">*</span>}
                 </label>
                 {field.description && (
-                  <p className="text-sm text-gray-400 mb-3">{field.description}</p>
+                  <p className="text-xs text-gray-400">{field.description}</p>
                 )}
               </div>
               
               {renderField(field)}
               
               {/* Show field type info */}
-              <div className="mt-3 pt-3 border-t border-gray-600/50">
-                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 text-xs text-gray-400">
-                  <span className="bg-gray-700/50 px-2 py-1 rounded-full w-fit border border-gray-600/50">
+              <div className="mt-4 pt-3 border-t border-gray-700/30 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] uppercase tracking-wider text-gray-500 font-medium bg-gray-900/50 px-2 py-1 rounded border border-gray-800">
                     {field.field_type}
                   </span>
-                  {submission.field_metadata && (
-                    <span className="text-gray-400">
-                      Original field from submission time
-                    </span>
-                  )}
                 </div>
+                {submission.field_metadata && (
+                  <span className="text-[10px] text-gray-600 flex items-center gap-1">
+                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Original Field
+                  </span>
+                )}
               </div>
             </div>
           );
@@ -509,14 +558,14 @@ export default function SubmissionFormView({ submission, onBack }) {
 
       {/* Empty state for no fields */}
       {fields.length === 0 && (
-        <div className="text-center py-12">
-          <div className="w-16 h-16 mx-auto mb-4 bg-gray-700/50 rounded-full flex items-center justify-center border border-gray-600/50">
-            <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="text-center py-16 bg-gray-800/20 rounded-2xl border border-gray-700/50 border-dashed">
+          <div className="w-16 h-16 mx-auto mb-4 bg-gray-800/50 rounded-full flex items-center justify-center border border-gray-700">
+            <svg className="w-8 h-8 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">No fields found</h3>
-          <p className="text-gray-400">This form appears to have no fields or they are no longer available.</p>
+          <h3 className="text-lg font-medium text-gray-300 mb-2">No fields found</h3>
+          <p className="text-gray-500 max-w-sm mx-auto">This form appears to have no fields or they are no longer available.</p>
         </div>
       )}
     </div>

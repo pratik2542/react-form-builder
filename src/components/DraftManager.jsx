@@ -280,21 +280,24 @@ export default function DraftManager() {
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md border border-gray-200 overflow-hidden">
+    <div className="bg-gradient-to-br from-gray-800/80 via-slate-800/80 to-gray-800/80 backdrop-blur-lg rounded-2xl shadow-2xl border border-gray-600/50 overflow-hidden relative">
+      {/* Neon accent */}
+      <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/5 via-purple-500/5 to-pink-500/5 pointer-events-none"></div>
+      
       {/* Compact Header - Always Visible */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 transition-all duration-200 flex items-center justify-between"
+        className="w-full px-4 py-3 bg-transparent hover:bg-white/5 transition-all duration-200 flex items-center justify-between relative z-10"
       >
         <div className="flex items-center space-x-3">
-          <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-lg flex items-center justify-center">
+          <div className="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-lg flex items-center justify-center shadow-lg shadow-cyan-500/20">
             <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-3M8 7V5a2 2 0 012-2h2a2 2 0 012 2v2m-6 0h6" />
             </svg>
           </div>
           <div className="text-left">
-            <h3 className="text-sm font-semibold text-gray-800">My Drafts</h3>
-            <p className="text-xs text-gray-500">{drafts.length} saved draft{drafts.length !== 1 ? 's' : ''}</p>
+            <h3 className="text-sm font-semibold text-white">My Drafts</h3>
+            <p className="text-xs text-gray-400">{drafts.length} saved draft{drafts.length !== 1 ? 's' : ''}</p>
           </div>
         </div>
         
@@ -303,12 +306,12 @@ export default function DraftManager() {
           {!isExpanded && drafts.length > 0 && (
             <div className="hidden sm:flex items-center space-x-1">
               {drafts.slice(0, 2).map((draft, index) => (
-                <div key={index} className="text-xs text-gray-600 bg-white rounded px-2 py-1 border">
+                <div key={index} className="text-xs text-gray-300 bg-gray-700/50 rounded px-2 py-1 border border-gray-600/50">
                   {draft.formName.length > 15 ? `${draft.formName.substring(0, 15)}...` : draft.formName}
                 </div>
               ))}
               {drafts.length > 2 && (
-                <div className="text-xs text-gray-500">+{drafts.length - 2} more</div>
+                <div className="text-xs text-gray-400">+{drafts.length - 2} more</div>
               )}
             </div>
           )}
@@ -326,8 +329,8 @@ export default function DraftManager() {
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className="p-4 border-t border-gray-100">
-          <div className="space-y-4 max-h-96 overflow-y-auto">
+        <div className="p-4 border-t border-gray-600/50 relative z-10">
+          <div className="space-y-4 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
             {/* Group drafts by form */}
             {(() => {
               const groupedDrafts = drafts.reduce((groups, draft) => {
@@ -340,42 +343,42 @@ export default function DraftManager() {
               }, {});
 
               return Object.entries(groupedDrafts).map(([formName, formDrafts]) => (
-                <div key={formName} className="border border-gray-200 rounded-lg overflow-hidden">
+                <div key={formName} className="border border-gray-600/50 rounded-xl overflow-hidden bg-gray-800/30">
                   {/* Form Header */}
-                  <div className="bg-gray-100 px-3 py-2 border-b border-gray-200">
+                  <div className="bg-gray-700/30 px-3 py-2 border-b border-gray-600/50">
                     <div className="flex items-center justify-between">
-                      <h5 className="font-medium text-gray-800 text-sm">{formName}</h5>
-                      <span className="text-xs text-gray-500">{formDrafts.length} draft{formDrafts.length !== 1 ? 's' : ''}</span>
+                      <h5 className="font-medium text-gray-200 text-sm">{formName}</h5>
+                      <span className="text-xs text-gray-400">{formDrafts.length} draft{formDrafts.length !== 1 ? 's' : ''}</span>
                     </div>
                   </div>
                   
                   {/* Draft List */}
-                  <div className="divide-y divide-gray-100">
+                  <div className="divide-y divide-gray-600/30">
                     {formDrafts.map((draft, index) => (
                       <div key={draft.draftKey} className={`p-3 transition-colors ${
-                        draft.isCurrentSession ? 'bg-blue-50 hover:bg-blue-100' : 'bg-white hover:bg-gray-50'
+                        draft.isCurrentSession ? 'bg-cyan-900/20 hover:bg-cyan-900/30' : 'hover:bg-white/5'
                       }`}>
                         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-medium text-gray-300">
                                 Draft #{index + 1}
                               </span>
                               {draft.isCurrentSession && (
-                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs font-medium bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">
                                   Current Tab
                                 </span>
                               )}
                             </div>
-                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mt-1 text-xs text-gray-500">
+                            <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mt-1 text-xs text-gray-400">
                               <span>
                                 {getFilledFieldCount(draft.values)} of {getFieldCount(draft)} fields filled
                               </span>
-                              <span className="hidden sm:inline">•</span>
+                              <span className="hidden sm:inline text-gray-600">•</span>
                               <span>Last saved: {formatDate(draft.lastModified)}</span>
                               {draft.sessionDisplay && !draft.isCurrentSession && (
                                 <>
-                                  <span className="hidden sm:inline">•</span>
+                                  <span className="hidden sm:inline text-gray-600">•</span>
                                   <span>{draft.sessionDisplay}</span>
                                 </>
                               )}
@@ -385,13 +388,13 @@ export default function DraftManager() {
                           <div className="flex items-center gap-2 sm:ml-3">
                             <Link
                               to={`/view/${draft.formId}?draft=continue&draftId=${encodeURIComponent(draft.draftId || '')}`}
-                              className="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors flex items-center justify-center touch-friendly"
+                              className="bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center shadow-lg shadow-cyan-500/20"
                             >
                               Continue
                             </Link>
                             <button
                               onClick={() => deleteDraft(draft)}
-                              className="bg-red-600 hover:bg-red-700 text-white px-2 py-1 rounded text-xs font-medium transition-colors flex items-center justify-center touch-friendly"
+                              className="bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-200 flex items-center justify-center shadow-lg shadow-red-500/20"
                             >
                               Delete
                             </button>
@@ -405,9 +408,9 @@ export default function DraftManager() {
                               {Math.round((getFilledFieldCount(draft.values) / Math.max(getFieldCount(draft), 1)) * 100)}% complete
                             </span>
                           </div>
-                          <div className="w-full bg-gray-200 rounded-full h-1.5">
+                          <div className="w-full bg-gray-700 rounded-full h-1.5 overflow-hidden">
                             <div 
-                              className="bg-blue-600 h-1.5 rounded-full transition-all duration-300"
+                              className="bg-gradient-to-r from-cyan-500 to-purple-500 h-1.5 rounded-full transition-all duration-300"
                               style={{ 
                                 width: `${(getFilledFieldCount(draft.values) / Math.max(getFieldCount(draft), 1)) * 100}%` 
                               }}

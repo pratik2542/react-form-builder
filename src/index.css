@@ -184,7 +184,7 @@ code {
   border-top: 1px solid rgba(147, 51, 234, 0.3);
 }
 
-/* Mobile sidebar styles */
+/* Mobile sidebar styles - Bottom Sheet */
 .mobile-sidebar {
   position: fixed;
   top: 0;
@@ -193,30 +193,38 @@ code {
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.5);
   z-index: 50;
-  transform: translateX(-100%);
-  transition: transform 0.3s ease-in-out;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
 }
 
 .mobile-sidebar.open {
-  transform: translateX(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .mobile-sidebar-content {
-  position: absolute;
-  top: 0;
-  left: 0;
-  bottom: 0;
-  width: 85vw;
-  max-width: 400px;
+  width: 100%;
+  max-width: 100%;
+  height: 85vh;
+  max-height: 85vh;
   background-color: rgba(31, 41, 55, 0.95);
   backdrop-filter: blur(12px);
-  box-shadow: 0 10px 25px -3px rgba(147, 51, 234, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
-  transform: translateX(-100%);
-  transition: transform 0.3s ease-in-out;
+  box-shadow: 0 -10px 25px -3px rgba(147, 51, 234, 0.4);
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
 }
 
 .mobile-sidebar.open .mobile-sidebar-content {
-  transform: translateX(0);
+  transform: translateY(0);
 }
 
 /* Mobile floating action button */

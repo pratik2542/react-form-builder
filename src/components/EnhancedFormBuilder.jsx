@@ -22,44 +22,58 @@ const mobileStyles = `
     height: 100vh;
     height: 100dvh;
   }
+  /* Custom Scrollbar for desktop */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  ::-webkit-scrollbar-track {
+    background: rgba(17, 24, 39, 0.5); 
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(75, 85, 99, 0.5); 
+    border-radius: 4px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 114, 128, 0.8); 
+  }
+
   @media (max-width: 1023px) {
     .mobile-sidebar {
       position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
+      inset: 0;
       z-index: 50;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
       backdrop-filter: blur(4px);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease-in-out;
+    }
+    .mobile-sidebar.open {
+      opacity: 1;
+      pointer-events: auto;
     }
     .mobile-sidebar-content {
       position: absolute;
       bottom: 0;
       left: 0;
       right: 0;
-      background: rgb(55 65 81 / 0.95);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgb(147 51 234 / 0.3);
-      border-radius: 20px 20px 20px 20px;
-      max-height: 80vh;
-      overflow-y: auto;
+      background: linear-gradient(to bottom, rgb(31, 41, 55), rgb(17, 24, 39));
+      border-top: 1px solid rgba(139, 92, 246, 0.3);
+      border-radius: 24px 24px 0 0;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
       transform: translateY(100%);
-      transition: transform 0.3s ease-in-out;
-      margin: 16px;
-      bottom: 16px;
-      /* Hide scrollbar */
-      -ms-overflow-style: none;
-      scrollbar-width: none;
-    }
-    .mobile-sidebar-content::-webkit-scrollbar {
-      display: none;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 -10px 40px -10px rgba(0, 0, 0, 0.5);
     }
     .mobile-sidebar.open .mobile-sidebar-content {
       transform: translateY(0);
     }
     .mobile-tab-content {
-      min-height: calc(100vh - 140px);
+      height: 100%;
+      overflow-y: auto;
     }
   }
 `;
@@ -2925,80 +2939,74 @@ export default function EnhancedFormBuilder() {
         <>
           {/* Backdrop */}
           <div 
-            className="mobile-sidebar open lg:hidden"
-            onClick={() => setIsMobileSidebarOpen(false)}
+            className={`mobile-sidebar lg:hidden ${isMobileSidebarOpen ? 'open' : ''}`}
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setIsMobileSidebarOpen(false);
+            }}
           >
-            <div 
-              className="mobile-sidebar-content"
-              onClick={(e) => e.stopPropagation()}
-            >
+            <div className="mobile-sidebar-content w-full">
+              {/* Drag Handle */}
+              <div 
+                className="w-full flex justify-center pt-3 pb-1 cursor-grab active:cursor-grabbing"
+                onClick={() => setIsMobileSidebarOpen(false)}
+              >
+                <div className="w-12 h-1.5 bg-gray-600 rounded-full"></div>
+              </div>
+
               {/* Mobile Sidebar Header */}
-              <div className="flex items-center justify-between p-4 border-b border-purple-800/30 bg-gray-800/90">
-                <h2 className="text-lg font-semibold text-purple-200">Form Tools</h2>
-                <button
+              <div className="px-4 py-2 border-b border-purple-800/30 flex justify-between items-center">
+                <h3 className="text-lg font-bold text-white">
+                  {mobileActiveSection === 'settings' && 'Form Settings'}
+                  {mobileActiveSection === 'ai' && 'AI Assistant'}
+                  {mobileActiveSection === 'fields' && 'Add Fields'}
+                </h3>
+                <button 
                   onClick={() => setIsMobileSidebarOpen(false)}
-                  className="p-2 text-purple-300/60 hover:text-purple-300 rounded-lg touch-friendly"
+                  className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-gray-700/50"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
 
               {/* Mobile Sidebar Tabs */}
-              <div className="flex border-b border-purple-800/30 bg-gray-800/60">
+              <div className="flex border-b border-purple-800/30 bg-gray-900/50">
                 <button
                   onClick={() => setMobileActiveSection('settings')}
-                  className={`flex-1 py-3 px-2 text-sm font-medium border-b-2 transition-colors touch-friendly ${
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
                     mobileActiveSection === 'settings'
-                      ? 'border-cyan-400 text-cyan-300 bg-cyan-900/20'
-                      : 'border-transparent text-purple-300'
+                      ? 'text-cyan-400 border-b-2 border-cyan-400 bg-cyan-900/10'
+                      : 'text-gray-400 hover:text-gray-200'
                   }`}
                 >
-                  <div className="flex flex-col items-center space-y-1">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                    </svg>
-                    <span>Settings</span>
-                  </div>
+                  Settings
                 </button>
                 <button
                   onClick={() => setMobileActiveSection('ai')}
-                  className={`flex-1 py-3 px-2 text-sm font-medium border-b-2 transition-colors touch-friendly ${
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
                     mobileActiveSection === 'ai'
-                      ? 'border-cyan-400 text-cyan-300 bg-cyan-900/20'
-                      : 'border-transparent text-purple-300'
+                      ? 'text-purple-400 border-b-2 border-purple-400 bg-purple-900/10'
+                      : 'text-gray-400 hover:text-gray-200'
                   }`}
                 >
-                  <div className="flex flex-col items-center space-y-1">
-                    <div className="w-5 h-5 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                      <svg className="w-3 h-3 text-white" fill="currentColor" stroke="none" viewBox="0 0 24 24">
-                        <path d="M12 3l1.5 7.5L21 12l-7.5 1.5L12 21l-1.5-7.5L3 12l7.5-1.5L12 3z"/>
-                      </svg>
-                    </div>
-                    <span>AI Helper</span>
-                  </div>
+                  AI Assistant
                 </button>
                 <button
                   onClick={() => setMobileActiveSection('fields')}
-                  className={`flex-1 py-3 px-2 text-sm font-medium border-b-2 transition-all duration-300 touch-friendly ${
+                  className={`flex-1 py-3 text-sm font-medium transition-colors ${
                     mobileActiveSection === 'fields'
-                      ? 'border-cyan-400 text-cyan-300 bg-cyan-900/20'
-                      : 'border-transparent text-purple-300 hover:text-cyan-300 hover:bg-purple-900/20'
+                      ? 'text-emerald-400 border-b-2 border-emerald-400 bg-emerald-900/10'
+                      : 'text-gray-400 hover:text-gray-200'
                   }`}
                 >
-                  <div className="flex flex-col items-center space-y-1">
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                    </svg>
-                    <span>Add Fields</span>
-                  </div>
+                  Add Fields
                 </button>
               </div>
 
               {/* Mobile Sidebar Content */}
-              <div className="flex-1 overflow-y-auto bg-gray-900/90 backdrop-blur-md">
-                <div className="p-4 space-y-4">
+              <div className="flex-1 overflow-y-auto bg-gray-900/95 backdrop-blur-md p-4 pb-8 mobile-tab-content">
+                <div className="space-y-4">
                   {/* Settings Section */}
                   {mobileActiveSection === 'settings' && (
                     <div className="space-y-4">
@@ -3125,7 +3133,8 @@ export default function EnhancedFormBuilder() {
                             addField(field);
                             setIsMobileSidebarOpen(false);
                           }} 
-                          className="border-0 p-0" 
+                          className="border-0 p-0"
+                          isMobile={true}
                         />
                       </div>
                     </div>
